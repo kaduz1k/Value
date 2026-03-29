@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Value">
@@ -75,6 +75,7 @@ body{display:flex;flex-direction:column;padding-top:var(--sft)}
 [data-theme=analu] .topbar{position:relative;z-index:1}
 [data-theme=analu] .bnav{position:relative;z-index:1}
 
+@keyframes fadeIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes sparkle{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.3;transform:scale(1.2)}}
 
 [data-theme=analu] .kpi,[data-theme=analu] .card{border-color:rgba(214,58,130,.15)}
@@ -290,10 +291,12 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="logo-wrap">
       <div class="logo-ico">
         <svg width="54" height="34" viewBox="0 0 180 88" fill="none">
+          <rect x="6" y="12" width="168" height="68" rx="9" fill="#b5a055" opacity=".18"/>
           <rect x="2" y="8" width="168" height="68" rx="9" fill="#d4c170"/>
           <rect x="2" y="8" width="168" height="68" rx="9" fill="none" stroke="#8a7730" stroke-width="1.6"/>
           <rect x="9" y="15" width="154" height="54" rx="5" fill="none" stroke="#8a7730" stroke-width=".9" stroke-dasharray="3 2.5"/>
           <rect x="2" y="30" width="168" height="28" fill="#2d5a3d"/>
+          <rect x="2" y="30" width="168" height="3.5" fill="white" opacity=".07"/>
           <circle cx="24" cy="44" r="11" fill="none" stroke="#8a7730" stroke-width="1.1"/>
           <circle cx="24" cy="44" r="7.5" fill="#2d5a3d" stroke="#a08830" stroke-width=".9"/>
           <circle cx="24" cy="44" r="3.5" fill="none" stroke="#f0d84e" stroke-width="1" opacity=".75"/>
@@ -306,8 +309,12 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <text x="78" y="51" font-family="Georgia,serif" font-size="18" font-weight="700" fill="#f0d84e" text-anchor="middle">€</text>
           <text x="104" y="50" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#f0d84e" text-anchor="middle" letter-spacing="-.5">R$</text>
           <text x="128" y="51" font-family="Georgia,serif" font-size="18" font-weight="700" fill="#f0d84e" text-anchor="middle">£</text>
-          <line x1="42" y1="18" x2="132" y2="18" stroke="#8a7730" stroke-width=".8" opacity=".5"/>
-          <line x1="42" y1="69" x2="132" y2="69" stroke="#8a7730" stroke-width=".8" opacity=".5"/>
+          <text x="14" y="24" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#8a7730" opacity=".85">100</text>
+          <text x="154" y="70" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#8a7730" opacity=".85" text-anchor="end">100</text>
+          <line x1="42" y1="18" x2="132" y2="18" stroke="#8a7730" stroke-width=".8" opacity=".55"/>
+          <line x1="42" y1="21" x2="132" y2="21" stroke="#8a7730" stroke-width=".4" opacity=".3"/>
+          <line x1="42" y1="69" x2="132" y2="69" stroke="#8a7730" stroke-width=".8" opacity=".55"/>
+          <line x1="42" y1="66" x2="132" y2="66" stroke="#8a7730" stroke-width=".4" opacity=".3"/>
         </svg>
       </div>
       <div><div class="logo-name">Value</div></div>
@@ -472,6 +479,16 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       </div>
 
       <div class="page" id="page-reports">
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <button class="btn bprim bsm" onclick="exportPDF()" style="display:flex;align-items:center;gap:5px">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1h6l4 4v10H2V1zM10 1v4h4M5 8h6M5 11h4"/></svg>
+            Exportar PDF
+          </button>
+          <button class="btn bsec bsm" onclick="expJSON()" style="display:flex;align-items:center;gap:5px">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v10M4 8l4 4 4-4M2 14h12"/></svg>
+            Exportar JSON
+          </button>
+        </div>
         <div class="kgrid" id="repKpi"></div>
         <div class="card"><div class="ctitle">Evolução do saldo (12 meses)</div><div class="cwrap" style="height:186px"><canvas id="balChart"></canvas></div></div>
         <div class="card"><div class="ctitle">Despesas por categoria (ano)</div><div class="cwrap" style="height:196px"><canvas id="ctChart"></canvas></div></div>
@@ -610,13 +627,30 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="fg"><label class="flbl">Conta</label><select id="txAcc"></select></div>
       </div>
       <div class="fg"><label class="flbl">Notas</label><textarea id="txNts" rows="2" placeholder="Observações..."></textarea></div>
-      <div class="fg"><label class="flbl">Recorrência</label>
-        <select id="txRec"><option value="none">Única</option><option value="monthly">Mensal</option><option value="weekly">Semanal</option></select>
+      <div class="fg"><label class="flbl">Tipo de lançamento</label>
+        <select id="txLaunchType" onchange="onLaunchTypeChange(this.value)">
+          <option value="unique">Única</option>
+          <option value="monthly">Recorrente mensal</option>
+          <option value="installments">Parcelado</option>
+        </select>
+      </div>
+      <div id="installmentsPanel" style="display:none;background:var(--sf2);border-radius:var(--rs);padding:12px;margin-top:4px">
+        <div class="frow c2">
+          <div class="fg" style="margin-bottom:0">
+            <label class="flbl">Nº de parcelas</label>
+            <input id="txInstQty" type="number" min="2" max="120" value="12" inputmode="numeric" placeholder="Ex: 12">
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label class="flbl">Valor por parcela</label>
+            <input id="txInstAmt" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onInstAmtInput(this.value)" autocomplete="off">
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--tx3);margin-top:8px" id="installPreview"></p>
       </div>
     </div>
     <div class="mfoot">
       <button class="btn bsec bblk" onclick="closeM('txModal')">Cancelar</button>
-      <button class="btn bprim bblk" onclick="saveTx()">Salvar</button>
+      <button class="btn bprim bblk" id="txSaveBtn" onclick="saveTx()">Salvar</button>
     </div>
   </div>
 </div>
@@ -672,7 +706,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="fg"><label class="flbl">Tipo</label><select id="ctp"><option value="saida">Saída</option><option value="entrada">Entrada</option></select></div>
         <div class="fg"><label class="flbl">Emoji</label><input id="cico" type="text" placeholder="🏠" maxlength="2"></div>
       </div>
-      <div class="fg"><label class="flbl">Orçamento/mês (opcional)</label><input id="cbud" type="number" placeholder="0" step="0.01" inputmode="decimal"></div>
+      <div class="fg"><label class="flbl">Limite mensal (R$) — opcional</label><input id="cbud" type="number" placeholder="Ex: 300,00 — deixe 0 para sem limite" step="0.01" inputmode="decimal"></div><p style="font-size:11px;color:var(--tx3);margin-top:-8px;margin-bottom:11px">Ao definir um limite, você verá alertas quando estiver próximo de estourar.</p>
       <div class="fg"><label class="flbl">Cor</label><div class="swatches" id="cCols"></div></div>
     </div>
     <div class="mfoot">
@@ -792,21 +826,43 @@ function chM(d){cM+=d;if(cM>11){cM=0;cY++;}if(cM<0){cM=11;cY--;}updML();renderAl
 
 /* ── CURRENCY INPUT ── */
 let txCents=0;
+let txInstCents=0;
+function digitsOnly(raw){return raw.replace(/[^0-9]/g,'');}
 function onAmtInput(raw){
-  const digits=raw.replace(/\D/g,'');
-  txCents=parseInt(digits||'0',10);
-  const display=document.getElementById('txAmtDisplay');
-  if(display) display.value=fmtCents(txCents);
+  txCents=parseInt(digitsOnly(raw)||'0',10);
+  const d=document.getElementById('txAmtDisplay');
+  if(d)d.value=fmtCents(txCents);
+}
+function onInstAmtInput(raw){
+  txInstCents=parseInt(digitsOnly(raw)||'0',10);
+  const d=document.getElementById('txInstAmt');
+  if(d)d.value=fmtCents(txInstCents);
+  updateInstallPreview();
+}
+function updateInstallPreview(){
+  const qty=parseInt(document.getElementById('txInstQty')?.value||'0');
+  const p=document.getElementById('installPreview');
+  if(!p)return;
+  if(qty>0&&txInstCents>0){
+    const total=fmtCents(txInstCents*qty);
+    p.textContent=`${qty}x ${fmtCents(txInstCents)} = ${total} total`;
+  } else {p.textContent='';}
+}
+function onLaunchTypeChange(val){
+  const panel=document.getElementById('installmentsPanel');
+  if(!panel)return;
+  panel.style.display=val==='installments'?'block':'none';
+  const btn=document.getElementById('txSaveBtn');
+  if(btn)btn.textContent=val==='installments'?'Criar parcelas':eTxId?'Salvar edição':'Salvar';
 }
 function fmtCents(cents){
-  const c=cr();
-  const val=(cents/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  return c+' '+val;
+  const cv=cr();
+  return cv+' '+(cents/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function setAmtDisplay(amount){
   txCents=Math.round((amount||0)*100);
-  const display=document.getElementById('txAmtDisplay');
-  if(display) display.value=txCents>0?fmtCents(txCents):'';
+  const d=document.getElementById('txAmtDisplay');
+  if(d)d.value=txCents>0?fmtCents(txCents):'';
 }
 
 /* ── SEARCH ── */
@@ -898,13 +954,16 @@ document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{
 function prepTx(tx){
   eTxId=tx?tx.id:null;
   document.getElementById('txMTitle').textContent=tx?'Editar transação':'Nova transação';
+  document.getElementById('txSaveBtn').textContent=tx?'Salvar edição':'Salvar';
   const type=tx?tx.type:'saida';
   setTT(type);
   document.getElementById('txDesc').value=tx?tx.desc:'';
   setAmtDisplay(tx?tx.amount:0);
   document.getElementById('txDt').value=tx?tx.date:new Date().toISOString().split('T')[0];
   document.getElementById('txNts').value=tx?tx.notes||'':'';
-  document.getElementById('txRec').value=tx?tx.recurrence||'none':'none';
+  const lt = tx ? (tx.recurrence==='monthly'?'monthly':'unique') : 'unique';
+  document.getElementById('txLaunchType').value=lt;
+  onLaunchTypeChange(lt);
   fillCS(type,tx?tx.category:'');
   document.getElementById('txAcc').innerHTML='<option value="">Sem conta</option>'+
     S.accounts.map(a=>`<option value="${a.id}"${tx&&a.id===tx.account?' selected':''}>${a.name}</option>`).join('');
@@ -924,19 +983,36 @@ function saveTx(){
   const desc=document.getElementById('txDesc').value.trim();
   const amount=txCents/100;
   const date=document.getElementById('txDt').value;
-  if(!desc||!amount||!date){toast('Preencha os campos obrigatórios');return;}
+  if(!desc||!date){toast('Preencha descrição e data');return;}
+  const launchType=document.getElementById('txLaunchType').value;
   const fields={
-    type:sTT,desc,amount,date,
+    type:sTT,desc,date,
     category:document.getElementById('txCat').value,
     account:document.getElementById('txAcc').value,
     notes:document.getElementById('txNts').value,
-    recurrence:document.getElementById('txRec').value
+    recurrence:launchType==='monthly'?'monthly':'none'
   };
   if(eTxId){
+    if(!amount){toast('Informe o valor');return;}
     const i=S.transactions.findIndex(t=>t.id===eTxId);
-    if(i!==-1){S.transactions[i]={...S.transactions[i],...fields};toast('Atualizado! ✓');}
+    if(i!==-1){S.transactions[i]={...S.transactions[i],...fields,amount};toast('Atualizado! ✓');}
+  } else if(launchType==='installments'){
+    const qty=parseInt(document.getElementById('txInstQty').value)||1;
+    const instAmt=txInstCents/100;
+    if(!instAmt){toast('Informe o valor da parcela');return;}
+    const[yr,mo,dy]=date.split('-').map(Number);
+    const gid=uid();
+    for(let i=0;i<qty;i++){
+      let m=mo-1+i,y=yr;
+      while(m>11){m-=12;y++;}
+      const d=`${y}-${String(m+1).padStart(2,'0')}-${String(dy).padStart(2,'0')}`;
+      S.transactions.unshift({id:uid(),...fields,amount:instAmt,date:d,recurrence:'none',
+        installment:{n:i+1,total:qty,gid},createdAt:new Date().toISOString()});
+    }
+    toast(`${qty} parcelas criadas! ✓`);
   } else {
-    S.transactions.unshift({id:uid(),...fields,createdAt:new Date().toISOString()});
+    if(!amount){toast('Informe o valor');return;}
+    S.transactions.unshift({id:uid(),...fields,amount,createdAt:new Date().toISOString()});
     toast('Transação salva! ✓');
   }
   persist();closeM('txModal');renderAll();
@@ -959,13 +1035,20 @@ function showDet(id){
     <div style="background:var(--sf2);border-radius:var(--rs);padding:12px;display:flex;flex-direction:column;gap:9px;font-size:13px">
       <div style="display:flex;justify-content:space-between"><span style="color:var(--tx2)">Categoria</span><span>${cat.icon} ${cat.name}</span></div>
       <div style="display:flex;justify-content:space-between"><span style="color:var(--tx2)">Conta</span><span>${acc.name}</span></div>
-      ${tx.recurrence&&tx.recurrence!=='none'?`<div style="display:flex;justify-content:space-between"><span style="color:var(--tx2)">Recorrência</span><span>${tx.recurrence==='monthly'?'Mensal':'Semanal'}</span></div>`:''}
+      ${tx.installment?`<div style="display:flex;justify-content:space-between"><span style="color:var(--tx2)">Parcela</span><span>${tx.installment.n}/${tx.installment.total}</span></div>`:''}
       ${tx.notes?`<div style="display:flex;justify-content:space-between"><span style="color:var(--tx2)">Notas</span><span style="text-align:right;max-width:58%">${tx.notes}</span></div>`:''}
     </div>`;
   document.getElementById('txDetFoot').innerHTML=`
-    <button class="btn bsec bblk" onclick="closeM('txDet');prepTx(S.transactions.find(t=>t.id==='${id}'));openM('txModal')">Editar</button>
+    <button class="btn bsec bblk" onclick="closeM('txDet');editTx('${id}')">Editar</button>
     <button class="btn bdng bblk" onclick="delTx('${id}')">Excluir</button>`;
   document.getElementById('txDet').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function editTx(id){
+  const tx=S.transactions.find(t=>t.id===id);if(!tx)return;
+  prepTx(tx);
+  document.getElementById('txModal').classList.add('open');
   document.body.style.overflow='hidden';
 }
 
@@ -1057,26 +1140,52 @@ function renderCatCh(txM){
   mkCh('catChart','doughnut',{labels:en.map(e=>e[0]),datasets:[{data:en.map(e=>e[1].a),backgroundColor:en.map(e=>e[1].col),borderWidth:0,hoverOffset:4}]},{cutout:'66%',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>fmt(v.raw)}}}});
   document.getElementById('catLeg').innerHTML=en.map(e=>`<span style="display:flex;align-items:center;gap:4px;font-size:11px"><span style="width:7px;height:7px;border-radius:2px;background:${e[1].col};display:inline-block;flex-shrink:0"></span>${e[0]}</span>`).join('');
 }
+let insightIdx=0;let insightTimer=null;
 function renderIns(txM,inc,exp){
-  const el=document.getElementById('insights');
   const ins=[];
   const net=inc-exp,p=inc>0?(net/inc*100):0;
   if(net<0)ins.push({c:'ibad',t:'Saldo negativo!',d:`Despesas superaram receitas em ${fmt(Math.abs(net))}.`});
   else if(p<10)ins.push({c:'iwarn',t:'Poupança baixa',d:`Guardando ${p.toFixed(1)}% da receita. Meta: 20%+.`});
-  else ins.push({c:'iok',t:`Poupando ${p.toFixed(1)}%!`,d:'Continue assim!'});
-  S.categories.filter(c=>c.budget>0&&c.type==='saida').forEach(cat=>{
-    const sp=txM.filter(t=>t.category===cat.id).reduce((a,t)=>a+t.amount,0);
-    if(sp>cat.budget)ins.push({c:'ibad',t:`Estourou: ${cat.name}`,d:`${fmt(sp)} de ${fmt(cat.budget)}.`});
-    else if(sp>cat.budget*.8)ins.push({c:'iwarn',t:`Atenção: ${cat.name}`,d:`${Math.round(sp/cat.budget*100)}% do orçamento.`});
+  else ins.push({c:'iok',t:`Poupando ${p.toFixed(1)}%!`,d:'Continue assim! Você está no caminho certo.'});
+
+  S.categories.filter(cat=>cat.budget>0&&cat.type==='saida').forEach(cat=>{
+    const spent=txM.filter(t=>t.category===cat.id&&t.type==='saida').reduce((a,t)=>a+t.amount,0);
+    const pct=spent/cat.budget*100;
+    const rem=cat.budget-spent;
+    if(spent>cat.budget)
+      ins.push({c:'ibad',t:`Limite estourado: ${cat.name}`,d:`Gastou ${fmt(spent)} de ${fmt(cat.budget)} — ${fmt(Math.abs(rem))} acima do limite.`});
+    else if(pct>=80)
+      ins.push({c:'iwarn',t:`Quase no limite: ${cat.name}`,d:`Restam apenas ${fmt(rem)} de ${fmt(cat.budget)}. Cuidado!`});
+    else if(pct>=50)
+      ins.push({c:'iwarn',t:`Atenção: ${cat.name}`,d:`${Math.round(pct)}% do limite usado (${fmt(spent)} de ${fmt(cat.budget)}).`});
+    else if(spent>0)
+      ins.push({c:'iok',t:`Economia em: ${cat.name}`,d:`Ótimo! Você usou apenas ${Math.round(pct)}% do seu limite neste mês.`});
   });
-  // only show goal insights for existing goals with deadline
+
   S.goals.forEach(g=>{
     if(!g.deadline)return;
     const d=Math.ceil((new Date(g.deadline)-new Date())/864e5);
     const p2=g.target>0?g.current/g.target*100:0;
-    if(d<30&&d>=0&&p2<80)ins.push({c:'iwarn',t:`Meta: ${g.name}`,d:`${Math.round(p2)}% concluída, ${d} dias.`});
+    if(d<30&&d>=0&&p2<80)ins.push({c:'iwarn',t:`Meta com prazo: ${g.name}`,d:`${Math.round(p2)}% concluída, ${d} dias restantes.`});
+    else if(p2>=100)ins.push({c:'iok',t:`Meta atingida: ${g.name}`,d:'Parabéns! Você chegou ao objetivo!'});
   });
-  el.innerHTML=(ins.length?ins:[{c:'iok',t:'Tudo certo!',d:'Nenhum alerta.'}]).slice(0,4).map(i=>`<div class="ins ${i.c}"><div class="int">${i.t}</div><div class="ind">${i.d}</div></div>`).join('');
+
+  const list=ins.length?ins:[{c:'iok',t:'Tudo sob controle!',d:'Nenhum alerta para este período.'}];
+  if(insightTimer)clearInterval(insightTimer);
+  insightIdx=0;
+  function showInsight(){
+    const el=document.getElementById('insights');
+    if(!el)return;
+    const i=list[insightIdx%list.length];
+    el.innerHTML=`<div class="ins ${i.c}" style="animation:fadeIn .4s ease">
+      <div class="int">${i.t}</div>
+      <div class="ind">${i.d}</div>
+      ${list.length>1?`<div style="display:flex;gap:4px;margin-top:8px">${list.map((_,n)=>`<div style="width:${n===insightIdx%list.length?16:6}px;height:4px;border-radius:2px;background:${n===insightIdx%list.length?'currentColor':'currentColor'};opacity:${n===insightIdx%list.length?1:.3};transition:width .3s"></div>`).join('')}</div>`:''}
+    </div>`;
+    insightIdx++;
+  }
+  showInsight();
+  if(list.length>1)insightTimer=setInterval(showInsight,4000);
 }
 
 /* ── TX PAGE ── */
