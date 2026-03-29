@@ -46,7 +46,8 @@
   --re:#e05c4d;--rel:#2a1410;
   --bl:#5a94d0;--bll:#101e30;
 }
-[data-theme=analu]{
+[data-theme=alf]{
+  --ac:#d63a82;--chart-ac:#d63a82;
   --bg:#fff0f6;--sf:#fff5f9;--sf2:#fde8f2;--sf3:#fbd5e8;
   --bd:rgba(210,60,120,.1);--bd2:rgba(210,60,120,.2);
   --tx:#5a1a35;--tx2:#9b5070;--tx3:#c890a8;
@@ -64,29 +65,29 @@ body{display:flex;flex-direction:column;padding-top:var(--sft)}
 .app{display:flex;flex:1;overflow:hidden;position:relative}
 
 /* analu bg pattern - CSS only, no perf impact */
-[data-theme=analu] .main::before{
+[data-theme=alf] .main::before{
   content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
   background-image:
     radial-gradient(circle at 15% 20%,rgba(214,58,130,.06) 0%,transparent 50%),
     radial-gradient(circle at 85% 10%,rgba(214,58,130,.05) 0%,transparent 40%),
     radial-gradient(circle at 50% 80%,rgba(214,58,130,.04) 0%,transparent 40%);
 }
-[data-theme=analu] .scroll{position:relative;z-index:1}
-[data-theme=analu] .topbar{position:relative;z-index:1}
-[data-theme=analu] .bnav{position:relative;z-index:1}
+[data-theme=alf] .scroll{position:relative;z-index:1}
+[data-theme=alf] .topbar{position:relative;z-index:1}
+[data-theme=alf] .bnav{position:relative;z-index:1}
 
 @keyframes fadeIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes sparkle{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.3;transform:scale(1.2)}}
 
-[data-theme=analu] .kpi,[data-theme=analu] .card{border-color:rgba(214,58,130,.15)}
-[data-theme=analu] .ni.on{background:#fde8f2;color:#d63a82}
+[data-theme=alf] .kpi,[data-theme=alf] .card{border-color:rgba(214,58,130,.15)}
+[data-theme=alf] .ni.on{background:#fde8f2;color:#d63a82}
 
-[data-theme=analu] .bi.on{color:#d63a82}
-[data-theme=analu] .fabcircle{background:#d63a82;box-shadow:0 4px 14px rgba(214,58,130,.4)}
-[data-theme=analu] .bprim{background:#d63a82}
-[data-theme=analu] input:focus,[data-theme=analu] select:focus,[data-theme=analu] textarea:focus{border-color:#d63a82}
-[data-theme=analu] .cin{color:#d63a82}
-[data-theme=analu] .iok{border-color:#d63a82;background:#fde8f2}
+[data-theme=alf] .bi.on{color:#d63a82}
+[data-theme=alf] .fabcircle{background:#d63a82;box-shadow:0 4px 14px rgba(214,58,130,.4)}
+[data-theme=alf] .bprim{background:#d63a82}
+[data-theme=alf] input:focus,[data-theme=alf] select:focus,[data-theme=alf] textarea:focus{border-color:#d63a82}
+[data-theme=alf] .cin{color:#d63a82}
+[data-theme=alf] .iok{border-color:#d63a82;background:#fde8f2}
 
 /* wallpaper */
 #wpLayer{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none;display:none}
@@ -518,7 +519,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             <select onchange="applyTheme(this.value)" id="themeSelect">
               <option value="light">Claro</option>
               <option value="dark">Escuro</option>
-              <option value="analu">Analu 👑</option>
+              <option value="alf">Alf</option>
             </select>
           </div>
         </div>
@@ -588,9 +589,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><circle cx="11" cy="11" r="3.5"/></svg>
         <span>Metas</span>
       </button>
-      <button class="bi" id="bn-accounts" onclick="go('accounts',null);setBn('accounts')">
-        <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="5" width="18" height="12" rx="2"/><path d="M2 9h18"/></svg>
-        <span>Contas</span>
+      <button class="bi" id="bn-reports" onclick="go('reports',null);setBn('reports')">
+        <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 16L7 10l3 3 3-5 4 7"/></svg>
+        <span>Relatórios</span>
       </button>
       <button class="bi" id="bn-settings" onclick="go('settings',null);setBn('settings')">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="3"/><path d="M11 2v3M11 17v3M2 11h3M17 11h3"/></svg>
@@ -665,9 +666,16 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="fg"><label class="flbl">Tipo</label>
           <select id="acTp"><option value="corrente">Corrente</option><option value="poupanca">Poupança</option><option value="credito">Crédito</option><option value="investimento">Investimento</option><option value="dinheiro">Dinheiro</option></select>
         </div>
-        <div class="fg"><label class="flbl">Saldo inicial</label><input id="acBl" type="number" placeholder="0,00" step="0.01" inputmode="decimal"></div>
+        <div class="fg"><label class="flbl">Saldo inicial</label><input id="acBl" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'acBlCents')" autocomplete="off"></div>
       </div>
-      <div class="fg"><label class="flbl">Cor</label><div class="swatches" id="acCols"></div></div>
+      <div class="fg"><label class="flbl">Cor</label>
+        <div class="swatches" id="acCols" style="margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="color" id="acColorPicker" style="width:40px;height:36px;padding:2px;border-radius:var(--rs);border:1px solid var(--bd2);cursor:pointer;background:none" onchange="onColorPick('ac',this.value)">
+          <input type="text" id="acColorHex" placeholder="#2d5a3d" style="flex:1;font-family:monospace;font-size:13px" oninput="onHexInput('ac',this.value)" maxlength="7">
+          <div id="acColorPreview" style="width:36px;height:36px;border-radius:var(--rs);border:1px solid var(--bd2)"></div>
+        </div>
+      </div>
     </div>
     <div class="mfoot">
       <button class="btn bsec bblk" onclick="closeM('accModal')">Cancelar</button>
@@ -683,11 +691,18 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="mbody">
       <div class="fg"><label class="flbl">Nome</label><input id="gnm" type="text" placeholder="Ex: Viagem, Carro..."></div>
       <div class="frow c2">
-        <div class="fg"><label class="flbl">Já guardado</label><input id="gcur" type="number" placeholder="0" step="0.01" inputmode="decimal"></div>
-        <div class="fg"><label class="flbl">Objetivo</label><input id="gtgt" type="number" placeholder="0" step="0.01" inputmode="decimal"></div>
+        <div class="fg"><label class="flbl">Já guardado</label><input id="gcur" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'gcurCents')" autocomplete="off"></div>
+        <div class="fg"><label class="flbl">Objetivo</label><input id="gtgt" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'gtgtCents')" autocomplete="off"></div>
       </div>
       <div class="fg"><label class="flbl">Prazo (opcional)</label><input id="gdl" type="date"></div>
-      <div class="fg"><label class="flbl">Cor</label><div class="swatches" id="gCols"></div></div>
+      <div class="fg"><label class="flbl">Cor</label>
+        <div class="swatches" id="gCols" style="margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="color" id="gColorPicker" style="width:40px;height:36px;padding:2px;border-radius:var(--rs);border:1px solid var(--bd2);cursor:pointer;background:none" onchange="onColorPick('g',this.value)">
+          <input type="text" id="gColorHex" placeholder="#2d5a3d" style="flex:1;font-family:monospace;font-size:13px" oninput="onHexInput('g',this.value)" maxlength="7">
+          <div id="gColorPreview" style="width:36px;height:36px;border-radius:var(--rs);border:1px solid var(--bd2)"></div>
+        </div>
+      </div>
     </div>
     <div class="mfoot">
       <button class="btn bsec bblk" onclick="closeM('goalModal')">Cancelar</button>
@@ -706,8 +721,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div class="fg"><label class="flbl">Tipo</label><select id="ctp"><option value="saida">Saída</option><option value="entrada">Entrada</option></select></div>
         <div class="fg"><label class="flbl">Emoji</label><input id="cico" type="text" placeholder="🏠" maxlength="2"></div>
       </div>
-      <div class="fg"><label class="flbl">Limite mensal (R$) — opcional</label><input id="cbud" type="number" placeholder="Ex: 300,00 — deixe 0 para sem limite" step="0.01" inputmode="decimal"></div><p style="font-size:11px;color:var(--tx3);margin-top:-8px;margin-bottom:11px">Ao definir um limite, você verá alertas quando estiver próximo de estourar.</p>
-      <div class="fg"><label class="flbl">Cor</label><div class="swatches" id="cCols"></div></div>
+      <div class="fg"><label class="flbl">Defina um limite</label><input id="cbud" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onBudgetInput(this.value)" autocomplete="off"></div>
+      <div class="fg"><label class="flbl">Cor</label>
+        <div class="swatches" id="cCols" style="margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="color" id="cColorPicker" style="width:40px;height:36px;padding:2px;border-radius:var(--rs);border:1px solid var(--bd2);cursor:pointer;background:none" onchange="onColorPick('c',this.value)">
+          <input type="text" id="cColorHex" placeholder="#2d5a3d" style="flex:1;font-family:monospace;font-size:13px" oninput="onHexInput('c',this.value)" maxlength="7">
+          <div id="cColorPreview" style="width:36px;height:36px;border-radius:var(--rs);border:1px solid var(--bd2)"></div>
+        </div>
+      </div>
     </div>
     <div class="mfoot">
       <button class="btn bsec bblk" onclick="closeM('catModal')">Cancelar</button>
@@ -788,7 +810,7 @@ function applyTheme(t){
   localStorage.setItem('value_theme',t);
   const meta=document.getElementById('themeColorMeta');
   if(t==='dark')meta.setAttribute('content','#121210');
-  else if(t==='analu')meta.setAttribute('content','#d63a82');
+  else if(t==='alf')meta.setAttribute('content','#d63a82');
   else meta.setAttribute('content','#2d5a3d');
   const sel=document.getElementById('themeSelect');
   if(sel)sel.value=t;
@@ -796,10 +818,10 @@ function applyTheme(t){
 }
 function cycleTheme(){
   const cur=localStorage.getItem('value_theme')||'light';
-  const order=['light','dark','analu'];
+  const order=['light','dark','alf'];
   const next=order[(order.indexOf(cur)+1)%order.length];
   applyTheme(next);
-  const names={light:'Tema claro',dark:'Tema escuro',analu:'Tema Analu 👑'};
+  const names={light:'Tema claro',dark:'Tema escuro',analu:'Tema Alf'};
   toast(names[next]);
 }
 
@@ -1053,34 +1075,60 @@ function editTx(id){
 }
 
 /* ── ACCOUNTS ── */
-function prepAcc(){document.getElementById('acNm').value='';document.getElementById('acBl').value='';sAcCol=PAL[0];mkSw('acCols',PAL,()=>sAcCol,v=>{sAcCol=v;});}
+function prepAcc(){
+  document.getElementById('acNm').value='';
+  document.getElementById('acBl').value='';
+  sAcCol=PAL[0];
+  mkSw('acCols',PAL,()=>sAcCol,v=>{sAcCol=v;onColorPick('ac',v);});
+  setTimeout(()=>initColorPicker('ac',sAcCol),50);
+}
 function saveAcc(){
   const name=document.getElementById('acNm').value.trim();
   if(!name){toast('Informe o nome');return;}
-  S.accounts.push({id:uid(),name,type:document.getElementById('acTp').value,balance:parseFloat(document.getElementById('acBl').value)||0,color:sAcCol});
+  const balance=getMoneyVal('acBlCents');
+  S.accounts.push({id:uid(),name,type:document.getElementById('acTp').value,balance,color:sAcCol});
   persist();closeM('accModal');renderAll();toast('Conta criada! ✓');
 }
 function delAcc(id){if(!confirm('Excluir conta?'))return;S.accounts=S.accounts.filter(a=>a.id!==id);persist();renderAll();toast('Conta excluída');}
-function updAccBal(id,val){const a=S.accounts.find(a=>a.id===id);if(!a)return;a.balance=parseFloat(val)||0;persist();renderAll();toast('Saldo atualizado! ✓');}
+function updAccBal(id,el){
+  const a=S.accounts.find(a=>a.id===id);if(!a)return;
+  const cents=parseInt(el.dataset.cents||'0');
+  a.balance=cents/100;
+  persist();renderAll();toast('Saldo atualizado! ✓');
+}
 
 /* ── GOALS ── */
-function prepGoal(){['gnm','gcur','gtgt','gdl'].forEach(i=>document.getElementById(i).value='');sGCol=PAL[0];mkSw('gCols',PAL,()=>sGCol,v=>{sGCol=v;});}
+function prepGoal(){
+  ['gnm','gdl'].forEach(i=>document.getElementById(i).value='');
+  setMoneyInput('gcur','gcurCents',0);
+  setMoneyInput('gtgt','gtgtCents',0);
+  sGCol=PAL[0];
+  mkSw('gCols',PAL,()=>sGCol,v=>{sGCol=v;onColorPick('g',v);});
+  setTimeout(()=>initColorPicker('g',sGCol),50);
+}
 function saveGoal(){
   const name=document.getElementById('gnm').value.trim();
-  const target=parseFloat(document.getElementById('gtgt').value);
+  const target=getMoneyVal('gtgtCents');
   if(!name||!target){toast('Preencha nome e objetivo');return;}
-  S.goals.push({id:uid(),name,current:parseFloat(document.getElementById('gcur').value)||0,target,deadline:document.getElementById('gdl').value,color:sGCol});
+  S.goals.push({id:uid(),name,current:getMoneyVal('gcurCents'),target,deadline:document.getElementById('gdl').value,color:sGCol});
   persist();closeM('goalModal');renderAll();toast('Meta criada! ✓');
 }
 function updGoal(id,val){const g=S.goals.find(g=>g.id===id);if(!g)return;g.current=parseFloat(val)||0;persist();renderAll();toast('Meta atualizada! ✓');}
 function delGoal(id){if(!confirm('Excluir meta?'))return;S.goals=S.goals.filter(g=>g.id!==id);persist();renderAll();toast('Meta excluída');}
 
 /* ── CATEGORIES ── */
-function prepCat(){['cnm','cico','cbud'].forEach(i=>document.getElementById(i).value='');sCCol=PAL[0];mkSw('cCols',PAL,()=>sCCol,v=>{sCCol=v;});}
+function prepCat(){
+  ['cnm','cico'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('cbud').value='';
+  _cents['cbud']=0;
+  sCCol=PAL[0];
+  mkSw('cCols',PAL,()=>sCCol,v=>{sCCol=v;onColorPick('c',v);});
+  setTimeout(()=>initColorPicker('c',sCCol),50);
+}
 function saveCat(){
   const name=document.getElementById('cnm').value.trim();
   if(!name){toast('Informe o nome');return;}
-  S.categories.push({id:uid(),name,type:document.getElementById('ctp').value,icon:document.getElementById('cico').value||'📦',color:sCCol,budget:parseFloat(document.getElementById('cbud').value)||0});
+  S.categories.push({id:uid(),name,type:document.getElementById('ctp').value,icon:document.getElementById('cico').value||'📦',color:sCCol,budget:getMoneyVal('cbud')});
   persist();closeM('catModal');renderAll();toast('Categoria criada! ✓');
 }
 function delCat(id){if(!confirm('Excluir categoria?'))return;S.categories=S.categories.filter(c=>c.id!==id);persist();renderAll();toast('Excluída');}
@@ -1106,7 +1154,11 @@ function renderDash(){
   const txM=S.transactions.filter(tx=>inM(tx,cY,cM));
   const inc=txM.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
   const exp=txM.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
-  const tot=S.accounts.reduce((a,ac)=>a+ac.balance,0);
+  // Total = sum of all account balances; if no accounts, fallback to all-time net
+  const accTotal=S.accounts.reduce((a,ac)=>a+ac.balance,0);
+  const allInc=S.transactions.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
+  const allExp=S.transactions.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
+  const tot=S.accounts.length>0?accTotal:(allInc-allExp);
   const sp=inc>0?((inc-exp)/inc*100):0;
   document.getElementById('kgrid').innerHTML=`
     <div class="kpi"><div class="klbl">Saldo total</div><div class="kval">${fmt(tot)}</div><span class="badge ${(inc-exp)>=0?'bg':'br'}">${(inc-exp)>=0?'▲':'▼'} ${fmt(Math.abs(inc-exp))}</span></div>
@@ -1126,11 +1178,13 @@ function renderRvd(t){
   const labels=[],recs=[],desps=[];
   for(let i=11;i>=0;i--){let m=cM-i,y=cY;while(m<0){m+=12;y--;}labels.push(MS[m]);const txs=S.transactions.filter(tx=>inM(tx,y,m));recs.push(txs.filter(x=>x.type==='entrada').reduce((a,x)=>a+x.amount,0));desps.push(txs.filter(x=>x.type==='saida').reduce((a,x)=>a+x.amount,0));}
   const dk=document.documentElement.dataset.theme==='dark';
+  const isAlf=document.documentElement.dataset.theme==='alf';
   const gc=dk?'rgba(255,255,255,.07)':'rgba(0,0,0,.06)';const tc=dk?'#5e5c57':'#a8a59f';
-  const ac=getComputedStyle(document.documentElement).getPropertyValue('--ac').trim()||'#2d5a3d';
+  const ac=isAlf?'#d63a82':(getComputedStyle(document.documentElement).getPropertyValue('--ac').trim()||'#2d5a3d');
+  const re=isAlf?'#ff6ba8':'#c0392b';
   mkCh('rvdChart',t==='line'?'line':'bar',{labels,datasets:[
     {label:'Receitas',data:recs,backgroundColor:t==='line'?ac+'26':ac,borderColor:ac,borderWidth:t==='line'?2:0,fill:t==='line',tension:.4,pointRadius:3,borderRadius:4,borderSkipped:false},
-    {label:'Despesas',data:desps,backgroundColor:t==='line'?'rgba(192,57,43,.12)':'#c0392b',borderColor:'#c0392b',borderWidth:t==='line'?2:0,fill:t==='line',tension:.4,pointRadius:3,borderRadius:4,borderSkipped:false}
+    {label:'Despesas',data:desps,backgroundColor:t==='line'?(re+'20'):re,borderColor:re,borderWidth:t==='line'?2:0,fill:t==='line',tension:.4,pointRadius:3,borderRadius:4,borderSkipped:false}
   ]},{plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>fmt(v.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:tc}},y:{grid:{color:gc},ticks:{font:{size:10},color:tc,callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}}}});
 }
 function renderCatCh(txM){
@@ -1173,19 +1227,47 @@ function renderIns(txM,inc,exp){
   const list=ins.length?ins:[{c:'iok',t:'Tudo sob controle!',d:'Nenhum alerta para este período.'}];
   if(insightTimer)clearInterval(insightTimer);
   insightIdx=0;
-  function showInsight(){
-    const el=document.getElementById('insights');
-    if(!el)return;
-    const i=list[insightIdx%list.length];
-    el.innerHTML=`<div class="ins ${i.c}" style="animation:fadeIn .4s ease">
+  const el=document.getElementById('insights');
+  if(!el)return;
+  window._insList=list;
+  window._insIdx=insightIdx%list.length;
+
+  function drawInsight(idx){
+    const i=list[idx];
+    el.innerHTML=`<div class="ins ${i.c}" style="animation:fadeIn .35s ease;touch-action:pan-y;user-select:none" id="insCard">
       <div class="int">${i.t}</div>
       <div class="ind">${i.d}</div>
-      ${list.length>1?`<div style="display:flex;gap:4px;margin-top:8px">${list.map((_,n)=>`<div style="width:${n===insightIdx%list.length?16:6}px;height:4px;border-radius:2px;background:${n===insightIdx%list.length?'currentColor':'currentColor'};opacity:${n===insightIdx%list.length?1:.3};transition:width .3s"></div>`).join('')}</div>`:''}
+      ${list.length>1?`<div style="display:flex;gap:4px;margin-top:8px">${list.map((_,n)=>`<div style="width:${n===idx?14:5}px;height:4px;border-radius:2px;background:currentColor;opacity:${n===idx?1:.28};transition:width .3s"></div>`).join('')}</div>`:''}
     </div>`;
-    insightIdx++;
+    // swipe support
+    const card=document.getElementById('insCard');
+    if(!card||list.length<2)return;
+    let sx=0;
+    card.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;},{ passive:true });
+    card.addEventListener('touchend',e=>{
+      const dx=e.changedTouches[0].clientX-sx;
+      if(Math.abs(dx)>40){
+        window._insIdx=(window._insIdx+(dx<0?1:-1)+list.length)%list.length;
+        drawInsight(window._insIdx);
+        if(insightTimer)clearInterval(insightTimer);
+        insightTimer=setInterval(()=>{window._insIdx=(window._insIdx+1)%list.length;drawInsight(window._insIdx);},5000);
+      }
+    },{ passive:true });
+    // mouse swipe for desktop
+    let mx=0;
+    card.addEventListener('mousedown',e=>{mx=e.clientX;});
+    card.addEventListener('mouseup',e=>{
+      const dx=e.clientX-mx;
+      if(Math.abs(dx)>40){
+        window._insIdx=(window._insIdx+(dx<0?1:-1)+list.length)%list.length;
+        drawInsight(window._insIdx);
+        if(insightTimer)clearInterval(insightTimer);
+        insightTimer=setInterval(()=>{window._insIdx=(window._insIdx+1)%list.length;drawInsight(window._insIdx);},5000);
+      }
+    });
   }
-  showInsight();
-  if(list.length>1)insightTimer=setInterval(showInsight,4000);
+  drawInsight(window._insIdx);
+  if(list.length>1)insightTimer=setInterval(()=>{window._insIdx=(window._insIdx+1)%list.length;drawInsight(window._insIdx);},5000);
 }
 
 /* ── TX PAGE ── */
@@ -1225,7 +1307,7 @@ function renderTxPg(){
 function renderAcc(){
   const el=document.getElementById('accList');
   if(!S.accounts.length){el.innerHTML=`<div class="card"><div class="empty"><div class="eico">💳</div><p>Nenhuma conta cadastrada.</p></div></div>`;document.getElementById('accChCard').style.display='none';return;}
-  el.innerHTML=S.accounts.map(a=>`<div class="acard" style="background:${a.color}"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:9px"><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.55">${a.type}</div><div style="font-weight:500;font-size:15px">${a.name}</div></div><button onclick="delAcc('${a.id}')" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:3px 8px;cursor:pointer;font-size:14px">×</button></div><div style="font-family:var(--serif);font-size:26px;font-weight:500;margin-bottom:9px">${fmt(a.balance)}</div><div style="display:flex;gap:7px"><input id="abl_${a.id}" type="number" value="${a.balance}" style="flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:6px 9px;font-size:13px;outline:none" inputmode="decimal"><button onclick="updAccBal('${a.id}',document.getElementById('abl_${a.id}').value)" style="background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:8px;padding:6px 13px;cursor:pointer;font-size:13px;font-weight:500">OK</button></div></div>`).join('');
+  el.innerHTML=S.accounts.map(a=>`<div class="acard" style="background:${a.color}"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:9px"><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.55">${a.type}</div><div style="font-weight:500;font-size:15px">${a.name}</div></div><button onclick="delAcc('${a.id}')" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:3px 8px;cursor:pointer;font-size:14px">×</button></div><div style="font-family:var(--serif);font-size:26px;font-weight:500;margin-bottom:9px">${fmt(a.balance)}</div><div style="display:flex;gap:7px"><input id="abl_${a.id}" type="number" value="${a.balance}" style="flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:6px 9px;font-size:13px;outline:none" inputmode="numeric" oninput="onAccBalInput(this)"><button onclick="updAccBal('${a.id}',document.getElementById('abl_${a.id}'))" style="background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:8px;padding:6px 13px;cursor:pointer;font-size:13px;font-weight:500">OK</button></div></div>`).join('');
   document.getElementById('accChCard').style.display='block';
   const dk=document.documentElement.dataset.theme==='dark';
   mkCh('accChart','doughnut',{labels:S.accounts.map(a=>a.name),datasets:[{data:S.accounts.map(a=>Math.max(0,a.balance)),backgroundColor:S.accounts.map(a=>a.color),borderWidth:0}]},{cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10,color:dk?'#9e9b94':'#6b6860'}},tooltip:{callbacks:{label:v=>fmt(v.raw)}}}});
@@ -1293,6 +1375,66 @@ function clearData(){if(!confirm('Apagar TODOS os dados?'))return;if(!confirm('I
 
 function renderAll(){
   renderDash();renderTxPg();renderAcc();renderGoals();renderCats();renderRep();renderSettings();updML();
+}
+
+/* ── COLOR PICKER ── */
+const COLOR_CONTEXTS={ac:{col:()=>sAcCol,set:v=>{sAcCol=v;}},g:{col:()=>sGCol,set:v=>{sGCol=v;}},c:{col:()=>sCCol,set:v=>{sCCol=v;}}};
+function onColorPick(ctx,hex){
+  COLOR_CONTEXTS[ctx].set(hex);
+  const hexEl=document.getElementById(ctx+'ColorHex');
+  const prev=document.getElementById(ctx+'ColorPreview');
+  if(hexEl)hexEl.value=hex;
+  if(prev)prev.style.background=hex;
+  // update swatches selection
+  const sw=document.getElementById(ctx==='ac'?'acCols':ctx==='g'?'gCols':'cCols');
+  if(sw)sw.querySelectorAll('.sw').forEach(s=>s.classList.remove('sel'));
+}
+function onHexInput(ctx,val){
+  const hex=val.startsWith('#')?val:'#'+val;
+  if(/^#[0-9a-fA-F]{6}$/.test(hex)){
+    COLOR_CONTEXTS[ctx].set(hex);
+    const picker=document.getElementById(ctx+'ColorPicker');
+    const prev=document.getElementById(ctx+'ColorPreview');
+    if(picker)picker.value=hex;
+    if(prev)prev.style.background=hex;
+    const sw=document.getElementById(ctx==='ac'?'acCols':ctx==='g'?'gCols':'cCols');
+    if(sw)sw.querySelectorAll('.sw').forEach(s=>s.classList.remove('sel'));
+  }
+}
+function initColorPicker(ctx,currentColor){
+  const picker=document.getElementById(ctx+'ColorPicker');
+  const hexEl=document.getElementById(ctx+'ColorHex');
+  const prev=document.getElementById(ctx+'ColorPreview');
+  if(picker)picker.value=currentColor||'#2d5a3d';
+  if(hexEl)hexEl.value=currentColor||'#2d5a3d';
+  if(prev)prev.style.background=currentColor||'#2d5a3d';
+}
+
+/* ── MONEY INPUTS (generic) ── */
+const _cents={};
+function onMoneyInput(el,key){
+  const raw=el.value.replace(/[^0-9]/g,'');
+  _cents[key]=parseInt(raw||'0',10);
+  el.value=fmtCents(_cents[key]);
+}
+function setMoneyInput(elId,key,amount){
+  _cents[key]=Math.round((amount||0)*100);
+  const el=document.getElementById(elId);
+  if(el)el.value=_cents[key]>0?fmtCents(_cents[key]):'';
+}
+function getMoneyVal(key){return(_cents[key]||0)/100;}
+function onBudgetInput(raw){
+  const digits=raw.replace(/[^0-9]/g,'');
+  const cents=parseInt(digits||'0',10);
+  const el=document.getElementById('cbud');
+  if(el)el.value=fmtCents(cents);
+  _cents['cbud']=cents;
+}
+function onAccBalInput(el){
+  const raw=el.value.replace(/[^0-9]/g,'');
+  const cents=parseInt(raw||'0',10);
+  el.value=fmtCents(cents);
+  el.dataset.cents=cents;
 }
 
 /* ── WALLPAPER ── */
@@ -1367,6 +1509,77 @@ window.addEventListener('beforeinstallprompt',e=>{
 });
 window.addEventListener('appinstalled',()=>{document.getElementById('ibanner').style.display='none';dI=null;updateInstallUI();toast('Value instalado! 🎉',3000);});
 
+
+/* ── GENERATE CANVAS ICONS FOR PWA ── */
+function generateAppIcon(size){
+  const cv=document.createElement('canvas');
+  cv.width=cv.height=size;
+  const ctx=cv.getContext('2d');
+  const s=size/100;
+  // Green background
+  ctx.fillStyle='#2d5a3d';
+  ctx.fillRect(0,0,size,size);
+  // Bill shadow
+  ctx.fillStyle='rgba(181,160,85,.2)';
+  roundRect(ctx,6*s,11*s,88*s,57*s,7*s);ctx.fill();
+  // Bill body
+  ctx.fillStyle='#d4c170';
+  roundRect(ctx,2*s,8*s,88*s,57*s,7*s);ctx.fill();
+  // Bill outline
+  ctx.strokeStyle='#8a7730';ctx.lineWidth=1.4*s;
+  roundRect(ctx,2*s,8*s,88*s,57*s,7*s);ctx.stroke();
+  // Green stripe
+  ctx.fillStyle='#2d5a3d';
+  ctx.fillRect(2*s,28*s,88*s,22*s);
+  // Left ornament
+  drawOrnament(ctx,15*s,39*s,8*s,s);
+  // Right ornament
+  drawOrnament(ctx,77*s,39*s,8*s,s);
+  // Currency symbols
+  ctx.fillStyle='#f0d84e';
+  ctx.font=`bold ${size>100?13*s:11*s}px Georgia,serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('$',28*s,40*s);
+  ctx.fillText('€',41*s,40*s);
+  ctx.font=`bold ${size>100?9*s:8*s}px Georgia,serif`;
+  ctx.fillText('R$',54*s,40*s);
+  ctx.font=`bold ${size>100?13*s:11*s}px Georgia,serif`;
+  ctx.fillText('£',67*s,40*s);
+  // Deco lines
+  ctx.strokeStyle='rgba(138,119,48,.55)';ctx.lineWidth=.7*s;
+  ctx.beginPath();ctx.moveTo(22*s,16*s);ctx.lineTo(70*s,16*s);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(22*s,58*s);ctx.lineTo(70*s,58*s);ctx.stroke();
+  return cv.toDataURL('image/png');
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+function drawOrnament(ctx,cx,cy,r,s){
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='#8a7730';ctx.lineWidth=.9*s;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,r*.68,0,Math.PI*2);ctx.fillStyle='#2d5a3d';ctx.fill();
+  ctx.strokeStyle='#a08830';ctx.lineWidth=.8*s;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,r*.32,0,Math.PI*2);ctx.strokeStyle='rgba(240,216,78,.75)';ctx.lineWidth=.9*s;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,r*.11,0,Math.PI*2);ctx.fillStyle='rgba(240,216,78,.6)';ctx.fill();
+}
+function installCanvasIcons(){
+  try{
+    // Update PWA manifest link icon
+    const icon192=generateAppIcon(192);
+    const icon512=generateAppIcon(512);
+    // Store in sessionStorage for PWA use
+    sessionStorage.setItem('icon192',icon192);
+    // Update apple-touch-icon
+    let li=document.querySelector('link[rel="apple-touch-icon"]');
+    if(li)li.href=icon192;
+    let li2=document.querySelector('link[rel="icon"]');
+    if(li2)li2.href=icon192;
+  }catch(e){}
+}
+
 /* ── BOOT ── */
 hydrate();
 const th=localStorage.getItem('value_theme')||'light';
@@ -1374,6 +1587,7 @@ applyTheme(th);
 updML();renderAll();
 loadWallpaper();
 updateInstallUI();
+try{installCanvasIcons();}catch(e){}
 </script>
 </body>
 </html>
