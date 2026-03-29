@@ -1,10 +1,10 @@
 {
-  "name": "Fluxo — Finanças Pessoais",
-  "short_name": "Fluxo",
-  "description": "Controle suas finanças pessoais com elegância",
+  "name": "Value",
+  "short_name": "Value",
+  "description": "Controle suas finanças pessoais",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f7f5f0",
+  "background_color": "#2d5a3d",
   "theme_color": "#2d5a3d",
   "orientation": "portrait-primary",
   "icons": [
