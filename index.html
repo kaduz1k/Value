@@ -88,6 +88,12 @@ body{display:flex;flex-direction:column;padding-top:var(--sft)}
 [data-theme=alf] input:focus,[data-theme=alf] select:focus,[data-theme=alf] textarea:focus{border-color:#d63a82}
 [data-theme=alf] .cin{color:#d63a82}
 [data-theme=alf] .iok{border-color:#d63a82;background:#fde8f2}
+[data-theme=alf] .kval{font-weight:600}
+[data-theme=alf] .cin{color:#d63a82}
+[data-theme=alf] .cout{color:#c0392b}
+[data-theme=alf] .kpi{border-left:3px solid rgba(214,58,130,.3)}
+[data-theme=alf] .txamt.cin{color:#d63a82;font-weight:600}
+[data-theme=alf] .txamt.cout{color:#c0392b;font-weight:600}
 
 /* wallpaper */
 #wpLayer{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none;display:none}
@@ -1154,16 +1160,17 @@ function renderDash(){
   const txM=S.transactions.filter(tx=>inM(tx,cY,cM));
   const inc=txM.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
   const exp=txM.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
-  // Total = sum of all account balances; if no accounts, fallback to all-time net
+  // Total: if accounts exist use their sum, else compute from all transactions
   const accTotal=S.accounts.reduce((a,ac)=>a+ac.balance,0);
   const allInc=S.transactions.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
   const allExp=S.transactions.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
-  const tot=S.accounts.length>0?accTotal:(allInc-allExp);
+  const allNet=allInc-allExp;
+  const tot=S.accounts.length>0?accTotal:allNet;
   const sp=inc>0?((inc-exp)/inc*100):0;
   document.getElementById('kgrid').innerHTML=`
-    <div class="kpi"><div class="klbl">Saldo total</div><div class="kval">${fmt(tot)}</div><span class="badge ${(inc-exp)>=0?'bg':'br'}">${(inc-exp)>=0?'▲':'▼'} ${fmt(Math.abs(inc-exp))}</span></div>
+    <div class="kpi"><div class="klbl">Saldo total</div><div class="kval" style="color:${tot>=0?'var(--ac)':'var(--re)'}">${tot<0?'-':''}${fmt(Math.abs(tot))}</div><span class="badge ${(inc-exp)>=0?'bg':'br'}">${(inc-exp)>=0?'▲':'▼'} ${fmt(Math.abs(inc-exp))}</span></div>
     <div class="kpi"><div class="klbl" style="color:var(--ac)">Receitas</div><div class="kval" style="color:var(--ac)">${fmt(inc)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='entrada').length} itens</div></div>
-    <div class="kpi"><div class="klbl" style="color:var(--re)">Despesas</div><div class="kval" style="color:var(--re)">${fmt(exp)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='saida').length} itens</div></div>
+    <div class="kpi"><div class="klbl" style="color:var(--re)">Despesas</div><div class="kval" style="color:var(--re)">-${fmt(exp)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='saida').length} itens</div></div>
     <div class="kpi"><div class="klbl">Poupança</div><div class="kval">${sp.toFixed(1)}%</div><span class="badge ${sp>=20?'bg':sp>=10?'bam':'br'}">${sp>=20?'Ótimo':sp>=10?'Regular':'Atenção'}</span></div>`;
   renderRvd(rvdT);renderCatCh(txM);renderIns(txM,inc,exp);
   const el=document.getElementById('dashTx');
