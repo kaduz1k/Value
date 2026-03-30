@@ -124,7 +124,7 @@ body.has-wp .sidebar,body.has-wp .topbar,body.has-wp .bnav{background:var(--sf)}
 /* logo */
 .logo{padding:16px 14px 12px;border-bottom:1px solid var(--bd)}
 .logo-wrap{display:flex;align-items:center;gap:10px}
-.logo-ico{width:54px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.logo-ico{width:54px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center}.logo-ico canvas{display:block}
 .logo-name{font-family:var(--serif);font-size:18px;font-weight:500}
 .logo-sub{font-size:10px;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase}
 
@@ -282,6 +282,20 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:10px}
+
+/* ── ALF THEME VALUE COLORS ── */
+[data-theme=alf] .cin{color:#d63a82 !important}
+[data-theme=alf] .cout{color:#c0392b !important}
+[data-theme=alf] .amount-in,[data-theme=alf] .c-in{color:#d63a82 !important}
+[data-theme=alf] .amount-out,[data-theme=alf] .c-out{color:#c0392b !important}
+[data-theme=alf] .kval{font-weight:500}
+[data-theme=alf] .bg{background:#fde8f2 !important;color:#d63a82 !important}
+[data-theme=alf] .br{background:#ffe0ee !important;color:#b02060 !important}
+[data-theme=alf] .badge.bg{background:#fde8f2;color:#d63a82}
+[data-theme=alf] .badge.br{background:#ffe0ee;color:#b02060}
+[data-theme=alf] .iok{border-color:#d63a82;background:#fde8f2}
+[data-theme=alf] .iwarn{border-color:#c0658a;background:#fde8f2}
+[data-theme=alf] .ibad{border-color:#b02060;background:#ffe0ee}
 </style>
 </head>
 <body>
@@ -296,33 +310,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <aside class="sidebar">
   <div class="logo">
     <div class="logo-wrap">
-      <div class="logo-ico">
-        <svg width="54" height="34" viewBox="0 0 180 88" fill="none">
-          <rect x="6" y="12" width="168" height="68" rx="9" fill="#b5a055" opacity=".18"/>
-          <rect x="2" y="8" width="168" height="68" rx="9" fill="#d4c170"/>
-          <rect x="2" y="8" width="168" height="68" rx="9" fill="none" stroke="#8a7730" stroke-width="1.6"/>
-          <rect x="9" y="15" width="154" height="54" rx="5" fill="none" stroke="#8a7730" stroke-width=".9" stroke-dasharray="3 2.5"/>
-          <rect x="2" y="30" width="168" height="28" fill="#2d5a3d"/>
-          <rect x="2" y="30" width="168" height="3.5" fill="white" opacity=".07"/>
-          <circle cx="24" cy="44" r="11" fill="none" stroke="#8a7730" stroke-width="1.1"/>
-          <circle cx="24" cy="44" r="7.5" fill="#2d5a3d" stroke="#a08830" stroke-width=".9"/>
-          <circle cx="24" cy="44" r="3.5" fill="none" stroke="#f0d84e" stroke-width="1" opacity=".75"/>
-          <circle cx="24" cy="44" r="1.2" fill="#f0d84e" opacity=".6"/>
-          <circle cx="156" cy="44" r="11" fill="none" stroke="#8a7730" stroke-width="1.1"/>
-          <circle cx="156" cy="44" r="7.5" fill="#2d5a3d" stroke="#a08830" stroke-width=".9"/>
-          <circle cx="156" cy="44" r="3.5" fill="none" stroke="#f0d84e" stroke-width="1" opacity=".75"/>
-          <circle cx="156" cy="44" r="1.2" fill="#f0d84e" opacity=".6"/>
-          <text x="52" y="51" font-family="Georgia,serif" font-size="19" font-weight="700" fill="#f0d84e" text-anchor="middle">$</text>
-          <text x="78" y="51" font-family="Georgia,serif" font-size="18" font-weight="700" fill="#f0d84e" text-anchor="middle">€</text>
-          <text x="104" y="50" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#f0d84e" text-anchor="middle" letter-spacing="-.5">R$</text>
-          <text x="128" y="51" font-family="Georgia,serif" font-size="18" font-weight="700" fill="#f0d84e" text-anchor="middle">£</text>
-          <text x="14" y="24" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#8a7730" opacity=".85">100</text>
-          <text x="154" y="70" font-family="Georgia,serif" font-size="9" font-weight="700" fill="#8a7730" opacity=".85" text-anchor="end">100</text>
-          <line x1="42" y1="18" x2="132" y2="18" stroke="#8a7730" stroke-width=".8" opacity=".55"/>
-          <line x1="42" y1="21" x2="132" y2="21" stroke="#8a7730" stroke-width=".4" opacity=".3"/>
-          <line x1="42" y1="69" x2="132" y2="69" stroke="#8a7730" stroke-width=".8" opacity=".55"/>
-          <line x1="42" y1="66" x2="132" y2="66" stroke="#8a7730" stroke-width=".4" opacity=".3"/>
-        </svg>
+      <div class="logo-ico" id="sidebarLogoWrap">
+        <canvas id="sidebarLogo" width="180" height="88" style="width:54px;height:34px"></canvas>
       </div>
       <div><div class="logo-name">Value</div></div>
     </div>
@@ -820,7 +809,50 @@ function applyTheme(t){
   else meta.setAttribute('content','#2d5a3d');
   const sel=document.getElementById('themeSelect');
   if(sel)sel.value=t;
+  drawSidebarLogo(t);
   setTimeout(renderAll,60);
+}
+
+function drawSidebarLogo(theme){
+  const cv=document.getElementById('sidebarLogo');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const sc=theme==='alf'?'#a02060':(theme==='dark'?'#1e4230':'#2d5a3d');
+  const symc=theme==='alf'?'#fde8f2':'#f0d84e';
+  // reuse bill drawing inline
+  const x=W/180,y=H/88,fs=Math.min(x,y);
+  function rr2(cx,cy,cw,ch,r){
+    ctx.beginPath();ctx.moveTo(cx+r,cy);ctx.lineTo(cx+cw-r,cy);ctx.quadraticCurveTo(cx+cw,cy,cx+cw,cy+r);
+    ctx.lineTo(cx+cw,cy+ch-r);ctx.quadraticCurveTo(cx+cw,cy+ch,cx+cw-r,cy+ch);
+    ctx.lineTo(cx+r,cy+ch);ctx.quadraticCurveTo(cx,cy+ch,cx,cy+ch-r);
+    ctx.lineTo(cx,cy+r);ctx.quadraticCurveTo(cx,cy,cx+r,cy);ctx.closePath();
+  }
+  function ln2(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+  function orn2(cx2,cy2,r){
+    ctx.beginPath();ctx.arc(cx2,cy2,r,0,Math.PI*2);ctx.strokeStyle='#8a7730';ctx.lineWidth=r*.13;ctx.stroke();
+    ctx.beginPath();ctx.arc(cx2,cy2,r*.72,0,Math.PI*2);ctx.fillStyle=sc;ctx.fill();ctx.strokeStyle='#a08830';ctx.lineWidth=r*.11;ctx.stroke();
+    ctx.beginPath();ctx.arc(cx2,cy2,r*.36,0,Math.PI*2);ctx.strokeStyle='rgba(240,216,78,.78)';ctx.lineWidth=r*.12;ctx.stroke();
+    ctx.beginPath();ctx.arc(cx2,cy2,r*.13,0,Math.PI*2);ctx.fillStyle='rgba(240,216,78,.65)';ctx.fill();
+  }
+  ctx.fillStyle='rgba(181,160,85,.18)';rr2(6*x,12*y,168*x,68*y,9*x);ctx.fill();
+  ctx.fillStyle='#d4c170';rr2(2*x,8*y,168*x,68*y,9*x);ctx.fill();
+  ctx.strokeStyle='#8a7730';ctx.lineWidth=1.6*x;ctx.setLineDash([]);rr2(2*x,8*y,168*x,68*y,9*x);ctx.stroke();
+  ctx.setLineDash([3*x,2.5*x]);ctx.strokeStyle='#8a7730';ctx.lineWidth=.9*x;rr2(9*x,15*y,154*x,54*y,5*x);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=sc;ctx.fillRect(2*x,30*y,168*x,28*y);
+  ctx.fillStyle='rgba(255,255,255,.07)';ctx.fillRect(2*x,30*y,168*x,3.5*y);
+  ctx.lineWidth=.8*x;ctx.strokeStyle='rgba(138,119,48,.55)';ln2(42*x,18*y,132*x,18*y);ln2(42*x,69*y,132*x,69*y);
+  ctx.lineWidth=.4*x;ctx.strokeStyle='rgba(138,119,48,.3)';ln2(42*x,21*y,132*x,21*y);ln2(42*x,66*y,132*x,66*y);
+  ctx.fillStyle='rgba(138,119,48,.85)';ctx.font=`bold ${9*fs}px Georgia,serif`;
+  ctx.textBaseline='top';ctx.textAlign='left';ctx.fillText('100',14*x,10*y);
+  ctx.textBaseline='bottom';ctx.textAlign='right';ctx.fillText('100',154*x,70*y);
+  orn2(24*x,44*y,9*x);orn2(156*x,44*y,9*x);
+  ctx.fillStyle=symc;ctx.textBaseline='middle';ctx.textAlign='center';
+  ctx.font=`bold ${17*fs}px Georgia,serif`;ctx.fillText('$',52*x,44*y);
+  ctx.font=`bold ${16*fs}px Georgia,serif`;ctx.fillText('€',78*x,44*y);
+  ctx.font=`bold ${11.5*fs}px Georgia,serif`;ctx.fillText('R$',104*x,43.5*y);
+  ctx.font=`bold ${16*fs}px Georgia,serif`;ctx.fillText('£',128*x,44*y);
 }
 function cycleTheme(){
   const cur=localStorage.getItem('value_theme')||'light';
@@ -1381,7 +1413,17 @@ function impJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReade
 function clearData(){if(!confirm('Apagar TODOS os dados?'))return;if(!confirm('Irreversível. Confirmar?'))return;localStorage.removeItem(SK);S={transactions:[],accounts:[],goals:[],categories:[],settings:{name:'',currency:'R$'}};seedC();persist();renderAll();toast('Dados apagados');}
 
 function renderAll(){
-  renderDash();renderTxPg();renderAcc();renderGoals();renderCats();renderRep();renderSettings();updML();
+  renderDash();renderTxPg();renderAcc();renderGoals();renderCats();renderSettings();updML();
+  // Always re-render reports so data stays fresh
+  if(document.getElementById('page-reports').classList.contains('on')){
+    renderRep();
+  }
+}
+// Also re-render reports whenever navigating to it
+const _origGo=go;
+function go(id,btn){
+  _origGo(id,btn);
+  if(id==='reports') renderRep();
 }
 
 /* ── COLOR PICKER ── */
@@ -1595,6 +1637,7 @@ updML();renderAll();
 loadWallpaper();
 updateInstallUI();
 try{installCanvasIcons();}catch(e){}
+try{drawSidebarLogo(localStorage.getItem('value_theme')||'light');}catch(e){}
 </script>
 </body>
 </html>
