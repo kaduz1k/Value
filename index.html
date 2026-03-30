@@ -1125,7 +1125,12 @@ function saveAcc(){
 function delAcc(id){if(!confirm('Excluir conta?'))return;S.accounts=S.accounts.filter(a=>a.id!==id);persist();renderAll();toast('Conta excluída');}
 function updAccBal(id,el){
   const a=S.accounts.find(a=>a.id===id);if(!a)return;
-  const cents=parseInt(el.dataset.cents||'0');
+  // Try dataset.cents first, fall back to parsing the formatted value
+  let cents=parseInt(el.dataset.cents||'0',10);
+  if(!cents){
+    const raw=(el.value||'').replace(/[^0-9]/g,'');
+    cents=parseInt(raw||'0',10);
+  }
   a.balance=cents/100;
   persist();renderAll();toast('Saldo atualizado! ✓');
 }
@@ -1146,7 +1151,22 @@ function saveGoal(){
   S.goals.push({id:uid(),name,current:getMoneyVal('gcurCents'),target,deadline:document.getElementById('gdl').value,color:sGCol});
   persist();closeM('goalModal');renderAll();toast('Meta criada! ✓');
 }
-function updGoal(id,val){const g=S.goals.find(g=>g.id===id);if(!g)return;g.current=parseFloat(val)||0;persist();renderAll();toast('Meta atualizada! ✓');}
+function onGoalInput(el){
+  const raw=el.value.replace(/[^0-9]/g,'');
+  const cents=parseInt(raw||'0',10);
+  el.dataset.cents=String(cents);
+  el.value=fmtCents(cents);
+}
+function updGoal(id,el){
+  const g=S.goals.find(g=>g.id===id);if(!g)return;
+  let cents=parseInt((typeof el==='object'?el.dataset.cents:null)||'0',10);
+  if(!cents&&typeof el==='object'){
+    const raw=(el.value||'').replace(/[^0-9]/g,'');
+    cents=parseInt(raw||'0',10);
+  }
+  g.current=cents/100;
+  persist();renderAll();toast('Meta atualizada! ✓');
+}
 function delGoal(id){if(!confirm('Excluir meta?'))return;S.goals=S.goals.filter(g=>g.id!==id);persist();renderAll();toast('Meta excluída');}
 
 /* ── CATEGORIES ── */
@@ -1195,7 +1215,7 @@ function renderDash(){
   const tot=S.accounts.length>0?accTotal:allNet;
   const sp=inc>0?((inc-exp)/inc*100):0;
   document.getElementById('kgrid').innerHTML=`
-    <div class="kpi"><div class="klbl">Saldo total</div><div class="kval" style="color:${tot>=0?'var(--ac)':'var(--re)'}">${tot<0?'-':''}${fmt(Math.abs(tot))}</div><span class="badge ${(inc-exp)>=0?'bg':'br'}">${(inc-exp)>=0?'▲':'▼'} ${fmt(Math.abs(inc-exp))}</span></div>
+    <div class="kpi"><div class="klbl">Saldo total</div><div class="kval ${tot>=0?'cin':'cout'}">${tot<0?'- ':'+​'}${fmt(Math.abs(tot))}</div><span class="badge ${(inc-exp)>=0?'bg':'br'}">${(inc-exp)>=0?'▲':'▼'} ${fmt(Math.abs(inc-exp))}</span></div>
     <div class="kpi"><div class="klbl" style="color:var(--ac)">Receitas</div><div class="kval" style="color:var(--ac)">${fmt(inc)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='entrada').length} itens</div></div>
     <div class="kpi"><div class="klbl" style="color:var(--re)">Despesas</div><div class="kval" style="color:var(--re)">-${fmt(exp)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='saida').length} itens</div></div>
     <div class="kpi"><div class="klbl">Poupança</div><div class="kval">${sp.toFixed(1)}%</div><span class="badge ${sp>=20?'bg':sp>=10?'bam':'br'}">${sp>=20?'Ótimo':sp>=10?'Regular':'Atenção'}</span></div>`;
@@ -1259,8 +1279,8 @@ function renderIns(txM,inc,exp){
   });
 
   const list=ins.length?ins:[{c:'iok',t:'Tudo sob controle!',d:'Nenhum alerta para este período.'}];
-  if(insightTimer)clearInterval(insightTimer);
-  insightIdx=0;
+  if(insightTimer){clearInterval(insightTimer);insightTimer=null;}
+  insightIdx=window._insIdx||0;
   const el=document.getElementById('insights');
   if(!el)return;
   window._insList=list;
@@ -1341,7 +1361,7 @@ function renderTxPg(){
 function renderAcc(){
   const el=document.getElementById('accList');
   if(!S.accounts.length){el.innerHTML=`<div class="card"><div class="empty"><div class="eico">💳</div><p>Nenhuma conta cadastrada.</p></div></div>`;document.getElementById('accChCard').style.display='none';return;}
-  el.innerHTML=S.accounts.map(a=>`<div class="acard" style="background:${a.color}"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:9px"><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.55">${a.type}</div><div style="font-weight:500;font-size:15px">${a.name}</div></div><button onclick="delAcc('${a.id}')" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:3px 8px;cursor:pointer;font-size:14px">×</button></div><div style="font-family:var(--serif);font-size:26px;font-weight:500;margin-bottom:9px">${fmt(a.balance)}</div><div style="display:flex;gap:7px"><input id="abl_${a.id}" type="number" value="${a.balance}" style="flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:6px 9px;font-size:13px;outline:none" inputmode="numeric" oninput="onAccBalInput(this)"><button onclick="updAccBal('${a.id}',document.getElementById('abl_${a.id}'))" style="background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:8px;padding:6px 13px;cursor:pointer;font-size:13px;font-weight:500">OK</button></div></div>`).join('');
+  el.innerHTML=S.accounts.map(a=>`<div class="acard" style="background:${a.color}"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:9px"><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.55">${a.type}</div><div style="font-weight:500;font-size:15px">${a.name}</div></div><button onclick="delAcc('${a.id}')" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:3px 8px;cursor:pointer;font-size:14px">×</button></div><div style="font-family:var(--serif);font-size:26px;font-weight:500;margin-bottom:9px">${fmt(a.balance)}</div><div style="display:flex;gap:7px"><input id="abl_${a.id}" type="text" inputmode="numeric" value="${fmtCents(Math.round(a.balance*100))}" style="flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:6px 9px;font-size:13px;outline:none;font-weight:500" oninput="onAccBalInput(this)" autocomplete="off"><button onclick="updAccBal('${a.id}',document.getElementById('abl_${a.id}'))" style="background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:8px;padding:6px 13px;cursor:pointer;font-size:13px;font-weight:500">OK</button></div></div>`).join('');
   document.getElementById('accChCard').style.display='block';
   const dk=document.documentElement.dataset.theme==='dark';
   mkCh('accChart','doughnut',{labels:S.accounts.map(a=>a.name),datasets:[{data:S.accounts.map(a=>Math.max(0,a.balance)),backgroundColor:S.accounts.map(a=>a.color),borderWidth:0}]},{cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10,color:dk?'#9e9b94':'#6b6860'}},tooltip:{callbacks:{label:v=>fmt(v.raw)}}}});
@@ -1351,7 +1371,7 @@ function renderAcc(){
 function renderGoals(){
   const el=document.getElementById('goalsList');
   if(!S.goals.length){el.innerHTML=`<div class="card"><div class="empty"><div class="eico">🎯</div><p>Nenhuma meta criada.</p></div></div>`;return;}
-  el.innerHTML=S.goals.map(g=>{const p=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;const dl=g.deadline?Math.ceil((new Date(g.deadline)-new Date())/864e5):null;const mn=dl&&dl>0?((g.target-g.current)/(dl/30)):null;return`<div class="gcard"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px"><div style="font-weight:500;font-size:14px">${g.name}</div><button onclick="delGoal('${g.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;padding:0 4px">×</button></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>${fmt(g.current)}</span><span style="font-weight:500;color:var(--tx)">${fmt(g.target)}</span></div><div class="ptrack"><div class="pbar" style="width:${p}%;background:${g.color}"></div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:9px">${p}% · faltam ${fmt(g.target-g.current)}</div>${dl!==null?`<div style="font-size:11px;color:var(--tx2);margin-bottom:9px">${dl>0?dl+' dias restantes':'⚠️ Prazo encerrado'}${mn&&dl>0?' · guardar '+fmt(mn)+'/mês':''}</div>`:''}<div style="display:flex;gap:7px"><input id="gi_${g.id}" type="number" value="${g.current}" style="flex:1;height:36px;font-size:13px" inputmode="decimal"><button class="btn bprim bsm" onclick="updGoal('${g.id}',document.getElementById('gi_${g.id}').value)">Atualizar</button></div></div>`;}).join('');
+  el.innerHTML=S.goals.map(g=>{const p=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;const dl=g.deadline?Math.ceil((new Date(g.deadline)-new Date())/864e5):null;const mn=dl&&dl>0?((g.target-g.current)/(dl/30)):null;return`<div class="gcard"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px"><div style="font-weight:500;font-size:14px">${g.name}</div><button onclick="delGoal('${g.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;padding:0 4px">×</button></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>${fmt(g.current)}</span><span style="font-weight:500;color:var(--tx)">${fmt(g.target)}</span></div><div class="ptrack"><div class="pbar" style="width:${p}%;background:${g.color}"></div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:9px">${p}% · faltam ${fmt(g.target-g.current)}</div>${dl!==null?`<div style="font-size:11px;color:var(--tx2);margin-bottom:9px">${dl>0?dl+' dias restantes':'⚠️ Prazo encerrado'}${mn&&dl>0?' · guardar '+fmt(mn)+'/mês':''}</div>`:''}<div style="display:flex;gap:7px"><input id="gi_${g.id}" type="text" value="${fmtCents(Math.round(g.current*100))}" style="flex:1;height:36px;font-size:13px;font-weight:500" inputmode="numeric" oninput="onGoalInput(this)" autocomplete="off"><button class="btn bprim bsm" onclick="updGoal('${g.id}',document.getElementById('gi_${g.id}'))">Atualizar</button></div></div>`;}).join('');
 }
 
 /* ── CATEGORIES PAGE ── */
@@ -1364,12 +1384,17 @@ function renderCats(){
 function renderRep(){
   let aI=0,aO=0;const rows=[];
   for(let m=0;m<12;m++){const txs=S.transactions.filter(tx=>inM(tx,cY,m));const inc=txs.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);const exp=txs.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);aI+=inc;aO+=exp;if(inc>0||exp>0)rows.push({m:MS[m],inc,exp,bal:inc-exp,p:inc>0?((inc-exp)/inc*100).toFixed(1):0});}
-  document.getElementById('repKpi').innerHTML=`<div class="kpi"><div class="klbl">Receita anual</div><div class="kval" style="color:var(--ac)">${fmt(aI)}</div></div><div class="kpi"><div class="klbl">Despesa anual</div><div class="kval" style="color:var(--re)">${fmt(aO)}</div></div><div class="kpi"><div class="klbl">Resultado</div><div class="kval">${fmt(aI-aO)}</div></div><div class="kpi"><div class="klbl">Média mensal</div><div class="kval">${fmt((aI-aO)/12)}</div></div>`;
+  const repNet=aI-aO;
+  const repAvg=repNet/12;
+  document.getElementById('repKpi').innerHTML=`<div class="kpi"><div class="klbl">Receita anual</div><div class="kval cin">+${fmt(aI)}</div></div><div class="kpi"><div class="klbl">Despesa anual</div><div class="kval cout">-${fmt(aO)}</div></div><div class="kpi"><div class="klbl">Resultado</div><div class="kval ${repNet>=0?'cin':'cout'}">${repNet>=0?'+':''}${repNet<0?'-':''}${fmt(Math.abs(repNet))}</div></div><div class="kpi"><div class="klbl">Média mensal</div><div class="kval ${repAvg>=0?'cin':'cout'}">${repAvg>=0?'+':''}${repAvg<0?'-':''}${fmt(Math.abs(repAvg))}</div></div>`;
   const dk=document.documentElement.dataset.theme==='dark';const gc=dk?'rgba(255,255,255,.07)':'rgba(0,0,0,.06)';const tc=dk?'#5e5c57':'#a8a59f';
   const bL=[],bD=[];let run=S.accounts.reduce((a,ac)=>a+ac.balance,0);
   for(let i=11;i>=0;i--){let m=cM-i,y=cY;while(m<0){m+=12;y--;}const txs=S.transactions.filter(tx=>inM(tx,y,m));const net=txs.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0)-txs.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);bL.push(MS[m]);bD.push(Math.round(run));run-=net;}
   bD.reverse();bL.reverse();
-  mkCh('balChart','line',{labels:bL,datasets:[{data:bD,borderColor:'#2d5a3d',backgroundColor:'rgba(45,90,61,.1)',fill:true,tension:.4,pointRadius:3,borderWidth:2}]},{plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>fmt(v.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:tc}},y:{grid:{color:gc},ticks:{font:{size:10},color:tc,callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}}}});
+  const isAlf2=document.documentElement.dataset.theme==='alf';
+  const balColor=isAlf2?'#d63a82':'#2d5a3d';
+  const balBg=isAlf2?'rgba(214,58,130,.1)':'rgba(45,90,61,.1)';
+  mkCh('balChart','line',{labels:bL,datasets:[{data:bD,borderColor:balColor,backgroundColor:balBg,fill:true,tension:.4,pointRadius:3,borderWidth:2}]},{plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>fmt(v.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:tc}},y:{grid:{color:gc},ticks:{font:{size:10},color:tc,callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}}}});
   const ct={};S.transactions.filter(t=>t.type==='saida'&&t.date?.startsWith(cY+'')).forEach(t=>{const c=gCat(t.category);ct[c.name]=(ct[c.name]||{a:0,col:c.color});ct[c.name].a+=t.amount;});
   const en=Object.entries(ct).sort((a,b)=>b[1].a-a[1].a).slice(0,8);
   if(en.length)mkCh('ctChart','bar',{labels:en.map(e=>e[0]),datasets:[{data:en.map(e=>e[1].a),backgroundColor:en.map(e=>e[1].col),borderRadius:4,borderSkipped:false}]},{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>fmt(v.raw)}}},scales:{x:{grid:{color:gc},ticks:{font:{size:10},color:tc,callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}},y:{grid:{display:false},ticks:{font:{size:10},color:tc}}}});
@@ -1468,8 +1493,8 @@ function onBudgetInput(raw){
 function onAccBalInput(el){
   const raw=el.value.replace(/[^0-9]/g,'');
   const cents=parseInt(raw||'0',10);
+  el.dataset.cents=String(cents);
   el.value=fmtCents(cents);
-  el.dataset.cents=cents;
 }
 
 /* ── WALLPAPER ── */
