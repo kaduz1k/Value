@@ -65,16 +65,14 @@ body{display:flex;flex-direction:column;padding-top:var(--sft)}
 .app{display:flex;flex:1;overflow:hidden;position:relative}
 
 /* analu bg pattern - CSS only, no perf impact */
-[data-theme=alf] .main::before{
+[data-theme=alf] .scroll::before{
   content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
   background-image:
     radial-gradient(circle at 15% 20%,rgba(214,58,130,.06) 0%,transparent 50%),
     radial-gradient(circle at 85% 10%,rgba(214,58,130,.05) 0%,transparent 40%),
     radial-gradient(circle at 50% 80%,rgba(214,58,130,.04) 0%,transparent 40%);
 }
-[data-theme=alf] .scroll{position:relative;z-index:1}
-[data-theme=alf] .topbar{position:relative;z-index:1}
-[data-theme=alf] .bnav{position:relative;z-index:1}
+[data-theme=alf] .scroll{position:relative;}
 
 @keyframes fadeIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes sparkle{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.3;transform:scale(1.2)}}
@@ -86,14 +84,8 @@ body{display:flex;flex-direction:column;padding-top:var(--sft)}
 [data-theme=alf] .fabcircle{background:#d63a82;box-shadow:0 4px 14px rgba(214,58,130,.4)}
 [data-theme=alf] .bprim{background:#d63a82}
 [data-theme=alf] input:focus,[data-theme=alf] select:focus,[data-theme=alf] textarea:focus{border-color:#d63a82}
-[data-theme=alf] .cin{color:#d63a82}
+[data-theme=alf] .cin{color:#27ae60!important}[data-theme=alf] .cout{color:#c0392b!important}
 [data-theme=alf] .iok{border-color:#d63a82;background:#fde8f2}
-[data-theme=alf] .kval{font-weight:600}
-[data-theme=alf] .cin{color:#d63a82}
-[data-theme=alf] .cout{color:#c0392b}
-[data-theme=alf] .kpi{border-left:3px solid rgba(214,58,130,.3)}
-[data-theme=alf] .txamt.cin{color:#d63a82;font-weight:600}
-[data-theme=alf] .txamt.cout{color:#c0392b;font-weight:600}
 
 /* wallpaper */
 #wpLayer{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none;display:none}
@@ -103,14 +95,14 @@ body{display:flex;flex-direction:column;padding-top:var(--sft)}
 #ibanner{position:relative;z-index:1}
 body.has-wp .sidebar,body.has-wp .topbar,body.has-wp .bnav{background:var(--sf)}
 
-.sidebar{width:216px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar{width:216px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;position:relative;z-index:2}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.topbar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;padding:9px 14px;background:var(--sf);border-bottom:1px solid var(--bd);flex-shrink:0;gap:8px}
+.topbar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;padding:9px 14px;background:var(--sf);border-bottom:1px solid var(--bd);flex-shrink:0;gap:8px;position:relative;z-index:2}
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .content{padding:18px;max-width:980px;margin:0 auto;width:100%}
 
 /* bottom nav */
-.bnav{display:none;flex-shrink:0;background:var(--sf);border-top:1px solid var(--bd);padding-bottom:var(--sfb)}
+.bnav{display:none;flex-shrink:0;background:var(--sf);border-top:1px solid var(--bd);padding-bottom:var(--sfb);position:relative;z-index:2}
 .bnav-inner{display:flex}
 .bi{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 1px 4px;gap:2px;cursor:pointer;border:none;background:none;color:var(--tx3);font-family:var(--sans);font-size:9px;font-weight:500;transition:color .13s;min-width:0}
 .bi.on{color:var(--ac)}
@@ -283,27 +275,20 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:10px}
 
-/* ── ALF THEME VALUE COLORS ── */
-[data-theme=alf] .cin{color:#d63a82 !important}
-[data-theme=alf] .cout{color:#c0392b !important}
-[data-theme=alf] .amount-in,[data-theme=alf] .c-in{color:#d63a82 !important}
-[data-theme=alf] .amount-out,[data-theme=alf] .c-out{color:#c0392b !important}
-[data-theme=alf] .kval{font-weight:500}
-[data-theme=alf] .bg{background:#fde8f2 !important;color:#d63a82 !important}
-[data-theme=alf] .br{background:#ffe0ee !important;color:#b02060 !important}
-[data-theme=alf] .badge.bg{background:#fde8f2;color:#d63a82}
-[data-theme=alf] .badge.br{background:#ffe0ee;color:#b02060}
-[data-theme=alf] .iok{border-color:#d63a82;background:#fde8f2}
-[data-theme=alf] .iwarn{border-color:#c0658a;background:#fde8f2}
-[data-theme=alf] .ibad{border-color:#b02060;background:#ffe0ee}
 
 [data-theme=alf] .mnav::before{content:'Value';font-family:var(--serif);font-size:13px;font-weight:500;color:var(--tx);margin-right:6px;opacity:.5}
 
-/* ALF: all monetary color overrides */
-[data-theme=alf] span.cin,[data-theme=alf] div.cin,[data-theme=alf] .txamt.cin{color:#d63a82 !important}
-[data-theme=alf] span.cout,[data-theme=alf] div.cout,[data-theme=alf] .txamt.cout{color:#c0392b !important}
-[data-theme=alf] .amount-in{color:#d63a82 !important}
-[data-theme=alf] .amount-out{color:#c0392b !important}
+
+/* ═══ ALF THEME: ALL VALUE COLORS ═══ */
+[data-theme=alf] .cin,[data-theme=alf] .txamt.cin,[data-theme=alf] span.cin{color:#27ae60!important}
+[data-theme=alf] .cout,[data-theme=alf] .txamt.cout,[data-theme=alf] span.cout{color:#c0392b!important}
+[data-theme=alf] .bg{background:#e8f5e9!important;color:#1b5e20!important}
+[data-theme=alf] .br{background:#ffebee!important;color:#b71c1c!important}
+[data-theme=alf] .bam{background:#fff8e1!important;color:#e65100!important}
+[data-theme=alf] .iok{border-color:#d63a82;background:#fde8f2}
+[data-theme=alf] .iwarn{border-color:#c0658a;background:#fde8f2}
+[data-theme=alf] .ibad{border-color:#b02060;background:#ffe0ee}
+[data-theme=alf] .pbar{background:#d63a82}
 </style>
 </head>
 <body>
@@ -829,6 +814,7 @@ function drawSidebarLogo(theme){
   ctx.clearRect(0,0,W,H);
   const sc=theme==='alf'?'#a02060':(theme==='dark'?'#1e4230':'#2d5a3d');
   const symc=theme==='alf'?'#fde8f2':'#f0d84e';
+  const stripeIsAlf=theme==='alf';
   // reuse bill drawing inline
   const x=W/180,y=H/88,fs=Math.min(x,y);
   function rr2(cx,cy,cw,ch,r){
