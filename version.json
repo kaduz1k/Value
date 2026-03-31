@@ -1,0 +1,13 @@
+{
+  "version": "1.3.0",
+  "notes": "Conta fixa, exportação filtrada, seleção múltipla e muito mais.",
+  "changes": [
+    "🔁 Conta fixa — crie cobranças recorrentes automáticas",
+    "📄 Exportar PDF com filtros por categoria e conta",
+    "☑️ Seleção múltipla em transações, metas e categorias",
+    "📅 Agendamentos com lembretes de vencimento",
+    "⌨️ Atalhos de teclado completos",
+    "🎨 Tema Alf com fundo tinted white",
+    "🐛 Correções de estabilidade"
+  ]
+}
