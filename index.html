@@ -81,8 +81,8 @@ body{display:flex;flex-direction:column;padding-top:var(--sft)}
 [data-theme=alf] .kpi,[data-theme=alf] .card{border-color:rgba(214,58,130,.15)}
 [data-theme=alf] .ni.on{background:#fde8f2;color:#d63a82}
 
-[data-theme=alf] .bi.on{color:#d63a82}
-[data-theme=alf] .fabcircle{background:#d63a82;box-shadow:0 4px 14px rgba(214,58,130,.4)}
+[data-theme=alf] 
+[data-theme=alf] 
 [data-theme=alf] .bprim{background:#d63a82}
 [data-theme=alf] input:focus,[data-theme=alf] select:focus,[data-theme=alf] textarea:focus{border-color:#d63a82}
 [data-theme=alf] .cin{color:#27ae60!important}[data-theme=alf] .cout{color:#c0392b!important}
@@ -94,7 +94,7 @@ body{display:flex;flex-direction:column;padding-top:var(--sft)}
 #wpLayer{--wp-ov:0.5}#wpLayer::after{content:'';position:absolute;inset:0;background:var(--bg);opacity:var(--wp-ov,.5)}
 .app{position:relative;z-index:1}
 #ibanner{position:relative;z-index:1}
-body.has-wp .sidebar,body.has-wp .topbar,body.has-wp .bnav{background:var(--sf)}
+body.has-wp .sidebar,body.has-wp .topbar,body.has-wp 
 
 .sidebar{width:216px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;position:relative;z-index:2}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -103,16 +103,17 @@ body.has-wp .sidebar,body.has-wp .topbar,body.has-wp .bnav{background:var(--sf)}
 .content{padding:18px;max-width:980px;margin:0 auto;width:100%}
 
 /* bottom nav */
-.bnav{display:none;flex-shrink:0;background:var(--sf);border-top:1px solid var(--bd);padding-bottom:var(--sfb);position:relative;z-index:2}
-.bnav-inner{display:flex}
-.bi{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 1px 4px;gap:2px;cursor:pointer;border:none;background:none;color:var(--tx3);font-family:var(--sans);font-size:9px;font-weight:500;transition:color .13s;min-width:0}
-.bi.on{color:var(--ac)}
-.bi svg{width:19px;height:19px;flex-shrink:0}
-.bi span{max-width:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bfab{flex:0 0 52px;display:flex;align-items:center;justify-content:center;padding:5px 1px 4px;cursor:pointer;border:none;background:none}
-.fabcircle{width:42px;height:42px;border-radius:50%;background:var(--ac);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(45,90,61,.4);transition:transform .13s}
-.fabcircle:active{transform:scale(.92)}
-.fabcircle svg{width:21px;height:21px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round}
+
+
+
+
+
+
+
+
+
+
+
 
 /* logo */
 .logo{padding:16px 14px 12px;border-bottom:1px solid var(--bd)}
@@ -250,16 +251,18 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 /* responsive */
 @media(max-width:680px){
   .sidebar{display:none}
-  .bnav{display:flex;flex-direction:column;flex-shrink:0}
+  
   .kgrid{gap:8px}.kval{font-size:17px}
   .g2{grid-template-columns:1fr}.c2{grid-template-columns:1fr}
   .content{padding:12px}.topbar{padding:9px 13px}
-  .toast{bottom:calc(62px + var(--sfb) + 8px)}
+  .toast{bottom:calc(80px + env(safe-area-inset-bottom,0px))}
   .hm{display:none}
   .overlay{align-items:flex-end}
 
   html,body{height:100svh;height:100dvh}
-  .app{flex:1;min-height:0}}
+  .app{flex:1;min-height:0}
+  .main{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+  .bnav{display:block}}
 @media(min-width:681px){
   .kgrid{grid-template-columns:repeat(4,1fr)}
   .hd{display:none}
@@ -347,6 +350,21 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .csv-cat-sel{font-size:11px;padding:4px 22px 4px 6px;height:26px;border-radius:6px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx);max-width:130px;font-family:var(--sans)}
 .csv-cat-sel.unset{border-color:var(--am);color:var(--tx3)}
 .csv-learned-badge{font-size:9px;letter-spacing:.06em;text-transform:uppercase;background:var(--acl);color:var(--ac);border-radius:10px;padding:2px 6px;flex-shrink:0}
+
+/* ── DOCK NAVIGATION — style D ── */
+.bnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;padding:0 10px calc(env(safe-area-inset-bottom,0px) + 8px);background:transparent;pointer-events:none}
+.bnav-inner{pointer-events:all;background:var(--sf);border:0.5px solid var(--bd2);border-radius:22px;height:56px;display:flex;align-items:center;padding:0 4px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 4px 24px rgba(0,0,0,.12)}
+.bi{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:48px;border:none;background:none;cursor:pointer;border-radius:16px;color:var(--tx3);transition:color .15s,background .15s;position:relative;padding:0}
+.bi svg{width:21px;height:21px;flex-shrink:0}
+.bi span{display:none}
+.bi.on{color:var(--ac)}
+.bi.on::after{content:'';position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--ac)}
+.bi:active{background:var(--sf2);transform:scale(.9)}
+.bfab{flex:0 0 52px;display:flex;align-items:center;justify-content:center;height:100%;border:none;background:none;cursor:pointer;padding:0}
+.fabcircle{width:42px;height:42px;border-radius:14px;background:var(--ac);display:flex;align-items:center;justify-content:center;transition:transform .12s}
+.fabcircle:active{transform:scale(.88)}
+.fabcircle svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round}
+[data-theme=alf] .fabcircle{background:#d63a82}
 </style>
 </head>
 <body>
@@ -392,6 +410,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <button class="ni" id="sn-reports" onclick="go('reports',this)">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12L6 7l3 3 2-4 3 5"/></svg>
       <span>Relatórios</span>
+    </button>
+    <button class="ni" id="sn-subscriptions" onclick="go('subscriptions',this)">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="2"/><path d="M1 6h14M4 10h2M7 10h2"/></svg>
+      <span>Agenda & Assinaturas</span>
     </button>
     <button class="ni" id="sn-categories" onclick="go('categories',this)">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="4" r="2"/><circle cx="12" cy="4" r="2"/><circle cx="4" cy="12" r="2"/><circle cx="12" cy="12" r="2"/></svg>
@@ -577,6 +599,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <button class="btn bsec bblk" onclick="openM('catModal')" style="margin-top:13px">+ Nova categoria</button>
       </div>
 
+      <div class="page" id="page-subscriptions">
+        <div id="subsList"></div>
+        <div id="scheduledList" style="margin-top:4px"></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn bsec" style="flex:1" onclick="openSubModal()">+ Assinatura</button>
+          <button class="btn bsec" style="flex:1" onclick="openSchedModal()">+ Agendamento</button>
+        </div>
+      </div>
+
       <div class="page" id="page-settings">
         <div class="card">
           <div class="ctitle">Preferências</div>
@@ -585,6 +616,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             <select id="sCur" onchange="saveSet('currency',this.value);renderAll()">
               <option value="R$">Real (R$)</option><option value="$">Dólar ($)</option><option value="€">Euro (€)</option><option value="£">Libra (£)</option>
             </select>
+          </div>
+          <div class="fg"><label class="flbl">Dia do salário (para lembrete)</label>
+            <input id="sSalDay" type="number" min="1" max="31" placeholder="Ex: 5" oninput="saveSet('salaryDay',this.value)">
           </div>
           <div class="fg"><label class="flbl">Tema</label>
             <select onchange="applyTheme(this.value)" id="themeSelect">
@@ -642,32 +676,32 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
   <nav class="bnav">
     <div class="bnav-inner">
-      <button class="bi on" id="bn-dashboard" onclick="go('dashboard',null);setBn('dashboard')">
+      <button class="bi on" id="bn-dashboard" onclick="go('dashboard',null);setBn('dashboard')" title="Início">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="8" height="8" rx="2"/><rect x="12" y="2" width="8" height="8" rx="2"/><rect x="2" y="12" width="8" height="8" rx="2"/><rect x="12" y="12" width="8" height="8" rx="2"/></svg>
-        <span>Início</span>
       </button>
-      <button class="bi" id="bn-transactions" onclick="go('transactions',null);setBn('transactions')">
+      <button class="bi" id="bn-transactions" onclick="go('transactions',null);setBn('transactions')" title="Lançamentos">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h16M3 11h10M3 16h13"/></svg>
-        <span>Lançamentos</span>
       </button>
-      <button class="bi" id="bn-categories" onclick="go('categories',null);setBn('categories')">
-        <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="5" r="2.5"/><circle cx="17" cy="5" r="2.5"/><circle cx="5" cy="17" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>
-        <span>Categ.</span>
+      <button class="bi" id="bn-accounts" onclick="go('accounts',null);setBn('accounts')" title="Contas">
+        <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="5" width="18" height="13" rx="2"/><path d="M2 9h18"/><circle cx="7" cy="14" r="1.2" fill="currentColor" stroke="none"/></svg>
       </button>
-      <button class="bfab" onclick="openM('txModal')">
-        <div class="fabcircle"><svg viewBox="0 0 22 22"><path d="M11 4v14M4 11h14" stroke-linecap="round"/></svg></div>
-      </button>
-      <button class="bi" id="bn-goals" onclick="go('goals',null);setBn('goals')">
+      <button class="bi" id="bn-goals" onclick="go('goals',null);setBn('goals')" title="Metas">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><circle cx="11" cy="11" r="3.5"/></svg>
-        <span>Metas</span>
       </button>
-      <button class="bi" id="bn-reports" onclick="go('reports',null);setBn('reports')">
+      <button class="bfab" onclick="openM('txModal')" title="Nova transação">
+        <div class="fabcircle"><svg viewBox="0 0 22 22"><path d="M11 4v14M4 11h14"/></svg></div>
+      </button>
+      <button class="bi" id="bn-categories" onclick="go('categories',null);setBn('categories')" title="Categorias">
+        <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="5" r="2.5"/><circle cx="17" cy="5" r="2.5"/><circle cx="5" cy="17" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>
+      </button>
+      <button class="bi" id="bn-reports" onclick="go('reports',null);setBn('reports')" title="Relatórios">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 16L7 10l3 3 3-5 4 7"/></svg>
-        <span>Relatórios</span>
       </button>
-      <button class="bi" id="bn-settings" onclick="go('settings',null);setBn('settings')">
+      <button class="bi" id="bn-subscriptions" onclick="go('subscriptions',null);setBn('subscriptions')" title="Agenda">
+        <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="16" height="15" rx="2"/><path d="M3 9h16M8 2v4M14 2v4"/></svg>
+      </button>
+      <button class="bi" id="bn-settings" onclick="go('settings',null);setBn('settings')" title="Config">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="3"/><path d="M11 2v3M11 17v3M2 11h3M17 11h3"/></svg>
-        <span>Config</span>
       </button>
     </div>
   </nav>
@@ -886,6 +920,62 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
 </div>
 
+
+<div class="overlay" id="subModal">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle" id="subMTitle">Nova assinatura</div><button class="mclose" onclick="closeM('subModal')">×</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="flbl">Nome</label><input id="sbNm" type="text" placeholder="Ex: Netflix, Spotify..."></div>
+      <div class="frow c2">
+        <div class="fg"><label class="flbl">Valor</label><input id="sbAmt" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'sbAmtCents')" autocomplete="off"></div>
+        <div class="fg"><label class="flbl">Dia de vencimento</label><input id="sbDay" type="number" min="1" max="31" placeholder="Ex: 15"></div>
+      </div>
+      <div class="fg"><label class="flbl">Categoria</label><select id="sbCat"></select></div>
+      <div class="fg"><label class="flbl">Conta</label><select id="sbAcc"></select></div>
+      <div class="fg">
+        <label class="flbl">Notificar antes</label>
+        <select id="sbNotify">
+          <option value="0">No dia do vencimento</option>
+          <option value="1">1 dia antes</option>
+          <option value="2" selected>2 dias antes</option>
+          <option value="3">3 dias antes</option>
+          <option value="7">1 semana antes</option>
+        </select>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bsec bblk" onclick="closeM('subModal')">Cancelar</button>
+      <button class="btn bprim bblk" id="subSaveBtn" onclick="saveSub()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="schedModal">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle" id="schedMTitle">Novo agendamento</div><button class="mclose" onclick="closeM('schedModal')">×</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="flbl">Descrição</label><input id="scDesc" type="text" placeholder="Ex: Salário, Aluguel a receber..."></div>
+      <div class="fg"><label class="flbl">Tipo</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="btn" id="scEnt" onclick="setSchedType('entrada')">↑ Entrada</button>
+          <button class="btn" id="scSai" onclick="setSchedType('saida')">↓ Saída</button>
+        </div>
+      </div>
+      <div class="frow c2">
+        <div class="fg"><label class="flbl">Valor (estimado)</label><input id="scAmt" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'scAmtCents')" autocomplete="off"></div>
+        <div class="fg"><label class="flbl">Data prevista</label><input id="scDt" type="date"></div>
+      </div>
+      <div class="fg"><label class="flbl">Categoria</label><select id="scCat"></select></div>
+      <div class="fg"><label class="flbl">Notas</label><input id="scNts" type="text" placeholder="Observação..."></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bsec bblk" onclick="closeM('schedModal')">Cancelar</button>
+      <button class="btn bprim bblk" onclick="saveSched()">Agendar</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -909,6 +999,8 @@ function hydrate(){
   if(!S.categories?.length)seedC();
   S.transactions=S.transactions||[];S.accounts=S.accounts||[];S.goals=S.goals||[];
   S.settings=S.settings||{name:'',currency:'R$'};
+  S.subscriptions=S.subscriptions||[];  // recorrências fixas
+  S.scheduled=S.scheduled||[];          // agendamentos futuros
 }
 function seedC(){
   S.categories=[
@@ -1539,6 +1631,7 @@ function renderSettings(){
   if(n)n.value=S.settings.name||'';if(c)c.value=S.settings.currency||'R$';
   const curTheme=localStorage.getItem('value_theme')||'light';
   const sel=document.getElementById('themeSelect');if(sel)sel.value=curTheme;
+  const sdEl=document.getElementById('sSalDay');if(sdEl)sdEl.value=S.settings?.salaryDay||'';
   try{const b=new Blob([JSON.stringify(S)]).size;const el=document.getElementById('stInfo');if(el)el.textContent=`${S.transactions.length} transações · ${S.accounts.length} contas · ${S.goals.length} metas · ~${(b/1024).toFixed(1)} KB`;}catch(e){}
   updateInstallUI();
 
@@ -1652,6 +1745,25 @@ function renderIns(txM,inc,exp){
       ins.push({c:'iok',t:`Economia em: ${cat.name}`,d:`Ótimo! Você usou apenas ${Math.round(pct)}% do seu limite neste mês.`});
   });
 
+  // Subscription insights in dashboard
+  if(S.subscriptions?.length){
+    const today2=new Date().getDate();
+    S.subscriptions.forEach(s=>{
+      const dLeft=s.day>=today2?s.day-today2:(31-today2+s.day);
+      if(dLeft===0)ins.push({c:'ibad',t:'Vence hoje: '+s.name,d:`Assinatura de ${fmt(s.amount)} vence hoje.`});
+      else if(dLeft<=s.notify)ins.push({c:'iwarn',t:'Vence em '+dLeft+'d: '+s.name,d:`Assinatura de ${fmt(s.amount)} vence no dia ${s.day}.`});
+    });
+  }
+  // Scheduled insights
+  if(S.scheduled?.length){
+    const tod=new Date().toISOString().split('T')[0];
+    S.scheduled.filter(s=>!s.done&&s.date<=tod).forEach(s=>{
+      const tipo=s.type==='entrada'?'receber':'pagar';
+      ins.push({c:s.type==='entrada'?'iok':'iwarn',
+        t:(s.date<tod?'Atrasado: ':'Hoje: ')+s.desc,
+        d:`Previsto para ${tipo}: ${fmt(s.amount)}. Registre quando ocorrer.`});
+    });
+  }
   S.goals.forEach(g=>{
     if(!g.deadline)return;
     const d=Math.ceil((new Date(g.deadline)-new Date())/864e5);
@@ -1909,9 +2021,10 @@ function renderRep(){
   const balColor=isAlf2?'#d63a82':'#2d5a3d';
   const balBg=isAlf2?'rgba(214,58,130,.1)':'rgba(45,90,61,.1)';
   mkCh('balChart','line',{labels:bL,datasets:[{data:bD,borderColor:balColor,backgroundColor:balBg,fill:true,tension:.4,pointRadius:3,borderWidth:2}]},{plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>fmt(v.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:10},color:tc}},y:{grid:{color:gc},ticks:{font:{size:10},color:tc,callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}}}});
-  const ct={};S.transactions.filter(t=>t.type==='saida'&&t.date?.startsWith(cY+'')).forEach(t=>{const c=gCat(t.category);ct[c.name]=(ct[c.name]||{a:0,col:c.color});ct[c.name].a+=t.amount;});
+  const ct={};S.transactions.filter(t=>t.type==='saida'&&!t.transfer&&t.date?.startsWith(cY+'')).forEach(t=>{const c=gCat(t.category);ct[c.name]=(ct[c.name]||{a:0,col:c.color});ct[c.name].a+=t.amount;});
   const en=Object.entries(ct).sort((a,b)=>b[1].a-a[1].a).slice(0,8);
-  if(en.length)mkCh('ctChart','bar',{labels:en.map(e=>e[0]),datasets:[{data:en.map(e=>e[1].a),backgroundColor:en.map(e=>e[1].col),borderRadius:4,borderSkipped:false}]},{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>fmt(v.raw)}}},scales:{x:{grid:{color:gc},ticks:{font:{size:10},color:tc,callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}},y:{grid:{display:false},ticks:{font:{size:10},color:tc}}}});
+  if(en.length){mkCh('ctChart','bar',{labels:en.map(e=>e[0]),datasets:[{data:en.map(e=>e[1].a),backgroundColor:en.map(e=>e[1].col),borderRadius:4,borderSkipped:false}]},{indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:v=>fmt(v.raw)}}},scales:{x:{grid:{color:gc},ticks:{font:{size:10},color:tc,callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}},y:{grid:{display:false},ticks:{font:{size:10},color:tc}}}});}
+  else{if(CH['ctChart']){CH['ctChart'].destroy();delete CH['ctChart'];}const cv=document.getElementById('ctChart');if(cv){const ctx2=cv.getContext('2d');ctx2.clearRect(0,0,cv.width,cv.height);}}
   document.getElementById('monthTbl').innerHTML=rows.length?rows.map(r=>`<tr><td style="font-weight:500">${r.m}</td><td class="cin">+${fmt(r.inc)}</td><td class="cout">-${fmt(r.exp)}</td><td class="${r.bal>=0?'cin':'cout'}">${r.bal>=0?'+':''}${fmt(r.bal)}</td></tr>`).join(''):`<tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:24px">Sem dados para ${cY}</td></tr>`;
   setTimeout(renderPatrimChart,80);
   initComparativoSelect();
@@ -2078,7 +2191,7 @@ function impJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReade
 function clearData(){if(!confirm('Apagar TODOS os dados?'))return;if(!confirm('Irreversível. Confirmar?'))return;localStorage.removeItem(SK);S={transactions:[],accounts:[],goals:[],categories:[],settings:{name:'',currency:'R$'}};seedC();persist();renderAll();toast('Dados apagados');}
 
 function renderAll(){
-  renderDash();renderTxPg();renderAcc();renderGoals();renderCats();renderRep();renderSettings();updML();
+  renderDash();renderTxPg();renderAcc();renderGoals();renderCats();renderRep();renderSettings();renderSubsPage();updML();
 }
 // reports re-rendered on navigate (handled inside go)
 
@@ -2271,22 +2384,53 @@ function drawOrnament(ctx,cx,cy,r,s){
   ctx.beginPath();ctx.arc(cx,cy,r*.11,0,Math.PI*2);ctx.fillStyle='rgba(240,216,78,.6)';ctx.fill();
 }
 function makeIcon(size){
-  // Bill fills the full canvas — no green background
-  // Symbols scaled up proportionally for small sizes
   const cv=document.createElement('canvas');
   cv.width=cv.height=size;
   const ctx=cv.getContext('2d');
-  // Transparent background (for desktop favicon)
-  ctx.clearRect(0,0,size,size);
-  // Bill aspect ratio: 180:88 = ~2.045:1
-  // Fill width fully, center vertically
-  const bw=size;
-  const bh=Math.round(size*(88/180));
+  const r=size*0.22; // corner radius like iOS
+
+  // iOS-style rounded rect clip
+  ctx.beginPath();
+  ctx.moveTo(r,0);ctx.lineTo(size-r,0);
+  ctx.quadraticCurveTo(size,0,size,r);
+  ctx.lineTo(size,size-r);
+  ctx.quadraticCurveTo(size,size,size-r,size);
+  ctx.lineTo(r,size);
+  ctx.quadraticCurveTo(0,size,0,size-r);
+  ctx.lineTo(0,r);
+  ctx.quadraticCurveTo(0,0,r,0);
+  ctx.closePath();
+  ctx.clip();
+
+  // Uniform vivid green base
+  ctx.fillStyle='#2d7a50';
+  ctx.fillRect(0,0,size,size);
+
+  // iOS glass highlight — bright streak at top, fades to transparent
+  const hi=ctx.createLinearGradient(0,0,0,size*0.52);
+  hi.addColorStop(0,'rgba(255,255,255,0.28)');
+  hi.addColorStop(0.5,'rgba(255,255,255,0.07)');
+  hi.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=hi;
+  ctx.fillRect(0,0,size,size*0.52);
+
+  // Subtle bottom shadow to give depth
+  const sh=ctx.createLinearGradient(0,size*0.6,0,size);
+  sh.addColorStop(0,'rgba(0,0,0,0)');
+  sh.addColorStop(1,'rgba(0,0,0,0.18)');
+  ctx.fillStyle=sh;
+  ctx.fillRect(0,size*0.6,size,size*0.4);
+
+  // Draw bill centered with padding
+  const pad=size*0.10;
+  const bw=size-pad*2;
+  const bh=Math.round(bw*(88/180));
   const by=Math.round((size-bh)/2);
   const tmp=document.createElement('canvas');
-  tmp.width=bw;tmp.height=bh;
-  billIcon(tmp.getContext('2d'),bw,bh);
-  ctx.drawImage(tmp,0,by);
+  tmp.width=Math.ceil(bw);tmp.height=Math.ceil(bh);
+  billIcon(tmp.getContext('2d'),tmp.width,tmp.height);
+  ctx.drawImage(tmp,Math.round(pad),by);
+
   return cv.toDataURL('image/png');
 }
 
@@ -2319,14 +2463,31 @@ function billIcon(ctx,W,H){
   ctx.font=`900 ${26*fs}px Georgia,serif`;ctx.fillText('£',s4,symY);
 }
 
+function makeDesktopFavicon(size){
+  // Desktop favicon — transparent background, bill floats clean
+  const cv=document.createElement('canvas');
+  cv.width=cv.height=size;
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,size,size);
+  const bw=size, bh=Math.round(size*(88/180)), by=Math.round((size-bh)/2);
+  const tmp=document.createElement('canvas');
+  tmp.width=bw; tmp.height=Math.ceil(bh);
+  billIcon(tmp.getContext('2d'),bw,Math.ceil(bh));
+  ctx.drawImage(tmp,0,by);
+  return cv.toDataURL('image/png');
+}
+
 function installCanvasIcons(){
   try{
+    // Mobile icon (apple-touch-icon) — green pill background
     const icon192=makeIcon(192);
     sessionStorage.setItem('icon192',icon192);
     let li=document.querySelector('link[rel="apple-touch-icon"]');
     if(li)li.href=icon192;
-    let li2=document.querySelector('link[rel="icon"]');
-    if(li2)li2.href=icon192;
+    // Desktop favicon — no background, bill floats
+    const fav32=makeDesktopFavicon(32);
+    const fav=document.querySelector('link[rel="icon"][sizes="32x32"]')||document.querySelector('link[rel="icon"]');
+    if(fav)fav.href=fav32;
   }catch(e){}
 }
 
@@ -3293,6 +3454,280 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='4'){go('goals',null);}
   else if(e.key==='5'){go('reports',null);setBn('reports');}
 });
+
+/* ══════════════════════════════════════════════════════
+   ASSINATURAS & AGENDAMENTOS
+══════════════════════════════════════════════════════ */
+let eSubId=null,schedType='saida';
+
+function openSubModal(id){
+  eSubId=id||null;
+  const sub=id?S.subscriptions.find(s=>s.id===id):null;
+  document.getElementById('subMTitle').textContent=sub?'Editar assinatura':'Nova assinatura';
+  document.getElementById('subSaveBtn').textContent=sub?'Salvar edição':'Salvar';
+  document.getElementById('sbNm').value=sub?sub.name:'';
+  document.getElementById('sbDay').value=sub?sub.day:'';
+  setMoneyInput('sbAmt','sbAmtCents',sub?sub.amount:0);
+  document.getElementById('sbNotify').value=sub?String(sub.notify||2):'2';
+  // Fill category (saida only) and account selects
+  const catOpts=S.categories.filter(c=>c.type==='saida').map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  document.getElementById('sbCat').innerHTML='<option value="">— categoria —</option>'+catOpts;
+  if(sub)document.getElementById('sbCat').value=sub.category||'';
+  const accOpts=S.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  document.getElementById('sbAcc').innerHTML='<option value="">— conta —</option>'+accOpts;
+  if(sub)document.getElementById('sbAcc').value=sub.account||'';
+  document.getElementById('subModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function saveSub(){
+  const name=document.getElementById('sbNm').value.trim();
+  const day=parseInt(document.getElementById('sbDay').value)||1;
+  const amount=getMoneyVal('sbAmtCents');
+  if(!name||!amount){toast('Preencha nome e valor');return;}
+  const sub={
+    name,day,amount,
+    category:document.getElementById('sbCat').value,
+    account:document.getElementById('sbAcc').value,
+    notify:parseInt(document.getElementById('sbNotify').value)||2,
+    active:true
+  };
+  if(eSubId){
+    const i=S.subscriptions.findIndex(s=>s.id===eSubId);
+    if(i!==-1)S.subscriptions[i]={...S.subscriptions[i],...sub};
+    toast('Assinatura atualizada! ✓');
+  } else {
+    S.subscriptions.push({id:uid(),...sub,createdAt:new Date().toISOString()});
+    toast('Assinatura criada! ✓');
+  }
+  persist();closeM('subModal');renderSubs();
+}
+
+function delSub(id){
+  if(!confirm('Remover assinatura?'))return;
+  S.subscriptions=S.subscriptions.filter(s=>s.id!==id);
+  persist();renderSubs();toast('Assinatura removida');
+}
+
+function renderSubs(){
+  const el=document.getElementById('subsList');
+  if(!el)return;
+  const today=new Date();
+  const todayDay=today.getDate();
+
+  if(!S.subscriptions.length){
+    el.innerHTML=`<div class="card"><div class="ctitle">Assinaturas fixas</div><div class="empty"><div class="eico">💳</div><p>Nenhuma assinatura cadastrada.</p><p style="font-size:12px;color:var(--tx3);margin-top:4px">Adicione serviços recorrentes para receber lembretes.</p></div></div>`;
+  } else {
+    const sorted=[...S.subscriptions].sort((a,b)=>a.day-b.day);
+    el.innerHTML=`<div class="card"><div class="ctitle">Assinaturas fixas <span style="font-size:11px;color:var(--tx3);font-weight:400">${sorted.length} ativas</span></div>`+
+    sorted.map(s=>{
+      const daysLeft=s.day>=todayDay?s.day-todayDay:(31-todayDay+s.day);
+      const isToday=s.day===todayDay;
+      const isSoon=daysLeft<=s.notify;
+      const urgency=isToday?'ibad':isSoon?'iwarn':'';
+      const cat=gCat(s.category);
+      return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
+        <div style="width:36px;height:36px;border-radius:10px;background:${cat.color}22;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${cat.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500">${s.name}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:1px">Todo dia ${s.day} · ${cat.name}</div>
+          ${isToday?`<div style="font-size:11px;color:var(--re);font-weight:500;margin-top:2px">⚠ Vence hoje!</div>`:
+            isSoon?`<div style="font-size:11px;color:var(--am);margin-top:2px">Vence em ${daysLeft} dia${daysLeft>1?'s':''}</div>`:''}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="cout" style="font-size:14px;font-weight:600;letter-spacing:-.2px">-${fmt(s.amount)}</div>
+          <div style="display:flex;gap:4px;margin-top:4px;justify-content:flex-end">
+            <button onclick="openSubModal('${s.id}')" style="background:var(--sf2);border:1px solid var(--bd2);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;color:var(--tx)">✎</button>
+            <button onclick="delSub('${s.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:0 3px">×</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')+`</div>`;
+  }
+}
+
+/* ── AGENDAMENTOS ── */
+function setSchedType(t){
+  schedType=t;
+  document.getElementById('scEnt').style.background=t==='entrada'?'var(--acl)':'';
+  document.getElementById('scEnt').style.color=t==='entrada'?'var(--ac)':'';
+  document.getElementById('scSai').style.background=t==='saida'?'var(--rel)':'';
+  document.getElementById('scSai').style.color=t==='saida'?'var(--re)':'';
+  // fill categories
+  const opts=S.categories.filter(c=>c.type===t)
+    .map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  document.getElementById('scCat').innerHTML='<option value="">— categoria —</option>'+opts;
+}
+
+function openSchedModal(){
+  document.getElementById('scDesc').value='';
+  document.getElementById('scAmt').value='';
+  document.getElementById('scNts').value='';
+  _cents['scAmtCents']=0;
+  document.getElementById('scDt').value=new Date().toISOString().split('T')[0];
+  schedType='saida';
+  setSchedType('saida');
+  document.getElementById('schedModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function saveSched(){
+  const desc=document.getElementById('scDesc').value.trim();
+  const date=document.getElementById('scDt').value;
+  const amount=getMoneyVal('scAmtCents');
+  if(!desc||!date){toast('Preencha descrição e data');return;}
+  S.scheduled.push({
+    id:uid(),desc,type:schedType,amount,date,
+    category:document.getElementById('scCat').value,
+    notes:document.getElementById('scNts').value,
+    done:false,createdAt:new Date().toISOString()
+  });
+  persist();closeM('schedModal');renderScheduled();
+  toast('Agendado para '+fmtD(date)+'! ✓');
+}
+
+function markSchedDone(id){
+  const s=S.scheduled.find(s=>s.id===id);
+  if(!s)return;
+  // Convert to real transaction
+  S.transactions.unshift({
+    id:uid(),desc:s.desc,type:s.type,amount:s.amount,
+    date:new Date().toISOString().split('T')[0],
+    category:s.category,notes:s.notes,
+    recurrence:'none',createdAt:new Date().toISOString()
+  });
+  s.done=true;
+  persist();renderAll();toast('Lançamento registrado! ✓');
+}
+
+function delSched(id){
+  S.scheduled=S.scheduled.filter(s=>s.id!==id);
+  persist();renderScheduled();
+}
+
+function renderScheduled(){
+  const el=document.getElementById('scheduledList');
+  if(!el)return;
+  const pending=S.scheduled.filter(s=>!s.done).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!pending.length){
+    el.innerHTML=`<div class="card"><div class="ctitle">Agendamentos</div><div class="empty"><div class="eico">📅</div><p>Nenhum agendamento pendente.</p></div></div>`;
+    return;
+  }
+  const today=new Date().toISOString().split('T')[0];
+  el.innerHTML=`<div class="card"><div class="ctitle">Agendamentos <span style="font-size:11px;color:var(--tx3);font-weight:400">${pending.length} pendentes</span></div>`+
+  pending.map(s=>{
+    const isToday=s.date===today;
+    const isPast=s.date<today;
+    const cat=gCat(s.category);
+    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)">
+      <div style="width:36px;height:36px;border-radius:10px;background:${s.type==='entrada'?'var(--acl)':'var(--rel)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${s.type==='entrada'?'↑':'↓'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500">${s.desc}</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:1px">${isToday?'<span style="color:var(--ac);font-weight:500">Hoje</span>':isPast?'<span style="color:var(--re)">Atrasado</span>':fmtD(s.date)} · ${cat.name}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="${s.type==='entrada'?'cin':'cout'}" style="font-size:14px;font-weight:600;letter-spacing:-.2px">${s.type==='entrada'?'+':'-'}${fmt(s.amount)}</div>
+        <div style="display:flex;gap:4px;margin-top:4px;justify-content:flex-end">
+          <button onclick="markSchedDone('${s.id}')" style="background:var(--acl);border:1px solid var(--ac);border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer;color:var(--ac);font-weight:500">✓ Registrar</button>
+          <button onclick="delSched('${s.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:0 3px">×</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('')+`</div>`;
+}
+
+function renderSubsPage(){
+  renderSubs();
+  renderScheduled();
+}
+
+/* ── SUBSCRIPTION INSIGHTS ── */
+function checkSubInsights(){
+  const today=new Date();
+  const day=today.getDate();
+  S.subscriptions.forEach(s=>{
+    const daysLeft=s.day>=day?s.day-day:(31-day+s.day);
+    if(daysLeft===0){
+      addNotif('Assinatura vence hoje: '+s.name,'Valor: '+fmt(s.amount)+'. Verifique se o pagamento foi realizado.','danger');
+      if(Notification&&Notification.permission==='granted'){
+        try{new Notification('💳 Vencimento hoje: '+s.name,{body:fmt(s.amount)+' — não esqueça de registrar no Value',icon:'icon-192.png'});}catch(e){}
+      }
+    } else if(daysLeft===s.notify){
+      addNotif('Assinatura em '+daysLeft+' dias: '+s.name,'Valor: '+fmt(s.amount)+'. Programe-se!','warn');
+    }
+  });
+  // Scheduled reminders
+  const todayStr=today.toISOString().split('T')[0];
+  S.scheduled.filter(s=>!s.done).forEach(s=>{
+    if(s.date===todayStr){
+      const tipo=s.type==='entrada'?'receber':'pagar';
+      addNotif('Agendamento hoje: '+s.desc,'Valor previsto: '+fmt(s.amount)+'. Registre no app!','info');
+      if(Notification&&Notification.permission==='granted'){
+        try{new Notification('📅 Lembrete: '+s.desc,{body:'Você tem '+fmt(s.amount)+' para '+tipo+' hoje',icon:'icon-192.png'});}catch(e){}
+      }
+    }
+  });
+}
+
+/* ── SALARY REMINDER ── */
+function checkSalaryReminder(){
+  const salaryDay=parseInt(S.settings?.salaryDay||0);
+  if(!salaryDay)return;
+  const today=new Date().getDate();
+  if(today===salaryDay){
+    const key='salary_notif_'+new Date().toISOString().slice(0,7);
+    if(!sessionStorage.getItem(key)){
+      sessionStorage.setItem(key,'1');
+      addNotif('Dia do salário! 💰','Não esqueça de lançar sua receita no Value para manter sua rotina financeira.','info');
+      if(Notification&&Notification.permission==='granted'){
+        try{new Notification('💰 Dia do salário!',{body:'Registre sua receita no Value — não deixe sua rotina financeira sair da linha!',icon:'icon-192.png'});}catch(e){}
+      }
+    }
+  }
+}
+
+
+/* ── APP VERSION CHECK via GitHub ── */
+const APP_VERSION='1.2.0';
+
+async function checkAppVersion(){
+  try{
+    // Fetch version.json from same origin (GitHub Pages repo root)
+    const res=await fetch('./version.json?t='+Date.now(),{cache:'no-store'});
+    if(!res.ok)return;
+    const data=await res.json();
+    const latest=data.version;
+    const notes=data.notes||'Novas melhorias e correções disponíveis.';
+    const lastSeen=localStorage.getItem('value_version_seen');
+
+    if(latest&&latest!==APP_VERSION&&lastSeen!==latest){
+      // New version available on server — notify user
+      localStorage.setItem('value_version_seen',latest);
+      addNotif('✨ Value '+latest+' disponível!',notes,'info');
+      if(Notification&&Notification.permission==='granted'){
+        try{new Notification('✨ Value atualizado para '+latest,{
+          body:notes,icon:'icon-192.png'});}catch(e){}
+      }
+      // Show update banner
+      showUpdateBanner(latest,notes);
+    }
+  }catch(e){
+    // Offline or fetch failed — silent fail
+  }
+}
+
+function showUpdateBanner(version,notes){
+  // Show a dismissible top banner
+  const existing=document.getElementById('updateBanner');
+  if(existing)existing.remove();
+  const b=document.createElement('div');
+  b.id='updateBanner';
+  b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--ac);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-family:var(--sans)';
+  b.innerHTML=`<span style="flex:1">✨ Value ${version} disponível — ${notes}</span>
+    <button onclick="document.getElementById('updateBanner').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-family:var(--sans)">OK</button>`;
+  document.body.prepend(b);
+  setTimeout(()=>{if(b.parentNode)b.remove();},8000);
+}
 // ── BOOT ──
 const th=localStorage.getItem('value_theme')||'light';
 applyTheme(th);
@@ -3304,6 +3739,7 @@ loadWallpaper();
 updateInstallUI();
 loadNotifs();
 setTimeout(requestNotifPermission,3000);
+setTimeout(()=>{checkSubInsights();checkSalaryReminder();checkAppVersion();},1500);
 </script>
 </body>
 </html>
