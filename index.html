@@ -378,6 +378,13 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 div.sel{background:var(--acl)!important;outline:2px solid var(--ac);outline-offset:-2px;border-radius:var(--rs)}
 [data-theme=alf] div.sel{background:#fde8f2!important;outline-color:#d63a82}
 [data-theme=alf] .txrow.sel{background:#fde8f2!important;outline-color:#d63a82}
+
+/* ── CUSTOM CHECKBOXES (export modal) ── */
+.exp-chk{display:none}
+.exp-chk-box{width:20px;height:20px;border-radius:6px;border:2px solid var(--bd2);background:var(--sf);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .12s;cursor:pointer}
+.exp-chk:checked+.exp-chk-box{background:var(--ac);border-color:var(--ac)}
+.exp-chk:checked+.exp-chk-box::after{content:'';display:block;width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(0px,-1px)}
+[data-theme=alf] .exp-chk:checked+.exp-chk-box{background:#d63a82;border-color:#d63a82}
 </style>
 </head>
 <body>
@@ -1061,12 +1068,16 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
 
       <div class="fg">
         <label class="flbl">Tipo de transação</label>
-        <div style="display:flex;gap:12px">
+        <div style="display:flex;gap:16px">
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
-            <input type="checkbox" id="expInc" checked style="width:18px;height:18px;accent-color:var(--ac);cursor:pointer"> Entradas
+            <input type="checkbox" id="expInc" class="exp-chk" checked>
+            <div class="exp-chk-box"></div>
+            Entradas
           </label>
           <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
-            <input type="checkbox" id="expExp" checked style="width:18px;height:18px;accent-color:var(--ac);cursor:pointer"> Saídas
+            <input type="checkbox" id="expExp" class="exp-chk" checked>
+            <div class="exp-chk-box"></div>
+            Saídas
           </label>
         </div>
       </div>
@@ -2415,7 +2426,8 @@ function openExportModal(){
       +'</div>';
     catEl.innerHTML=selAllBtns+S.categories.map(cat=>`
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:5px 0;border-bottom:1px solid var(--bd)">
-        <input type="checkbox" class="expCatChk" value="${cat.id}" checked style="width:18px;height:18px;accent-color:var(--ac);cursor:pointer;flex-shrink:0">
+        <input type="checkbox" class="expCatChk exp-chk" value="${cat.id}" checked>
+        <div class="exp-chk-box"></div>
         <span style="font-size:15px;flex-shrink:0">${cat.icon}</span>
         <span style="font-size:13px">${cat.name}</span>
       </label>`).join('');
@@ -2425,9 +2437,10 @@ function openExportModal(){
   if(accEl){
     accEl.innerHTML=S.accounts.length
       ? S.accounts.map(a=>`
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-          <input type="checkbox" class="expAccChk" value="${a.id}" checked>
-          <span style="width:10px;height:10px;border-radius:50%;background:${a.color};display:inline-block"></span>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;padding:5px 0;border-bottom:1px solid var(--bd)">
+          <input type="checkbox" class="expAccChk exp-chk" value="${a.id}" checked>
+          <div class="exp-chk-box"></div>
+          <span style="width:10px;height:10px;border-radius:50%;background:${a.color};display:inline-block;flex-shrink:0"></span>
           ${a.name}
         </label>`).join('')
       : '<div style="font-size:12px;color:var(--tx3)">Nenhuma conta cadastrada</div>';
