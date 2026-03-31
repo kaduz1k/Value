@@ -1531,6 +1531,7 @@ function saveTx(){
     toast('Transação salva! ✓');
   }
   persist();closeM('txModal');renderAll();
+  if(navigator.vibrate)navigator.vibrate(40);
 }
 function delTx(id,allFuture){
   const tx=S.transactions.find(t=>t.id===id);
@@ -3881,6 +3882,72 @@ function selLongCancel(){
   if(_lpt){clearTimeout(_lpt);_lpt=null;}
 }
 
+
+/* ── ONBOARDING ── */
+function obValidate(step){
+  if(step===1){
+    const v=document.getElementById('obName')?.value.trim().length>1;
+    const btn=document.getElementById('obBtn1');
+    if(btn){btn.disabled=!v;btn.style.opacity=v?'1':'.4';}
+  }
+}
+function obNext(step){
+  // Save step 2 data
+  if(step===3){
+    const name=document.getElementById('obName')?.value.trim()||'';
+    const cur=document.getElementById('obCur')?.value||'R$';
+    const sal=document.getElementById('obSal')?.value||'';
+    S.settings.name=name;
+    S.settings.currency=cur;
+    if(sal)S.settings.salaryDay=parseInt(sal);
+    persist();
+    const welcome=document.getElementById('obWelcome');
+    if(welcome&&name)welcome.textContent='Olá, '+name.split(' ')[0]+'! 👋';
+  }
+  // Hide all steps
+  [1,2,3].forEach(i=>{
+    const el=document.getElementById('ob'+i);
+    if(el)el.style.display='none';
+  });
+  // Show target step
+  const target=document.getElementById('ob'+step);
+  if(target){target.style.display='block';}
+  // Update dots
+  [1,2,3].forEach(i=>{
+    const dot=document.getElementById('od'+i);
+    if(dot)dot.style.background=i<=step?'var(--ac)':'var(--bd2)';
+  });
+}
+function obFinish(){
+  localStorage.setItem('value_onboarded','1');
+  const ob=document.getElementById('onboarding');
+  if(ob){
+    ob.style.opacity='0';
+    ob.style.transition='opacity .3s';
+    setTimeout(()=>{ob.style.display='none';},300);
+  }
+  renderSettings();
+  // Focus first action
+  setTimeout(()=>openM('txModal'),400);
+  if(navigator.vibrate)navigator.vibrate([40,30,40]);
+}
+function checkOnboarding(){
+  const done=localStorage.getItem('value_onboarded');
+  if(!done){
+    const ob=document.getElementById('onboarding');
+    if(ob){
+      ob.style.display='flex';
+      // Pre-fill name if already set
+      const nameEl=document.getElementById('obName');
+      if(nameEl&&S.settings?.name)nameEl.value=S.settings.name;
+      setTimeout(()=>{
+        const nameEl2=document.getElementById('obName');
+        if(nameEl2)nameEl2.focus();
+      },300);
+    }
+  }
+}
+
 /* ── BOOT ── */
 
 // System dark mode listener
@@ -4430,6 +4497,61 @@ setTimeout(()=>{
   checkSalaryReminder();
   checkAppVersion();
 },1500);
+checkOnboarding();
 </script>
+<div id="onboarding" style="display:none;position:fixed;inset:0;z-index:99999;background:var(--bg);font-family:var(--sans);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px">
+
+  <!-- Step 1: Nome -->
+  <div id="ob1" style="width:100%;max-width:360px;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">👋</div>
+    <div style="font-size:24px;font-weight:700;letter-spacing:-.4px;color:var(--tx);margin-bottom:8px">Bem-vindo ao Value</div>
+    <div style="font-size:14px;color:var(--tx2);margin-bottom:32px;line-height:1.5">Seu controle financeiro pessoal,<br>simples e bonito.</div>
+    <div style="text-align:left;margin-bottom:24px">
+      <label style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:8px">Como posso te chamar?</label>
+      <input id="obName" type="text" placeholder="Seu nome" style="width:100%;font-size:16px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--bd2);background:var(--sf);color:var(--tx);outline:none;box-sizing:border-box" oninput="obValidate(1)">
+    </div>
+    <button id="obBtn1" onclick="obNext(2)" disabled style="width:100%;background:var(--ac);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--sans);opacity:.4;transition:opacity .2s">Continuar →</button>
+  </div>
+
+  <!-- Step 2: Moeda + Salário -->
+  <div id="ob2" style="display:none;width:100%;max-width:360px;text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">💰</div>
+    <div style="font-size:24px;font-weight:700;letter-spacing:-.4px;color:var(--tx);margin-bottom:8px">Configurações rápidas</div>
+    <div style="font-size:14px;color:var(--tx2);margin-bottom:32px">Pode mudar depois em Configurações.</div>
+    <div style="text-align:left;margin-bottom:16px">
+      <label style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:8px">Moeda</label>
+      <select id="obCur" style="width:100%;font-size:15px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--bd2);background:var(--sf);color:var(--tx);outline:none;box-sizing:border-box">
+        <option value="R$" selected>Real (R$)</option>
+        <option value="$">Dólar ($)</option>
+        <option value="€">Euro (€)</option>
+        <option value="£">Libra (£)</option>
+      </select>
+    </div>
+    <div style="text-align:left;margin-bottom:28px">
+      <label style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:8px">Dia do salário (opcional)</label>
+      <input id="obSal" type="number" min="1" max="31" placeholder="Ex: 5" style="width:100%;font-size:15px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--bd2);background:var(--sf);color:var(--tx);outline:none;box-sizing:border-box">
+    </div>
+    <button onclick="obNext(3)" style="width:100%;background:var(--ac);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--sans)">Continuar →</button>
+  </div>
+
+  <!-- Step 3: Pronto -->
+  <div id="ob3" style="display:none;width:100%;max-width:360px;text-align:center">
+    <div style="font-size:56px;margin-bottom:16px">🎉</div>
+    <div style="font-size:24px;font-weight:700;letter-spacing:-.4px;color:var(--tx);margin-bottom:8px" id="obWelcome">Tudo pronto!</div>
+    <div style="font-size:14px;color:var(--tx2);margin-bottom:32px;line-height:1.6">O Value está configurado e pronto<br>para organizar suas finanças.</div>
+    <div style="background:var(--sf2);border-radius:16px;padding:16px;margin-bottom:28px;text-align:left">
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:500">Dica rápida</div>
+      <div style="font-size:13px;color:var(--tx2);line-height:1.5">Toque no <strong style="color:var(--ac)">+</strong> para adicionar sua primeira transação. Categorias já vêm pré-configuradas para você!</div>
+    </div>
+    <button onclick="obFinish()" style="width:100%;background:var(--ac);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--sans)">Começar a usar 🚀</button>
+  </div>
+
+  <!-- Progress dots -->
+  <div style="display:flex;gap:6px;margin-top:32px" id="obDots">
+    <div id="od1" style="width:8px;height:8px;border-radius:50%;background:var(--ac);transition:all .3s"></div>
+    <div id="od2" style="width:8px;height:8px;border-radius:50%;background:var(--bd2);transition:all .3s"></div>
+    <div id="od3" style="width:8px;height:8px;border-radius:50%;background:var(--bd2);transition:all .3s"></div>
+  </div>
+</div>
 </body>
 </html>
