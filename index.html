@@ -1061,12 +1061,12 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
 
       <div class="fg">
         <label class="flbl">Tipo de transação</label>
-        <div style="display:flex;gap:8px">
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-            <input type="checkbox" id="expInc" checked> Entradas
+        <div style="display:flex;gap:12px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="expInc" checked style="width:18px;height:18px;accent-color:var(--ac);cursor:pointer"> Entradas
           </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-            <input type="checkbox" id="expExp" checked> Saídas
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+            <input type="checkbox" id="expExp" checked style="width:18px;height:18px;accent-color:var(--ac);cursor:pointer"> Saídas
           </label>
         </div>
       </div>
@@ -2409,11 +2409,15 @@ function openExportModal(){
   // Populate categories
   const catEl=document.getElementById('expCatList');
   if(catEl){
-    catEl.innerHTML=S.categories.map(cat=>`
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
-        <input type="checkbox" class="expCatChk" value="${cat.id}" checked>
-        <span style="width:20px;height:20px;border-radius:6px;background:${cat.color}22;display:inline-flex;align-items:center;justify-content:center;font-size:11px">${cat.icon}</span>
-        ${cat.name}
+    const selAllBtns='<div style="display:flex;gap:6px;margin-bottom:8px">'
+      +'<button onclick="expSelAll(true)" style="background:var(--sf2);border:1px solid var(--bd2);border-radius:8px;padding:3px 10px;font-size:11px;cursor:pointer;color:var(--tx);font-family:var(--sans)">Todas</button>'
+      +'<button onclick="expSelAll(false)" style="background:var(--sf2);border:1px solid var(--bd2);border-radius:8px;padding:3px 10px;font-size:11px;cursor:pointer;color:var(--tx);font-family:var(--sans)">Nenhuma</button>'
+      +'</div>';
+    catEl.innerHTML=selAllBtns+S.categories.map(cat=>`
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:5px 0;border-bottom:1px solid var(--bd)">
+        <input type="checkbox" class="expCatChk" value="${cat.id}" checked style="width:18px;height:18px;accent-color:var(--ac);cursor:pointer;flex-shrink:0">
+        <span style="font-size:15px;flex-shrink:0">${cat.icon}</span>
+        <span style="font-size:13px">${cat.name}</span>
       </label>`).join('');
   }
   // Populate accounts
@@ -2428,14 +2432,19 @@ function openExportModal(){
         </label>`).join('')
       : '<div style="font-size:12px;color:var(--tx3)">Nenhuma conta cadastrada</div>';
   }
-  // Add live preview count listener
   document.getElementById('exportModal').classList.add('open');
   document.body.style.overflow='hidden';
-  setTimeout(updateExpPreview, 50);
-  // Update preview on any change
-  document.getElementById('exportModal').querySelectorAll('input,select').forEach(el=>{
-    el.addEventListener('change', updateExpPreview);
-  });
+  setTimeout(updateExpPreview, 100);
+  // Use a single delegated listener on the modal (avoids duplicates)
+  const modal=document.getElementById('exportModal');
+  modal._expHandler && modal.removeEventListener('change', modal._expHandler);
+  modal._expHandler=()=>updateExpPreview();
+  modal.addEventListener('change', modal._expHandler);
+}
+
+function expSelAll(checked){
+  document.querySelectorAll('.expCatChk').forEach(el=>el.checked=checked);
+  updateExpPreview();
 }
 
 function getExpFilters(){
@@ -4235,7 +4244,10 @@ const APP_VERSION='1.3.0';
 
 async function checkAppVersion(){
   try{
-    const res=await fetch('./version.json?t='+Date.now(),{cache:'no-store'});
+    const res=await fetch('./version.json?v='+Date.now(),{
+      cache:'no-store',
+      headers:{'Cache-Control':'no-cache','Pragma':'no-cache'}
+    });
     if(!res.ok)return;
     const data=await res.json();
     const latest=data.version;
@@ -4243,20 +4255,26 @@ async function checkAppVersion(){
     const changes=data.changes||[];
     const lastSeen=localStorage.getItem('value_version_seen');
 
-    if(latest&&latest!==lastSeen){
-      localStorage.setItem('value_version_seen',latest);
-      // Force service worker to grab fresh files
-      if('serviceWorker' in navigator){
-        const reg=await navigator.serviceWorker.getRegistration();
-        if(reg)reg.update();
+    if(latest){
+      if(latest===APP_VERSION&&lastSeen!==latest){
+        // App was just updated — mark as seen, no popup needed
+        localStorage.setItem('value_version_seen',latest);
+      } else if(latest!==APP_VERSION&&lastSeen!==latest){
+        // New version available on server
+        localStorage.setItem('value_version_seen',latest);
+        if('serviceWorker' in navigator){
+          const reg=await navigator.serviceWorker.getRegistration();
+          if(reg)reg.update();
+        }
+        const usb=document.getElementById('updateSettingsBtn');
+        const usn=document.getElementById('updateSettingsNote');
+        if(usb)usb.style.display='block';
+        if(usn)usn.textContent=notes||'Novas melhorias disponíveis.';
+        addNotif('✨ Value '+latest+' disponível — toque para atualizar',
+          notes||'Novas melhorias instaladas.','info',
+          ()=>showUpdateModal(latest,notes,changes));
+        showUpdateModal(latest,notes,changes);
       }
-      // Show update button in settings
-      const usb=document.getElementById('updateSettingsBtn');
-      const usn=document.getElementById('updateSettingsNote');
-      if(usb){usb.style.display='block';}
-      if(usn){usn.textContent=notes||'Novas melhorias disponíveis.';}
-      addNotif('✨ Value '+latest+' disponível — toque para atualizar',notes||'Novas melhorias instaladas.','info',()=>showUpdateModal(latest,notes,changes));
-      showUpdateModal(latest,notes,changes);
     }
   }catch(e){}
 }
@@ -4265,51 +4283,65 @@ function showUpdateModal(version,notes,changes){
   const existing=document.getElementById('updateModal');
   if(existing)existing.remove();
 
-  const modal=document.createElement('div');
-  modal.id='updateModal';
-  modal.style.cssText=[
-    'position:fixed','inset:0','z-index:9999',
-    'display:flex','align-items:center','justify-content:center',
-    'background:rgba(0,0,0,.45)',
-    'padding:20px','font-family:var(--sans)',
-  ].join(';');
+  // Build changes list
+  const items=changes.length
+    ? changes
+    : notes?[notes]:['Melhorias e correções de estabilidade'];
 
-  const changesList=changes.length
-    ? changes.map(ch=>`<li style="padding:4px 0;font-size:13px;color:var(--tx2)">${ch}</li>`).join('')
-    : notes?`<li style="padding:4px 0;font-size:13px;color:var(--tx2)">${notes}</li>`:'';
+  const changeRows=items.map(ch=>
+    '<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--bd);font-size:12px;color:var(--tx2)">'
+    +'<div style="width:6px;height:6px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:4px"></div>'
+    +'<span>'+ch+'</span></div>'
+  ).join('');
 
-  modal.innerHTML=`
-    <div style="background:var(--sf);border-radius:20px;padding:28px 24px;max-width:340px;width:100%;box-shadow:0 12px 48px rgba(0,0,0,.2)">
-      <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:40px;margin-bottom:8px">✨</div>
-        <div style="font-size:19px;font-weight:700;letter-spacing:-.3px;color:var(--tx)">Value atualizado!</div>
-        <div style="font-size:12px;color:var(--tx3);margin-top:4px;font-weight:500;letter-spacing:.04em;text-transform:uppercase">Versão ${version}</div>
+  // Overlay — bottom sheet style
+  const overlay=document.createElement('div');
+  overlay.id='updateModal';
+  overlay.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.4);font-family:var(--sans)';
+
+  overlay.innerHTML=`
+    <div style="background:var(--sf);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 20px 36px">
+      <div style="width:36px;height:4px;background:var(--bd2);border-radius:2px;margin:0 auto 20px"></div>
+
+      <div style="width:56px;height:56px;background:var(--ac);border-radius:16px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v10m0 0l-3-3m3 3l3-3"/><rect x="3" y="14" width="18" height="7" rx="2"/>
+        </svg>
       </div>
-      ${changesList?`
-      <div style="background:var(--sf2);border-radius:12px;padding:12px 16px;margin-bottom:20px">
-        <div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:8px">O que há de novo</div>
-        <ul style="list-style:none;padding:0;margin:0">${changesList}</ul>
-      </div>`:''}
+
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="display:inline-block;background:var(--acl);color:var(--ac);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:10px">versão ${version}</div>
+        <div style="font-size:18px;font-weight:700;letter-spacing:-.3px;color:var(--tx);margin-bottom:4px">Value foi atualizado</div>
+        <div style="font-size:12px;color:var(--tx3)">Novidades instaladas e prontas para usar</div>
+      </div>
+
+      <div style="background:var(--sf2);border-radius:12px;padding:4px 12px;margin-bottom:20px">
+        ${changeRows}
+      </div>
+
       <button onclick="doAppUpdate()"
-        style="width:100%;background:var(--ac);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--sans)">
-        Atualizar agora
+        style="width:100%;background:var(--ac);color:#fff;border:none;border-radius:13px;padding:14px;font-size:15px;font-weight:700;letter-spacing:-.1px;cursor:pointer;font-family:var(--sans);margin-bottom:8px">
+        Continuar
       </button>
       <button onclick="document.getElementById('updateModal').remove()"
-        style="width:100%;background:none;border:none;color:var(--tx3);padding:10px;font-size:13px;cursor:pointer;margin-top:4px;font-family:var(--sans)">
-        Mais tarde
+        style="width:100%;background:none;border:none;color:var(--tx3);padding:8px;font-size:13px;cursor:pointer;font-family:var(--sans)">
+        Ver mais tarde
       </button>
     </div>`;
 
-  document.body.appendChild(modal);
-  // Close on backdrop click
-  modal.addEventListener('click',e=>{
-    if(e.target===modal)modal.remove();
-  });
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+
+  // Animate up
+  const sheet=overlay.firstElementChild;
+  sheet.style.transform='translateY(100%)';
+  sheet.style.transition='transform .3s cubic-bezier(.32,.72,0,1)';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{sheet.style.transform='translateY(0)';}));
 }
 
 async function doAppUpdate(){
   // Show loading state on button
-  const btn=document.querySelector('#updateModal button');
+  const btn=document.querySelector('#updateModal button:first-of-type');
   if(btn){btn.textContent='Atualizando...';btn.disabled=true;}
   try{
     // Tell SW to skip waiting and take control immediately
