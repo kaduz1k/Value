@@ -17,7 +17,7 @@
 <meta property="og:type" content="website">
 <title>Value</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -30,7 +30,7 @@
   --re:#c0392b;--rel:#fdf0ee;
   --bl:#1a4a7a;--bll:#e8f0f8;
   --serif:'Playfair Display',Georgia,serif;
-  --sans:'DM Sans',system-ui,sans-serif;
+  --sans:'Inter',system-ui,sans-serif;
   --r:12px;--rs:8px;
   --sft:env(safe-area-inset-top,0px);
   --sfb:env(safe-area-inset-bottom,0px);
@@ -54,13 +54,13 @@
   --re:#b02060;--rel:#ffe0ee;
   --bl:#9b3070;--bll:#fde8f2;
   --serif:'Playfair Display',Georgia,serif;
-  --sans:'DM Sans',system-ui,sans-serif;
+  --sans:'Inter',system-ui,sans-serif;
   --r:16px;--rs:12px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:14px;transition:background .2s,color .2s}
+html,body{height:100%;height:100dvh;overflow:hidden;background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:14px;transition:background .2s,color .2s}
 body{display:flex;flex-direction:column;padding-top:var(--sft)}
-.app{display:flex;flex:1;overflow:hidden;position:relative}
+.app{display:flex;flex:1;overflow:hidden;position:relative;min-height:0}
 
 /* analu bg pattern - CSS only, no perf impact */
 [data-theme=alf] .scroll::before{
@@ -143,7 +143,7 @@ body.has-wp .sidebar,body.has-wp .topbar,body.has-wp .bnav{background:var(--sf)}
 .kgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
 .kpi{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px}
 .klbl{font-size:10px;color:var(--tx3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
-.kval{font-family:var(--serif);font-size:20px;font-weight:500;line-height:1.1;margin-bottom:4px;word-break:break-all}
+.kval{font-family:var(--sans);font-size:20px;font-weight:600;line-height:1.1;margin-bottom:4px;word-break:break-all;letter-spacing:-.3px}
 .badge{display:inline-flex;align-items:center;font-size:10px;padding:2px 6px;border-radius:10px}
 .bg{background:var(--acl);color:var(--ac)}.br{background:var(--rel);color:var(--re)}.bam{background:var(--aml);color:var(--am)}.bbl{background:var(--bll);color:var(--bl)}
 
@@ -210,7 +210,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .txinf{flex:1;min-width:0}
 .txnm{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .txsb{font-size:11px;color:var(--tx3);margin-top:1px}
-.txamt{font-size:14px;font-weight:500;flex-shrink:0}
+.txamt{font-size:14px;font-weight:600;flex-shrink:0;letter-spacing:-.2px;font-family:var(--sans)}
 .cin{color:var(--ac)}.cout{color:var(--re)}
 
 /* goal / account */
@@ -247,14 +247,16 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 /* responsive */
 @media(max-width:680px){
   .sidebar{display:none}
-  .bnav{display:flex;flex-direction:column}
+  .bnav{display:flex;flex-direction:column;flex-shrink:0}
   .kgrid{gap:8px}.kval{font-size:17px}
   .g2{grid-template-columns:1fr}.c2{grid-template-columns:1fr}
   .content{padding:12px}.topbar{padding:9px 13px}
   .toast{bottom:calc(62px + var(--sfb) + 8px)}
   .hm{display:none}
   .overlay{align-items:flex-end}
-}
+
+  html,body{height:100svh;height:100dvh}
+  .app{flex:1;min-height:0}}
 @media(min-width:681px){
   .kgrid{grid-template-columns:repeat(4,1fr)}
   .hd{display:none}
@@ -485,6 +487,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
         <div id="weeklyBanner" style="display:none"></div>
         <div class="kgrid" id="kgrid"></div>
         <div class="card">
+          <div class="ctitle">Insights</div>
+          <div id="insights"></div>
+        </div>
+        <div class="card">
           <div class="ctitle">Receitas vs Despesas
             <div class="tabs">
               <button class="tab on" onclick="setRvd(this,'bar')">Barras</button>
@@ -500,13 +506,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             <div id="catLeg" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;font-size:11px;color:var(--tx2)"></div>
           </div>
           <div class="card" style="margin-bottom:0">
-            <div class="ctitle">Insights</div>
-            <div id="insights"></div>
+            <div class="ctitle">Últimas transações <button class="btn bsec bsm" onclick="goTx()" style="font-size:10px;padding:4px 8px">Ver todas</button></div>
+            <div id="dashTx"></div>
           </div>
-        </div>
-        <div class="card" style="margin-top:13px">
-          <div class="ctitle">Últimas transações <button class="btn bsec bsm" onclick="goTx()">Ver todas</button></div>
-          <div id="dashTx"></div>
         </div>
       </div>
 
@@ -972,24 +974,78 @@ function bill(ctx,W,H,sc,symc){
   const x=W/180,y=H/88,fs=Math.min(x,y);
   function rr2(cx,cy,cw,ch,r){ctx.beginPath();ctx.moveTo(cx+r,cy);ctx.lineTo(cx+cw-r,cy);ctx.quadraticCurveTo(cx+cw,cy,cx+cw,cy+r);ctx.lineTo(cx+cw,cy+ch-r);ctx.quadraticCurveTo(cx+cw,cy+ch,cx+cw-r,cy+ch);ctx.lineTo(cx+r,cy+ch);ctx.quadraticCurveTo(cx,cy+ch,cx,cy+ch-r);ctx.lineTo(cx,cy+r);ctx.quadraticCurveTo(cx,cy,cx+r,cy);ctx.closePath();}
   function ln2(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
-  function orn2(cx2,cy2,r){ctx.beginPath();ctx.arc(cx2,cy2,r,0,Math.PI*2);ctx.strokeStyle='#8a7730';ctx.lineWidth=r*.13;ctx.stroke();ctx.beginPath();ctx.arc(cx2,cy2,r*.72,0,Math.PI*2);ctx.fillStyle=sc;ctx.fill();ctx.strokeStyle='#a08830';ctx.lineWidth=r*.11;ctx.stroke();ctx.beginPath();ctx.arc(cx2,cy2,r*.36,0,Math.PI*2);ctx.strokeStyle='rgba(240,216,78,.78)';ctx.lineWidth=r*.12;ctx.stroke();ctx.beginPath();ctx.arc(cx2,cy2,r*.13,0,Math.PI*2);ctx.fillStyle='rgba(240,216,78,.65)';ctx.fill();}
-  ctx.fillStyle='rgba(181,160,85,.18)';rr2(6*x,12*y,168*x,68*y,9*x);ctx.fill();
+  // Bill body - gold
   ctx.fillStyle='#d4c170';rr2(2*x,8*y,168*x,68*y,9*x);ctx.fill();
-  ctx.strokeStyle='#8a7730';ctx.lineWidth=1.6*x;ctx.setLineDash([]);rr2(2*x,8*y,168*x,68*y,9*x);ctx.stroke();
-  ctx.setLineDash([3*x,2.5*x]);ctx.strokeStyle='#8a7730';ctx.lineWidth=.9*x;rr2(9*x,15*y,154*x,54*y,5*x);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle=sc;ctx.fillRect(2*x,30*y,168*x,28*y);
-  ctx.fillStyle='rgba(255,255,255,.07)';ctx.fillRect(2*x,30*y,168*x,3.5*y);
-  ctx.lineWidth=.8*x;ctx.strokeStyle='rgba(138,119,48,.55)';ln2(42*x,18*y,132*x,18*y);ln2(42*x,69*y,132*x,69*y);
-  ctx.lineWidth=.4*x;ctx.strokeStyle='rgba(138,119,48,.3)';ln2(42*x,21*y,132*x,21*y);ln2(42*x,66*y,132*x,66*y);
-  ctx.fillStyle='rgba(138,119,48,.85)';ctx.font=`bold ${9*fs}px Georgia,serif`;
-  ctx.textBaseline='top';ctx.textAlign='left';ctx.fillText('100',14*x,10*y);
-  ctx.textBaseline='bottom';ctx.textAlign='right';ctx.fillText('100',154*x,70*y);
-  orn2(24*x,44*y,9*x);orn2(156*x,44*y,9*x);
+  // Border
+  ctx.strokeStyle='#8a7228';ctx.lineWidth=1.8*fs;ctx.setLineDash([]);rr2(2*x,8*y,168*x,68*y,9*x);ctx.stroke();
+  // Inner dashed frame
+  ctx.setLineDash([3.5*fs,2.5*fs]);ctx.strokeStyle='rgba(138,114,40,.50)';ctx.lineWidth=.9*fs;rr2(9*x,15*y,154*x,54*y,6*fs);ctx.stroke();ctx.setLineDash([]);
+  // Stripe
+  const sy1=8*y+68*y*.34,sh=68*y*.32;
+  ctx.fillStyle=sc;ctx.fillRect(2*x,sy1,168*x,sh);
+  ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(2*x,sy1,168*x,2.5*fs);
+  // Deco lines top
+  ctx.strokeStyle='rgba(138,114,40,.60)';ctx.lineWidth=.9*fs;
+  ln2(18*x,8*y+68*y*.18,162*x,8*y+68*y*.18);
+  ctx.strokeStyle='rgba(138,114,40,.28)';ctx.lineWidth=.5*fs;
+  ln2(18*x,8*y+68*y*.24,162*x,8*y+68*y*.24);
+  // Deco lines bottom
+  ctx.strokeStyle='rgba(138,114,40,.60)';ctx.lineWidth=.9*fs;
+  ln2(18*x,8*y+68*y*.76,162*x,8*y+68*y*.76);
+  ctx.strokeStyle='rgba(138,114,40,.28)';ctx.lineWidth=.5*fs;
+  ln2(18*x,8*y+68*y*.82,162*x,8*y+68*y*.82);
+  // Corner labels
+  ctx.fillStyle='rgba(120,96,28,.80)';ctx.font=`700 ${9*fs}px Georgia,serif`;
+  ctx.textBaseline='top';ctx.textAlign='left';ctx.fillText('100',10*x,10*y);
+  ctx.textBaseline='bottom';ctx.textAlign='right';ctx.fillText('100',170*x,74*y);
+  // Currency symbols - clean, evenly spaced, no ornaments
+  const symY=sy1+sh/2;
   ctx.fillStyle=symc;ctx.textBaseline='middle';ctx.textAlign='center';
-  ctx.font=`bold ${17*fs}px Georgia,serif`;ctx.fillText('$',52*x,44*y);
-  ctx.font=`bold ${16*fs}px Georgia,serif`;ctx.fillText('€',78*x,44*y);
-  ctx.font=`bold ${11.5*fs}px Georgia,serif`;ctx.fillText('R$',104*x,43.5*y);
-  ctx.font=`bold ${16*fs}px Georgia,serif`;ctx.fillText('£',128*x,44*y);
+  // 4 symbols evenly centered: margins 12% each side, 4 equal slots
+  const margin=180*x*.13;
+  const usable=180*x-margin*2;
+  const slot=usable/4;
+  const sx1=margin+slot*0.5;
+  const sx2=margin+slot*1.5;
+  const sx3=margin+slot*2.5;
+  const sx4=margin+slot*3.5;
+  ctx.font=`700 ${22*fs}px Georgia,serif`;ctx.fillText('$',sx1,symY);
+  ctx.font=`700 ${21*fs}px Georgia,serif`;ctx.fillText('€',sx2,symY);
+  ctx.font=`700 ${14*fs}px Georgia,serif`;ctx.fillText('R$',sx3,symY-.5*fs);
+  ctx.font=`700 ${21*fs}px Georgia,serif`;ctx.fillText('£',sx4,symY);
+}
+
+function billValue(ctx,W,H,sc,nameColor){
+  const x=W/180,y=H/88,fs=Math.min(x,y);
+  function rr2(cx,cy,cw,ch,r){ctx.beginPath();ctx.moveTo(cx+r,cy);ctx.lineTo(cx+cw-r,cy);ctx.quadraticCurveTo(cx+cw,cy,cx+cw,cy+r);ctx.lineTo(cx+cw,cy+ch-r);ctx.quadraticCurveTo(cx+cw,cy+ch,cx+cw-r,cy+ch);ctx.lineTo(cx+r,cy+ch);ctx.quadraticCurveTo(cx,cy+ch,cx,cy+ch-r);ctx.lineTo(cx,cy+r);ctx.quadraticCurveTo(cx,cy,cx+r,cy);ctx.closePath();}
+  function ln2(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+  // Gold body
+  ctx.fillStyle='#d4c170';rr2(2*x,8*y,168*x,68*y,9*x);ctx.fill();
+  // Border
+  ctx.strokeStyle='#8a7228';ctx.lineWidth=1.8*fs;ctx.setLineDash([]);rr2(2*x,8*y,168*x,68*y,9*x);ctx.stroke();
+  // Inner dashed frame
+  ctx.setLineDash([3.5*fs,2.5*fs]);ctx.strokeStyle='rgba(138,114,40,.50)';ctx.lineWidth=.9*fs;rr2(9*x,15*y,154*x,54*y,6*fs);ctx.stroke();ctx.setLineDash([]);
+  // Stripe
+  const sy1=8*y+68*y*.34,sh=68*y*.32;
+  ctx.fillStyle=sc;ctx.fillRect(2*x,sy1,168*x,sh);
+  ctx.fillStyle='rgba(255,255,255,.08)';ctx.fillRect(2*x,sy1,168*x,2.5*fs);
+  // Deco lines
+  ctx.strokeStyle='rgba(138,114,40,.60)';ctx.lineWidth=.9*fs;
+  ln2(18*x,8*y+68*y*.18,162*x,8*y+68*y*.18);ln2(18*x,8*y+68*y*.76,162*x,8*y+68*y*.76);
+  ctx.strokeStyle='rgba(138,114,40,.28)';ctx.lineWidth=.5*fs;
+  ln2(18*x,8*y+68*y*.24,162*x,8*y+68*y*.24);ln2(18*x,8*y+68*y*.82,162*x,8*y+68*y*.82);
+  // Corner labels
+  ctx.fillStyle='rgba(120,96,28,.80)';ctx.font=`700 ${9*fs}px Georgia,serif`;
+  ctx.textBaseline='top';ctx.textAlign='left';ctx.fillText('100',10*x,10*y);
+  ctx.textBaseline='bottom';ctx.textAlign='right';ctx.fillText('100',170*x,74*y);
+  // "Value" text in the stripe — Playfair Display style
+  const symY=sy1+sh/2;
+  ctx.fillStyle=nameColor;
+  ctx.textBaseline='middle';ctx.textAlign='center';
+  ctx.font=`500 ${26*fs}px 'Playfair Display',Georgia,serif`;
+  ctx.letterSpacing=(2*fs)+'px';
+  ctx.fillText('Value',90*x,symY+.5*fs);
+  ctx.letterSpacing='0px';
 }
 function drawSidebarLogo(theme){
   const cv=document.getElementById('sidebarLogo');
@@ -997,48 +1053,17 @@ function drawSidebarLogo(theme){
   const ctx=cv.getContext('2d');
   const W=cv.width,H=cv.height;
   ctx.clearRect(0,0,W,H);
-  const sc=theme==='alf'?'#a02060':(theme==='dark'?'#1e4230':'#2d5a3d');
-  const symc=theme==='alf'?'#fde8f2':'#f0d84e';
-  const stripeIsAlf=theme==='alf';
-  // reuse bill drawing inline
-  const x=W/180,y=H/88,fs=Math.min(x,y);
-  function rr2(cx,cy,cw,ch,r){
-    ctx.beginPath();ctx.moveTo(cx+r,cy);ctx.lineTo(cx+cw-r,cy);ctx.quadraticCurveTo(cx+cw,cy,cx+cw,cy+r);
-    ctx.lineTo(cx+cw,cy+ch-r);ctx.quadraticCurveTo(cx+cw,cy+ch,cx+cw-r,cy+ch);
-    ctx.lineTo(cx+r,cy+ch);ctx.quadraticCurveTo(cx,cy+ch,cx,cy+ch-r);
-    ctx.lineTo(cx,cy+r);ctx.quadraticCurveTo(cx,cy,cx+r,cy);ctx.closePath();
-  }
-  function ln2(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
-  function orn2(cx2,cy2,r){
-    ctx.beginPath();ctx.arc(cx2,cy2,r,0,Math.PI*2);ctx.strokeStyle='#8a7730';ctx.lineWidth=r*.13;ctx.stroke();
-    ctx.beginPath();ctx.arc(cx2,cy2,r*.72,0,Math.PI*2);ctx.fillStyle=sc;ctx.fill();ctx.strokeStyle='#a08830';ctx.lineWidth=r*.11;ctx.stroke();
-    ctx.beginPath();ctx.arc(cx2,cy2,r*.36,0,Math.PI*2);ctx.strokeStyle='rgba(240,216,78,.78)';ctx.lineWidth=r*.12;ctx.stroke();
-    ctx.beginPath();ctx.arc(cx2,cy2,r*.13,0,Math.PI*2);ctx.fillStyle='rgba(240,216,78,.65)';ctx.fill();
-  }
-  // no shadow in sidebar logo
-  ctx.fillStyle='#d4c170';rr2(2*x,8*y,168*x,68*y,9*x);ctx.fill();
-  ctx.strokeStyle='#8a7730';ctx.lineWidth=1.6*x;ctx.setLineDash([]);rr2(2*x,8*y,168*x,68*y,9*x);ctx.stroke();
-  ctx.setLineDash([3*x,2.5*x]);ctx.strokeStyle='#8a7730';ctx.lineWidth=.9*x;rr2(9*x,15*y,154*x,54*y,5*x);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle=sc;ctx.fillRect(2*x,30*y,168*x,28*y);
-  ctx.fillStyle='rgba(255,255,255,.07)';ctx.fillRect(2*x,30*y,168*x,3.5*y);
-  ctx.lineWidth=.8*x;ctx.strokeStyle='rgba(138,119,48,.55)';ln2(42*x,18*y,132*x,18*y);ln2(42*x,69*y,132*x,69*y);
-  ctx.lineWidth=.4*x;ctx.strokeStyle='rgba(138,119,48,.3)';ln2(42*x,21*y,132*x,21*y);ln2(42*x,66*y,132*x,66*y);
-  ctx.fillStyle='rgba(138,119,48,.85)';ctx.font=`bold ${9*fs}px Georgia,serif`;
-  ctx.textBaseline='top';ctx.textAlign='left';ctx.fillText('100',14*x,10*y);
-  ctx.textBaseline='bottom';ctx.textAlign='right';ctx.fillText('100',154*x,70*y);
-  orn2(24*x,44*y,9*x);orn2(156*x,44*y,9*x);
-  ctx.fillStyle=symc;ctx.textBaseline='middle';ctx.textAlign='center';
-  ctx.font=`bold ${17*fs}px Georgia,serif`;ctx.fillText('$',52*x,44*y);
-  ctx.font=`bold ${16*fs}px Georgia,serif`;ctx.fillText('€',78*x,44*y);
-  ctx.font=`bold ${11.5*fs}px Georgia,serif`;ctx.fillText('R$',104*x,43.5*y);
-  ctx.font=`bold ${16*fs}px Georgia,serif`;ctx.fillText('£',128*x,44*y);
+  const sc=theme==='alf'?'#9e1c5a':(theme==='dark'?'#1a4028':'#2d5a3d');
+  const symc=theme==='alf'?'#ffe0f0':'#f0d848';
+  bill(ctx,W,H,sc,symc);
 }
+
 function cycleTheme(){
   const cur=localStorage.getItem('value_theme')||'light';
   const order=['light','dark','alf'];
   const next=order[(order.indexOf(cur)+1)%order.length];
   applyTheme(next);
-  const names={light:'Tema claro',dark:'Tema escuro',analu:'Tema Alf'};
+  const names={light:'Tema claro',dark:'Tema escuro',alf:'Tema Alf'};
   toast(names[next]);
 }
 
@@ -1278,7 +1303,7 @@ function showDet(id){
   document.getElementById('txDetBody').innerHTML=`
     <div style="text-align:center;padding:8px 0 18px">
       <div style="width:54px;height:54px;border-radius:15px;background:${cat.color}22;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:26px">${cat.icon}</div>
-      <div style="font-family:var(--serif);font-size:26px;font-weight:500;color:${tx.type==='entrada'?'var(--ac)':'var(--re)'}">${tx.type==='entrada'?'+':'-'}${fmt(tx.amount)}</div>
+      <div class="${tx.type==='entrada'?'cin':'cout'}" style="font-family:var(--sans);font-size:26px;font-weight:700;letter-spacing:-.4px">${tx.type==='entrada'?'+':'-'}${fmt(tx.amount)}</div>
       <div style="font-size:16px;font-weight:500;margin:5px 0 3px">${tx.desc}</div>
       <div style="font-size:12px;color:var(--tx2)">${fmtD(tx.date)}</div>
     </div>
@@ -1451,8 +1476,23 @@ function updGoal(id,el){
     const raw=(el.value||'').replace(/[^0-9]/g,'');
     cents=parseInt(raw||'0',10);
   }
-  g.current=cents/100;
-  persist();renderAll();toast('Meta atualizada! ✓');
+  if(!cents){toast('Informe o valor a guardar');return;}
+  const added=cents/100;
+  g.current=Math.round((g.current+added)*100)/100;
+  persist();
+  // Check if goal completed
+  if(g.current>=g.target){
+    addNotif('Meta concluída: '+g.name,'Parabéns! Você atingiu seu objetivo de '+fmt(g.target)+'! 🎉','info');
+    if(Notification&&Notification.permission==='granted'){
+      try{new Notification('🎉 Meta concluída!',{body:'Parabéns! Você atingiu a meta "'+g.name+'" de '+fmt(g.target),icon:'icon-192.png'});}catch(e){}
+    }
+    toast('🎉 Meta concluída! Parabéns!',4000);
+  } else {
+    toast('+'+fmt(added)+' guardado! ✓');
+  }
+  // Reset input
+  if(el&&el.value!==undefined){el.value='';if(el.dataset)el.dataset.cents='0';}
+  renderAll();
 }
 function delGoal(id){if(!confirm('Excluir meta?'))return;S.goals=S.goals.filter(g=>g.id!==id);persist();renderAll();toast('Meta excluída');}
 
@@ -1528,7 +1568,7 @@ function renderDash(){
       weeklyBanner.style.display='none';
     }
   }
-  const txM=S.transactions.filter(tx=>dashTab==='weekly'?inWeek(tx):inM(tx,cY,cM));
+  const txM=S.transactions.filter(tx=>(dashTab==='weekly'?inWeek(tx):inM(tx,cY,cM))&&!tx.transfer);
   const inc=txM.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
   const exp=txM.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
   // Total: if accounts exist use their sum, else compute from all transactions
@@ -1540,8 +1580,8 @@ function renderDash(){
   const sp=inc>0?((inc-exp)/inc*100):0;
   document.getElementById('kgrid').innerHTML=`
     <div class="kpi"><div class="klbl">Saldo total</div><div class="kval ${tot>=0?'cin':'cout'}">${tot<0?'- ':'+​'}${fmt(Math.abs(tot))}</div><span class="badge ${(inc-exp)>=0?'bg':'br'}">${(inc-exp)>=0?'▲':'▼'} ${fmt(Math.abs(inc-exp))}</span></div>
-    <div class="kpi"><div class="klbl" style="color:var(--ac)">Receitas</div><div class="kval" style="color:var(--ac)">${fmt(inc)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='entrada').length} itens</div></div>
-    <div class="kpi"><div class="klbl" style="color:var(--re)">Despesas</div><div class="kval" style="color:var(--re)">-${fmt(exp)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='saida').length} itens</div></div>
+    <div class="kpi"><div class="klbl cin">Receitas</div><div class="kval cin">${fmt(inc)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='entrada').length} itens</div></div>
+    <div class="kpi"><div class="klbl cout">Despesas</div><div class="kval cout">-${fmt(exp)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='saida').length} itens</div></div>
     <div class="kpi"><div class="klbl">Poupança</div><div class="kval">${sp.toFixed(1)}%</div><span class="badge ${sp>=20?'bg':sp>=10?'bam':'br'}">${sp>=20?'Ótimo':sp>=10?'Regular':'Atenção'}</span></div>`;
   renderRvd(rvdT);renderCatCh(txM);renderIns(txM,inc,exp);
   const el=document.getElementById('dashTx');
@@ -1694,7 +1734,7 @@ function renderAcc(){
   el.innerHTML=S.accounts.map(a=>`<div class="acard" style="background:${a.color}"><div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:9px"><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;opacity:.55">${a.type}</div><div style="font-weight:500;font-size:15px">${a.name}</div></div><div style="display:flex;gap:5px">
 <button onclick="editAcc('${a.id}')" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:3px 9px;cursor:pointer;font-size:11px;font-weight:500">Editar</button>
 <button onclick="delAcc('${a.id}')" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:3px 8px;cursor:pointer;font-size:14px">×</button>
-</div></div><div style="font-family:var(--serif);font-size:26px;font-weight:500;margin-bottom:9px">${fmt(a.balance)}</div><div style="display:flex;gap:7px"><input id="abl_${a.id}" type="text" inputmode="numeric" value="${fmtCents(Math.round(a.balance*100))}" style="flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:6px 9px;font-size:13px;outline:none;font-weight:500" oninput="onAccBalInput(this)" autocomplete="off"><button onclick="updAccBal('${a.id}',document.getElementById('abl_${a.id}'))" style="background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:8px;padding:6px 13px;cursor:pointer;font-size:13px;font-weight:500">OK</button></div></div>`).join('');
+</div></div><div style="font-family:var(--sans);font-size:26px;font-weight:700;margin-bottom:9px;letter-spacing:-.5px">${fmt(a.balance)}</div><div style="display:flex;gap:7px"><input id="abl_${a.id}" type="text" inputmode="numeric" value="${fmtCents(Math.round(a.balance*100))}" style="flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:6px 9px;font-size:13px;outline:none;font-weight:500" oninput="onAccBalInput(this)" autocomplete="off"><button onclick="updAccBal('${a.id}',document.getElementById('abl_${a.id}'))" style="background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:8px;padding:6px 13px;cursor:pointer;font-size:13px;font-weight:500">OK</button></div></div>`).join('');
   document.getElementById('accChCard').style.display='block';
   const dk=document.documentElement.dataset.theme==='dark';
   mkCh('accChart','doughnut',{labels:S.accounts.map(a=>a.name),datasets:[{data:S.accounts.map(a=>Math.max(0,a.balance)),backgroundColor:S.accounts.map(a=>a.color),borderWidth:0}]},{cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10,color:dk?'#9e9b94':'#6b6860'}},tooltip:{callbacks:{label:v=>fmt(v.raw)}}}});
@@ -1826,7 +1866,7 @@ function renderGoals(){
   el.innerHTML=S.goals.map(g=>{const p=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;const dl=g.deadline?Math.ceil((new Date(g.deadline)-new Date())/864e5):null;const mn=dl&&dl>0?((g.target-g.current)/(dl/30)):null;return`<div class="gcard"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px"><div style="font-weight:500;font-size:14px">${g.name}</div><div style="display:flex;gap:4px;align-items:center">
 <button onclick="editGoal('${g.id}')" style="background:var(--sf2);border:1px solid var(--bd2);border-radius:var(--rs);padding:3px 9px;cursor:pointer;font-size:11px;font-weight:500;color:var(--tx2)">Editar</button>
 <button onclick="delGoal('${g.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;padding:0 4px">×</button>
-</div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>${fmt(g.current)}</span><span style="font-weight:500;color:var(--tx)">${fmt(g.target)}</span></div><div class="ptrack"><div class="pbar" style="width:${p}%;background:${g.color}"></div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:9px">${p}% · faltam ${fmt(g.target-g.current)}</div>${dl!==null?`<div style="font-size:11px;color:var(--tx2);margin-bottom:9px">${dl>0?dl+' dias restantes':'⚠️ Prazo encerrado'}${mn&&dl>0?' · guardar '+fmt(mn)+'/mês':''}</div>`:''}<div style="display:flex;gap:7px"><input id="gi_${g.id}" type="text" value="${fmtCents(Math.round(g.current*100))}" style="flex:1;height:36px;font-size:13px;font-weight:500" inputmode="numeric" oninput="onGoalInput(this)" autocomplete="off"><button class="btn bprim bsm" onclick="updGoal('${g.id}',document.getElementById('gi_${g.id}'))">Atualizar</button></div></div>`;}).join('');
+</div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>${fmt(g.current)}</span><span style="font-weight:500;color:var(--tx)">${fmt(g.target)}</span></div><div class="ptrack"><div class="pbar" style="width:${p}%;background:${g.color}"></div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:9px">${p}% · faltam ${fmt(g.target-g.current)}</div>${dl!==null?`<div style="font-size:11px;color:var(--tx2);margin-bottom:9px">${dl>0?dl+' dias restantes':'⚠️ Prazo encerrado'}${mn&&dl>0?' · guardar '+fmt(mn)+'/mês':''}</div>`:''}<div style="display:flex;gap:7px"><input id="gi_${g.id}" type="text" placeholder="R$ 0,00" style="flex:1;height:36px;font-size:13px;font-weight:500" inputmode="numeric" oninput="onGoalInput(this)" autocomplete="off"><button class="btn bprim bsm" onclick="updGoal('${g.id}',document.getElementById('gi_${g.id}'))">Guardar</button></div></div>`;}).join('');
 }
 
 /* ── CATEGORIES PAGE ── */
@@ -1838,7 +1878,7 @@ function renderCats(){
 /* ── REPORTS ── */
 function renderRep(){
   let aI=0,aO=0;const rows=[];
-  for(let m=0;m<12;m++){const txs=S.transactions.filter(tx=>inM(tx,cY,m));const inc=txs.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);const exp=txs.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);aI+=inc;aO+=exp;if(inc>0||exp>0)rows.push({m:MS[m],inc,exp,bal:inc-exp,p:inc>0?((inc-exp)/inc*100).toFixed(1):0});}
+  for(let m=0;m<12;m++){const txs=S.transactions.filter(tx=>inM(tx,cY,m)&&!tx.transfer);const inc=txs.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);const exp=txs.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);aI+=inc;aO+=exp;if(inc>0||exp>0)rows.push({m:MS[m],inc,exp,bal:inc-exp,p:inc>0?((inc-exp)/inc*100).toFixed(1):0});}
   const repNet=aI-aO;
   const repAvg=repNet/12;
   document.getElementById('repKpi').innerHTML=`<div class="kpi"><div class="klbl">Receita anual</div><div class="kval cin">+${fmt(aI)}</div></div><div class="kpi"><div class="klbl">Despesa anual</div><div class="kval cout">-${fmt(aO)}</div></div><div class="kpi"><div class="klbl">Resultado</div><div class="kval ${repNet>=0?'cin':'cout'}">${repNet>=0?'+':''}${repNet<0?'-':''}${fmt(Math.abs(repNet))}</div></div><div class="kpi"><div class="klbl">Média mensal</div><div class="kval ${repAvg>=0?'cin':'cout'}">${repAvg>=0?'+':''}${repAvg<0?'-':''}${fmt(Math.abs(repAvg))}</div></div>`;
@@ -2211,14 +2251,59 @@ function drawOrnament(ctx,cx,cy,r,s){
   ctx.beginPath();ctx.arc(cx,cy,r*.32,0,Math.PI*2);ctx.strokeStyle='rgba(240,216,78,.75)';ctx.lineWidth=.9*s;ctx.stroke();
   ctx.beginPath();ctx.arc(cx,cy,r*.11,0,Math.PI*2);ctx.fillStyle='rgba(240,216,78,.6)';ctx.fill();
 }
+function makeIcon(size){
+  // Bill fills the full canvas — no green background
+  // Symbols scaled up proportionally for small sizes
+  const cv=document.createElement('canvas');
+  cv.width=cv.height=size;
+  const ctx=cv.getContext('2d');
+  // Transparent background (for desktop favicon)
+  ctx.clearRect(0,0,size,size);
+  // Bill aspect ratio: 180:88 = ~2.045:1
+  // Fill width fully, center vertically
+  const bw=size;
+  const bh=Math.round(size*(88/180));
+  const by=Math.round((size-bh)/2);
+  const tmp=document.createElement('canvas');
+  tmp.width=bw;tmp.height=bh;
+  billIcon(tmp.getContext('2d'),bw,bh);
+  ctx.drawImage(tmp,0,by);
+  return cv.toDataURL('image/png');
+}
+
+function billIcon(ctx,W,H){
+  // Dedicated icon draw — symbols much larger for legibility at small sizes
+  const x=W/180,y=H/88,fs=Math.min(x,y);
+  function rr(cx,cy,cw,ch,r){ctx.beginPath();ctx.moveTo(cx+r,cy);ctx.lineTo(cx+cw-r,cy);ctx.quadraticCurveTo(cx+cw,cy,cx+cw,cy+r);ctx.lineTo(cx+cw,cy+ch-r);ctx.quadraticCurveTo(cx+cw,cy+ch,cx+cw-r,cy+ch);ctx.lineTo(cx+r,cy+ch);ctx.quadraticCurveTo(cx,cy+ch,cx,cy+ch-r);ctx.lineTo(cx,cy+r);ctx.quadraticCurveTo(cx,cy,cx+r,cy);ctx.closePath();}
+  // Gold body
+  ctx.fillStyle='#d4c170';rr(2*x,8*y,168*x,68*y,9*x);ctx.fill();
+  // Thick border for visibility
+  ctx.strokeStyle='#8a7228';ctx.lineWidth=2.2*fs;ctx.setLineDash([]);rr(2*x,8*y,168*x,68*y,9*x);ctx.stroke();
+  // Stripe — taller than logo version for icon readability
+  const sy1=8*y+68*y*.32,sh=68*y*.36;
+  ctx.fillStyle='#2d5a3d';ctx.fillRect(2*x,sy1,168*x,sh);
+  ctx.fillStyle='rgba(255,255,255,.10)';ctx.fillRect(2*x,sy1,168*x,2*fs);
+  // Deco lines — thicker at small sizes
+  ctx.strokeStyle='rgba(138,114,40,.70)';ctx.lineWidth=1.2*fs;
+  ctx.beginPath();ctx.moveTo(10*x,8*y+68*y*.16);ctx.lineTo(170*x,8*y+68*y*.16);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(10*x,8*y+68*y*.80);ctx.lineTo(170*x,8*y+68*y*.80);ctx.stroke();
+  // Symbols — bigger, bolder, centered, fewer gaps for legibility
+  const symY=sy1+sh/2;
+  ctx.fillStyle='#f5e060';ctx.textBaseline='middle';ctx.textAlign='center';
+  // Evenly spaced across full stripe width
+  const margin=168*x*.10,usable=168*x-margin*2,slot=usable/4,ox=2*x;
+  const s1=ox+margin+slot*.5,s2=ox+margin+slot*1.5,s3=ox+margin+slot*2.5,s4=ox+margin+slot*3.5;
+  // Scale symbols UP more aggressively — key for icon readability
+  ctx.font=`900 ${28*fs}px Georgia,serif`;ctx.fillText('$',s1,symY);
+  ctx.font=`900 ${26*fs}px Georgia,serif`;ctx.fillText('€',s2,symY);
+  ctx.font=`900 ${17*fs}px Georgia,serif`;ctx.fillText('R$',s3,symY);
+  ctx.font=`900 ${26*fs}px Georgia,serif`;ctx.fillText('£',s4,symY);
+}
+
 function installCanvasIcons(){
   try{
-    // Update PWA manifest link icon
-    const icon192=generateAppIcon(192);
-    const icon512=generateAppIcon(512);
-    // Store in sessionStorage for PWA use
+    const icon192=makeIcon(192);
     sessionStorage.setItem('icon192',icon192);
-    // Update apple-touch-icon
     let li=document.querySelector('link[rel="apple-touch-icon"]');
     if(li)li.href=icon192;
     let li2=document.querySelector('link[rel="icon"]');
@@ -2597,9 +2682,19 @@ function mapCSVRows(rows){
     const rawDate=row[dateIdx].trim();
     const date=parseDate(rawDate);
     if(!date)continue;
-    // Parse value
-    let rawVal=(row[valIdx]||'').replace(/[R$\s]/g,'').replace(/\./g,'').replace(',','.');
-    let amount=parseFloat(rawVal);
+    // Parse value — detect BR format (1.234,56) vs international (1,234.56)
+    let rawVal=(row[valIdx]||'').trim().replace(/[R$\s]/g,'');
+    let amount;
+    if(/^-?[\d.]+,[\d]{2}$/.test(rawVal)){
+      // BR format: 1.234,56 — remove dots, replace comma
+      amount=parseFloat(rawVal.replace(/\./g,'').replace(',','.'));
+    } else if(/^-?[\d,]+\.[\d]{2}$/.test(rawVal)){
+      // International format: 1,234.56 — just remove commas
+      amount=parseFloat(rawVal.replace(/,/g,''));
+    } else {
+      // Fallback: remove everything except digits, dot, minus
+      amount=parseFloat(rawVal.replace(/[^\d.-]/g,''));
+    }
     if(isNaN(amount))continue;
     // Determine type
     let type='saida';
@@ -2718,6 +2813,9 @@ function saveTransfer(){
     amount,date,category:'',account:fromId,notes,recurrence:'none',transfer:gid,createdAt:new Date().toISOString()});
   S.transactions.unshift({id:uid(),type:'entrada',desc:'Transferência de '+from.name,
     amount,date,category:'',account:toId,notes,recurrence:'none',transfer:gid,createdAt:new Date().toISOString()});
+  // Update account balances immediately
+  from.balance=Math.round((from.balance-amount)*100)/100;
+  to.balance=Math.round((to.balance+amount)*100)/100;
   persist();closeM('transferModal');renderAll();
   toast('Transferência realizada! ✓');
 }
