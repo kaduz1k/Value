@@ -111,9 +111,9 @@ body.has-wp .sidebar,body.has-wp .topbar,body.has-wp
 
 
 /* logo */
-.logo{padding:16px 14px 12px;border-bottom:1px solid var(--bd)}
+.logo{padding:9px 14px;border-bottom:1px solid var(--bd)}
 .logo-wrap{display:flex;align-items:center;gap:10px}
-.logo-ico{width:54px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:none}.logo-ico canvas{display:block;box-shadow:none}
+.logo-ico{width:72px;height:35px;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:none}.logo-ico canvas{display:block;box-shadow:none}
 .logo-name{font-family:var(--serif);font-size:18px;font-weight:500}
 .logo-sub{font-size:10px;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase}
 
@@ -372,7 +372,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .sel-btn{background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:10px;padding:6px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);white-space:nowrap}
 .sel-btn:active{background:rgba(255,255,255,.35)}
 .sel-btn.red{background:rgba(255,60,60,.35)}
-.txrow.sel{background:var(--acl)!important;outline:2px solid var(--ac);outline-offset:-2px;border-radius:var(--rs)}
+.txrow.sel,.gcard.sel{background:var(--acl)!important;outline:2px solid var(--ac);outline-offset:-2px;border-radius:var(--rs)}
+[data-theme=alf] .txrow.sel,[data-theme=alf] .gcard.sel{background:#fde8f2!important;outline-color:#d63a82}
+div.sel{background:var(--acl)!important;outline:2px solid var(--ac);outline-offset:-2px;border-radius:var(--rs)}
+[data-theme=alf] div.sel{background:#fde8f2!important;outline-color:#d63a82}
 [data-theme=alf] .txrow.sel{background:#fde8f2!important;outline-color:#d63a82}
 </style>
 </head>
@@ -392,7 +395,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="logo">
     <div class="logo-wrap">
       <div class="logo-ico" id="sidebarLogoWrap">
-        <canvas id="sidebarLogo" width="180" height="88" style="width:54px;height:34px"></canvas>
+        <canvas id="sidebarLogo" width="360" height="176" style="width:72px;height:35px;margin:-5px 0"></canvas>
       </div>
       <div><div class="logo-name">Value</div></div>
     </div>
@@ -1414,6 +1417,7 @@ function saveTx(){
 }
 function delTx(id){
   if(!confirm('Excluir esta transação?'))return;
+  _lastDeleted=S.transactions.find(t=>t.id===id)||null;
   S.transactions=S.transactions.filter(t=>t.id!==id);
   persist();closeM('txDet');renderAll();toast('Excluída');
 }
@@ -1957,6 +1961,8 @@ function calcAutoSavings(){
   });
 
   if(monthsWithData===0)return null;
+  // Need at least 2 months to give a reliable suggestion
+  if(monthsWithData<2)return{avgInc:totalInc,avgExp:totalExp,avgSurplus:totalInc-totalExp,suggested:0,canSave:false,insufficientData:true};
 
   const avgInc=totalInc/monthsWithData;
   const avgExp=totalExp/monthsWithData;
@@ -1964,8 +1970,7 @@ function calcAutoSavings(){
 
   if(avgSurplus<=0)return{avgInc,avgExp,avgSurplus,suggested:0,canSave:false};
 
-  // Suggest 40% of average surplus (conservative)
-  const suggested=Math.floor(avgSurplus*0.4/10)*10; // round to nearest 10
+  const suggested=Math.floor(avgSurplus*0.4/10)*10;
   return{avgInc,avgExp,avgSurplus,suggested,canSave:true,monthsWithData};
 }
 
@@ -1983,6 +1988,25 @@ function renderSavingsSuggestion(){
     return;
   }
 
+  if(data.insufficientData){
+    el.innerHTML=`<div class="card" style="margin-bottom:13px">
+      <div class="ctitle" style="margin-bottom:6px">💡 Sugestão do Value</div>
+      <p style="font-size:13px;color:var(--tx2)">Adicione transações em pelo menos <strong>2 meses</strong> para receber uma sugestão de poupança personalizada.</p>
+    </div>`;
+    return;
+  }
+
+  if(!data.canSave){
+    el.innerHTML=`<div class="card" style="margin-bottom:13px">
+      <div class="ctitle" style="margin-bottom:6px">💡 Sugestão do Value</div>
+      <p style="font-size:13px;color:var(--tx2)">Suas despesas superaram as receitas nos últimos meses. Reduza os gastos para começar a poupar.</p>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <div style="flex:1;background:var(--sf2);border-radius:var(--rs);padding:8px 10px;font-size:12px">Receita média <strong class="cin">+${fmt(data.avgInc)}</strong></div>
+        <div style="flex:1;background:var(--sf2);border-radius:var(--rs);padding:8px 10px;font-size:12px">Gasto médio <strong class="cout">-${fmt(data.avgExp)}</strong></div>
+      </div>
+    </div>`;
+    return;
+  }
   if(!data.canSave){
     el.innerHTML=`<div class="card" style="margin-bottom:13px;border-left:3px solid var(--re);border-radius:0 var(--r) var(--r) 0">
       <div class="ctitle" style="margin-bottom:6px">💡 Sugestão do Value</div>
@@ -1995,25 +2019,29 @@ function renderSavingsSuggestion(){
     return;
   }
 
-  el.innerHTML=`<div class="card" style="margin-bottom:13px;border-left:3px solid var(--ac);border-radius:0 var(--r) var(--r) 0">
-    <div class="ctitle" style="margin-bottom:8px;color:var(--ac)">💡 Sugestão do Value</div>
-    <p style="font-size:13px;color:var(--tx2);margin-bottom:10px">
-      Baseado nos últimos <strong>${data.monthsWithData} ${data.monthsWithData===1?'mês':'meses'}</strong>,
-      você ganha em média <span class="cin"><strong>${fmt(data.avgInc)}</strong></span> e gasta
-      <span class="cout"><strong>${fmt(data.avgExp)}</strong></span> — sobram
-      <strong>${fmt(data.avgSurplus)}/mês</strong>.
-    </p>
-    <div style="background:var(--acl);border-radius:var(--rs);padding:12px;margin-bottom:12px">
-      <div style="font-size:11px;color:var(--tx3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Você poderia guardar confortavelmente</div>
-      <div style="font-family:var(--serif);font-size:26px;font-weight:500" class="cin">+${fmt(data.suggested)}<span style="font-size:13px;font-weight:400;color:var(--tx2)">/mês</span></div>
-      <div style="font-size:11px;color:var(--tx3);margin-top:3px">≈ 40% da sua sobra mensal</div>
+  el.innerHTML=`<div class="card" style="margin-bottom:13px">
+    <div class="ctitle" style="margin-bottom:10px">💡 Sugestão do Value</div>
+    <div style="display:flex;gap:16px;margin-bottom:12px">
+      <div style="flex:1;background:var(--sf2);border-radius:var(--rs);padding:10px 12px">
+        <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Receita média</div>
+        <div style="font-size:16px;font-weight:600;letter-spacing:-.3px;font-family:var(--sans)" class="cin">+${fmt(data.avgInc)}</div>
+      </div>
+      <div style="flex:1;background:var(--sf2);border-radius:var(--rs);padding:10px 12px">
+        <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Gasto médio</div>
+        <div style="font-size:16px;font-weight:600;letter-spacing:-.3px;font-family:var(--sans)" class="cout">-${fmt(data.avgExp)}</div>
+      </div>
     </div>
-    <div style="font-size:12px;color:var(--tx2);margin-bottom:12px">
-      Com esse valor você pode atingir:
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px" id="savingsExamples"></div>
+    <div style="background:var(--acl);border-radius:var(--rs);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Você poderia guardar</div>
+        <div style="font-size:28px;font-weight:700;letter-spacing:-.5px;font-family:var(--sans);line-height:1" class="cin">+${fmt(data.suggested)}</div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:3px">por mês · 40% da sobra</div>
+      </div>
+      <div style="font-size:32px;opacity:.3">💰</div>
     </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px" id="savingsExamples"></div>
     <button class="btn bprim bblk" onclick="createAutoGoal(${data.suggested})">Criar meta com esse valor</button>
-  </div>`;
+  </div>`
 
   // Show examples of what you can save for
   const examples=[
@@ -3520,16 +3548,112 @@ function dupTx(id){
 }
 /* ── ATALHOS DE TECLADO ── */
 document.addEventListener('keydown',e=>{
-  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
-  if(document.querySelector('.overlay.open'))return; // modal open
+  const openModal=document.querySelector('.overlay.open');
+  const tag=e.target.tagName;
+  const typing=tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT';
+
+  // ── ESC — fecha modal / sai da seleção ──────────────────────────
+  if(e.key==='Escape'){
+    if(openModal){closeM(openModal.id);e.preventDefault();return;}
+    if(_selCtx){selEnd();e.preventDefault();return;}
+  }
+
+  // ── ENTER — confirma modal (botão primário) ───────────────────────
+  if(e.key==='Enter'&&openModal){
+    if(tag==='BUTTON')return; // deixa o botão clicar naturalmente
+    if(tag==='TEXTAREA')return; // Enter em textarea = nova linha
+    const primary=openModal.querySelector('.btn.bprim');
+    if(primary){primary.click();e.preventDefault();}
+    return;
+  }
+
+  // ── TAB — foco correto dentro do modal ────────────────────────────
+  // (browser já gerencia Tab; só garantimos que o modal captura o foco)
+  if(e.key==='Tab'&&openModal){
+    const focusable=openModal.querySelectorAll('input,select,textarea,button:not([disabled])');
+    if(!focusable.length)return;
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(e.shiftKey){if(document.activeElement===first){last.focus();e.preventDefault();}}
+    else{if(document.activeElement===last){first.focus();e.preventDefault();}}
+    return;
+  }
+
+  // ── GLOBAL (sem modal aberto, sem digitação) ──────────────────────
+  if(typing||openModal)return;
+
+  // N — nova transação
   if(e.key==='n'||e.key==='N'){openM('txModal');e.preventDefault();}
-  else if(e.key==='Escape'){document.querySelectorAll('.overlay.open').forEach(o=>closeM(o.id));}
+
+  // / — foca busca em transações
+  else if(e.key==='/'){
+    go('transactions',null);setBn('transactions');
+    setTimeout(()=>{const s=document.getElementById('txSrch');if(s)s.focus();},100);
+    e.preventDefault();
+  }
+
+  // ? — mostra atalhos disponíveis
+  else if(e.key==='?'){showShortcuts();e.preventDefault();}
+
+  // Ctrl/Cmd + Z — desfazer última exclusão
+  else if((e.ctrlKey||e.metaKey)&&e.key==='z'){undoLast();e.preventDefault();}
+
+  // Navegação entre abas: 1–8
   else if(e.key==='1'){go('dashboard',null);setBn('dashboard');}
   else if(e.key==='2'){go('transactions',null);setBn('transactions');}
-  else if(e.key==='3'){go('accounts',null);}
-  else if(e.key==='4'){go('goals',null);}
-  else if(e.key==='5'){go('reports',null);setBn('reports');}
+  else if(e.key==='3'){go('accounts',null);setBn('accounts');}
+  else if(e.key==='4'){go('goals',null);setBn('goals');}
+  else if(e.key==='5'){go('categories',null);setBn('categories');}
+  else if(e.key==='6'){go('reports',null);setBn('reports');}
+  else if(e.key==='7'){go('subscriptions',null);setBn('subscriptions');}
+  else if(e.key==='8'){go('settings',null);setBn('settings');}
+
+  // ← → — navega mês anterior/próximo
+  else if(e.key==='ArrowLeft'){chM(-1);e.preventDefault();}
+  else if(e.key==='ArrowRight'){chM(1);e.preventDefault();}
 });
+
+/* ── UNDO última exclusão ── */
+let _lastDeleted=null;
+function undoLast(){
+  if(!_lastDeleted)return;
+  S.transactions.unshift(_lastDeleted);
+  persist();renderAll();
+  toast('Desfeito ✓');
+  _lastDeleted=null;
+}
+
+/* ── PAINEL DE ATALHOS ── */
+function showShortcuts(){
+  const shortcuts=[
+    ['N','Nova transação'],
+    ['/','Buscar transações'],
+    ['1 – 8','Navegar entre abas'],
+    ['← →','Mês anterior / próximo'],
+    ['Enter','Confirmar modal'],
+    ['Esc','Fechar modal / sair da seleção'],
+    ['Tab','Próximo campo do modal'],
+    ['Shift+Tab','Campo anterior'],
+    ['Ctrl+Z','Desfazer última exclusão'],
+    ['?','Mostrar atalhos'],
+  ];
+  const existing=document.getElementById('shortcutsPanel');
+  if(existing){existing.remove();return;}
+  const panel=document.createElement('div');
+  panel.id='shortcutsPanel';
+  panel.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--sf);border:1px solid var(--bd2);border-radius:var(--r);padding:20px 24px;z-index:9999;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.15);font-family:var(--sans)';
+  const rows=shortcuts.map(([k,d])=>{
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);gap:16px"><kbd style="background:var(--sf2);border:1px solid var(--bd2);border-radius:6px;padding:2px 8px;font-size:11px;font-family:var(--sans);white-space:nowrap;color:var(--tx)">${k}</kbd><span style="font-size:12px;color:var(--tx2);text-align:right">${d}</span></div>`;
+  }).join('');
+  panel.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div style="font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3)">Atalhos de teclado</div><button onclick="document.getElementById('shortcutsPanel').remove()" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;padding:0">×</button></div>${rows}<div style="font-size:11px;color:var(--tx3);margin-top:10px;text-align:center">Pressione Esc ou ? para fechar</div>`;
+  document.body.appendChild(panel);
+  // Close on outside click
+  setTimeout(()=>{
+    document.addEventListener('click',function h(ev){
+      if(!panel.contains(ev.target)){panel.remove();}
+      document.removeEventListener('click',h);
+    });
+  },50);
+}
 
 /* ══════════════════════════════════════════════════════
    ASSINATURAS & AGENDAMENTOS
@@ -3814,6 +3938,8 @@ function selStart(ctx){
   _selCtx=ctx; _sel.clear();
   selUpdateBar();
   if(ctx==='tx')renderTxPg();
+  else if(ctx==='goal')renderGoals();
+  else if(ctx==='cat')renderCats();
 }
 function selEnd(){
   _sel.clear(); _selCtx='';
