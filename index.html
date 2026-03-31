@@ -3850,6 +3850,20 @@ function selDo(action){
     });
     persist();selEnd();renderAll();
     toast(ids.length+' transaç'+(ids.length>1?'ões':'ão')+' duplicada'+(ids.length>1?'s':'')+'! ✓');
+  } else if(action==='dup'&&_selCtx==='cat'){
+    ids.forEach(id=>{
+      const cat=S.categories.find(ca=>ca.id===id);
+      if(cat)S.categories.push({...cat,id:uid(),name:cat.name+' (cópia)',fav:false});
+    });
+    persist();selEnd();renderAll();
+    toast(ids.length+' categoria'+(ids.length>1?'s':'')+' duplicada'+(ids.length>1?'s':'')+'! ✓');
+  } else if(action==='dup'&&_selCtx==='goal'){
+    ids.forEach(id=>{
+      const g=S.goals.find(go=>go.id===id);
+      if(g)S.goals.push({...g,id:uid(),name:g.name+' (cópia)',current:0,createdAt:new Date().toISOString()});
+    });
+    persist();selEnd();renderAll();
+    toast(ids.length+' meta'+(ids.length>1?'s':'')+' duplicada'+(ids.length>1?'s':'')+'! ✓');
   } else if(action==='edit'&&ids.length===1){
     const id=ids[0];const ctx=_selCtx;selEnd();
     if(ctx==='tx')editTx(id);
