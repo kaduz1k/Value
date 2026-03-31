@@ -20,6 +20,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>if(typeof pdfjsLib!=='undefined')pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <style>
 :root{
   --bg:#f7f5f0;--sf:#fff;--sf2:#f0ede6;--sf3:#e8e4db;
@@ -309,22 +312,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .notif-header span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);font-weight:500}
 .notif-header button{font-size:11px;color:var(--ac);background:none;border:none;cursor:pointer;font-family:var(--sans)}
 
-/* ── PIN / LOGIN SCREEN ── */
-#lockScreen{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:32px}
-#lockScreen.hidden{display:none}
-.pin-logo{display:flex;flex-direction:column;align-items:center;gap:8px}
-.pin-logo canvas{border-radius:16px}
-.pin-appname{font-family:var(--serif);font-size:28px;font-weight:500}
-.pin-dots{display:flex;gap:14px;margin:8px 0}
-.pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--bd2);transition:all .15s}
-.pin-dot.filled{background:var(--ac);border-color:var(--ac)}
-.pin-dot.error{background:var(--re);border-color:var(--re)}
-.pin-label{font-size:13px;color:var(--tx2);text-align:center;min-height:20px}
-.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;width:100%}
-.pin-btn{height:64px;border-radius:var(--r);border:1px solid var(--bd2);background:var(--sf);font-size:22px;font-weight:500;cursor:pointer;color:var(--tx);transition:all .12s;display:flex;align-items:center;justify-content:center;font-family:var(--sans)}
-.pin-btn:active{background:var(--sf2);transform:scale(.95)}
-.pin-btn.del{font-size:16px;color:var(--tx2)}
-.pin-btn.empty{visibility:hidden}
+
 
 /* ── USER SWITCHER ── */
 
@@ -349,40 +337,23 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     --bl:#5a94d0;--bll:#101e30;
   }
 }
+
+.csv-type-btn{width:100%;background:var(--sf2);border:1.5px solid var(--bd2);border-radius:var(--r);padding:14px 16px;cursor:pointer;text-align:center;font-family:var(--sans);color:var(--tx);transition:all .15s}
+.csv-type-btn:hover,.csv-type-btn:active{border-color:var(--ac);background:var(--acl)}
+
+/* ── CSV category inline selector ── */
+.csv-cat-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.csv-cat-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.csv-cat-sel{font-size:11px;padding:4px 22px 4px 6px;height:26px;border-radius:6px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx);max-width:130px;font-family:var(--sans)}
+.csv-cat-sel.unset{border-color:var(--am);color:var(--tx3)}
+.csv-learned-badge{font-size:9px;letter-spacing:.06em;text-transform:uppercase;background:var(--acl);color:var(--ac);border-radius:10px;padding:2px 6px;flex-shrink:0}
 </style>
 </head>
 <body>
 
 <div id="wpLayer"></div>
 
-<!-- PIN LOCK SCREEN -->
-<div id="lockScreen" class="hidden">
-  <div class="pin-logo">
-    <canvas id="pinLogoCanvas" width="180" height="88" style="width:90px;height:44px"></canvas>
-    <div class="pin-appname">Value</div>
-  </div>
-  <div class="pin-dots" id="pinDots">
-    <div class="pin-dot" id="pd0"></div>
-    <div class="pin-dot" id="pd1"></div>
-    <div class="pin-dot" id="pd2"></div>
-    <div class="pin-dot" id="pd3"></div>
-  </div>
-  <div class="pin-label" id="pinLabel">Digite seu PIN</div>
-  <div class="pin-grid">
-    <button class="pin-btn" onclick="pinKey('1')">1</button>
-    <button class="pin-btn" onclick="pinKey('2')">2</button>
-    <button class="pin-btn" onclick="pinKey('3')">3</button>
-    <button class="pin-btn" onclick="pinKey('4')">4</button>
-    <button class="pin-btn" onclick="pinKey('5')">5</button>
-    <button class="pin-btn" onclick="pinKey('6')">6</button>
-    <button class="pin-btn" onclick="pinKey('7')">7</button>
-    <button class="pin-btn" onclick="pinKey('8')">8</button>
-    <button class="pin-btn" onclick="pinKey('9')">9</button>
-    <button class="pin-btn empty"></button>
-    <button class="pin-btn" onclick="pinKey('0')">0</button>
-    <button class="pin-btn del" onclick="pinDel()">⌫</button>
-  </div>
-</div>
+
 
 <div id="ibanner" class="ibanner" style="display:none">
   <span>📱</span><span>Instale o Value para usar offline</span>
@@ -621,21 +592,14 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             </select>
           </div>
         </div>
-        <div class="card">
-          <div class="ctitle">Segurança</div>
-          <div style="display:flex;flex-direction:column;gap:9px">
-            <button class="btn bsec bblk" id="btnSetPin" onclick="changePIN()">🔑 Configurar PIN</button>
-            <button class="btn bsec bblk" id="btnRemPin" onclick="removePIN()" style="display:none">🗑 Remover PIN</button>
-          </div>
-          <p style="font-size:11px;color:var(--tx3);margin-top:8px">O PIN protege o app quando alguém pegar seu dispositivo.</p>
-        </div>
+
         <div class="card">
           <div class="ctitle">Dados & Backup</div>
           <div style="display:flex;flex-direction:column;gap:9px">
             <button class="btn bsec bblk" onclick="exportPDF()">📄 Exportar PDF</button>
             <button class="btn bsec bblk" onclick="expJSON()">⬇ Exportar JSON</button>
             <label class="btn bsec bblk" style="cursor:pointer;text-align:center">⬆ Importar JSON<input type="file" accept=".json" style="display:none" onchange="impJSON(event)"></label>
-            <label class="btn bsec bblk" style="cursor:pointer;text-align:center">📊 Importar CSV<input type="file" accept=".csv,.txt" style="display:none" onchange="importCSV(event)"></label>
+            <label class="btn bsec bblk" style="cursor:pointer;text-align:center">📊 Importar extrato (CSV, OFX, XLSX, PDF)<input type="file" accept=".csv,.txt,.ofx,.qfx,.xlsx,.xls,.pdf" style="display:none" onchange="importCSV(event)"></label>
             <button class="btn bdng bblk" onclick="clearData()">🗑 Limpar todos os dados</button>
           </div>
         </div>
@@ -881,14 +845,43 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <div class="overlay" id="csvModal">
   <div class="modal">
     <div class="mhandle"></div>
-    <div class="mhdr"><div class="mtitle">Importar extrato</div><button class="mclose" onclick="closeM('csvModal')">×</button></div>
+    <div class="mhdr"><div class="mtitle" id="csvModalTitle">Importar extrato</div><button class="mclose" onclick="closeM('csvModal')">×</button></div>
     <div class="mbody">
-      <div id="csvPreviewCount" style="font-size:13px;color:var(--tx2);margin-bottom:10px"></div>
-      <div id="csvPreviewList"></div>
+
+      <!-- Step 1: choose extract type -->
+      <div id="csvStep1">
+        <p style="font-size:13px;color:var(--tx2);margin-bottom:16px;line-height:1.6">Qual é o tipo do extrato que você está importando?</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="csv-type-btn" onclick="selectCSVType('corrente')">
+            <div style="font-size:20px;margin-bottom:4px">🏦</div>
+            <div style="font-weight:500;font-size:14px">Conta corrente</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px">Nubank, Inter, Bradesco, Itaú...</div>
+          </button>
+          <button class="csv-type-btn" onclick="selectCSVType('poupanca')">
+            <div style="font-size:20px;margin-bottom:4px">💰</div>
+            <div style="font-weight:500;font-size:14px">Poupança</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px">Extrato de conta poupança</div>
+          </button>
+          <button class="csv-type-btn" onclick="selectCSVType('cartao')">
+            <div style="font-size:20px;margin-bottom:4px">💳</div>
+            <div style="font-weight:500;font-size:14px">Fatura do cartão de crédito</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px">Todos os lançamentos são despesas</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: preview -->
+      <div id="csvStep2" style="display:none">
+        <div id="csvTypeLabel" style="font-size:11px;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <button onclick="backToCSVStep1()" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:12px;padding:0;font-family:var(--sans)">← Voltar</button>
+        </div>
+        <div id="csvPreviewCount" style="font-size:13px;color:var(--tx2);margin-bottom:10px"></div>
+        <div id="csvPreviewList"></div>
+      </div>
     </div>
     <div class="mfoot">
       <button class="btn bsec bblk" onclick="closeM('csvModal')">Cancelar</button>
-      <button class="btn bprim bblk" onclick="confirmCSVImport()">Importar tudo</button>
+      <button class="btn bprim bblk" id="csvConfirmBtn" onclick="confirmCSVImport()" style="display:none">Importar tudo</button>
     </div>
   </div>
 </div>
@@ -1548,12 +1541,7 @@ function renderSettings(){
   const sel=document.getElementById('themeSelect');if(sel)sel.value=curTheme;
   try{const b=new Blob([JSON.stringify(S)]).size;const el=document.getElementById('stInfo');if(el)el.textContent=`${S.transactions.length} transações · ${S.accounts.length} contas · ${S.goals.length} metas · ~${(b/1024).toFixed(1)} KB`;}catch(e){}
   updateInstallUI();
-  // Show/hide remove PIN button
-  const hasPIN=!!getStoredPin();
-  const btnSet=document.getElementById('btnSetPin');
-  const btnRem=document.getElementById('btnRemPin');
-  if(btnSet)btnSet.textContent=hasPIN?'🔑 Alterar PIN':'🔑 Configurar PIN';
-  if(btnRem)btnRem.style.display=hasPIN?'flex':'none';
+
 }
 
 /* ── DASHBOARD ── */
@@ -1616,9 +1604,39 @@ let insightIdx=0;let insightTimer=null;
 function renderIns(txM,inc,exp){
   const ins=[];
   const net=inc-exp,p=inc>0?(net/inc*100):0;
-  if(net<0)ins.push({c:'ibad',t:'Saldo negativo!',d:`Despesas superaram receitas em ${fmt(Math.abs(net))}.`});
-  else if(p<10)ins.push({c:'iwarn',t:'Poupança baixa',d:`Guardando ${p.toFixed(1)}% da receita. Meta: 20%+.`});
-  else ins.push({c:'iok',t:`Poupando ${p.toFixed(1)}%`,d:'Ótimo! Continue assim.'});
+  const nome=S.settings?.name?S.settings.name.split(' ')[0]:'';
+  const hasData=S.transactions.length>0;
+  const hasThisMonth=txM.length>0;
+
+  if(!hasData){
+    // Primeiro acesso — sem nenhuma transação ainda
+    ins.push({c:'iok',
+      t:`Bem-vindo${nome?' ao Value, '+nome:'!'}`,
+      d:'Você está prestes a organizar sua vida financeira. Comece adicionando uma transação ou importando seu extrato.'
+    });
+    ins.push({c:'iok',
+      t:'💡 Como começar',
+      d:'Toque no + para adicionar receitas e despesas. Em Configurações você pode importar direto do banco.'
+    });
+  } else if(!hasThisMonth){
+    // Tem dados históricos mas não neste mês
+    ins.push({c:'iok',
+      t:`Novo mês${nome?', '+nome:''}!`,
+      d:'Nenhum lançamento ainda. Que tal registrar sua primeira transação do mês?'
+    });
+  } else {
+    // Tem dados — insights normais com mensagens mais humanas
+    if(net<0)
+      ins.push({c:'ibad',t:'Atenção ao saldo!',d:`Suas despesas superaram as receitas em ${fmt(Math.abs(net))} este mês.`});
+    else if(p<10)
+      ins.push({c:'iwarn',t:'Poupança abaixo do ideal',d:`Você está guardando ${p.toFixed(1)}% da sua receita. O recomendado é pelo menos 20%.`});
+    else if(p>=20&&p<40)
+      ins.push({c:'iok',t:`Guardando ${p.toFixed(1)}% ✓`,d:`Ótimo ritmo${nome?', '+nome:''}! Você está acima da meta de 20%.`});
+    else if(p>=40)
+      ins.push({c:'iok',t:`Excelente! ${p.toFixed(1)}% guardado`,d:`Isso é disciplina financeira de verdade${nome?', '+nome:''}. Continue assim!`});
+    else
+      ins.push({c:'iok',t:'No caminho certo',d:`Saldo positivo de ${fmt(net)} neste mês.`});
+  }
 
   S.categories.filter(cat=>cat.budget>0&&cat.type==='saida').forEach(cat=>{
     const spent=txM.filter(t=>t.category===cat.id&&t.type==='saida').reduce((a,t)=>a+t.amount,0);
@@ -1642,7 +1660,8 @@ function renderIns(txM,inc,exp){
     else if(p2>=100)ins.push({c:'iok',t:`Meta atingida: ${g.name}`,d:'Parabéns! Você chegou ao objetivo!'});
   });
 
-  const list=ins.length?ins:[{c:'iok',t:'Tudo sob controle!',d:'Nenhum alerta para este período.'}];
+  // Only use fallback if genuinely no insights (shouldn't happen now)
+  const list=ins.length?ins:[{c:'iok',t:'Tudo certo por aqui!',d:'Nenhum alerta para este período. Continue com o bom trabalho.'}];
   if(insightTimer){clearInterval(insightTimer);insightTimer=null;}
   insightIdx=window._insIdx||0;
   const el=document.getElementById('insights');
@@ -2503,145 +2522,120 @@ function renderWeeklyBanner(txW){
 }
 
 /* ══════════════════════════════════════════════════════
-   PIN SYSTEM — simple device lock
-══════════════════════════════════════════════════════ */
-const PIN_KEY='value_pin';
-
-function getStoredPin(){return localStorage.getItem(PIN_KEY)||null;}
-function savePin(pin){localStorage.setItem(PIN_KEY,hashPin(pin));}
-function clearPin(){localStorage.removeItem(PIN_KEY);}
-function hashPin(pin){let h=0;for(let i=0;i<pin.length;i++){h=(h<<5)-h+pin.charCodeAt(i);h|=0;}return String(h);}
-function verifyPin(pin){const stored=getStoredPin();if(!stored)return true;return stored===hashPin(pin);}
-
-/* ── PIN SCREEN LOGIC ── */
-let pinBuffer='';
-let pinMode='verify'; // 'verify' | 'set' | 'confirm'
-let pinTemp='';
-
-function showLockScreen(){
-  const hasPin=!!getStoredPin();
-  pinMode=hasPin?'verify':'set';
-  pinBuffer='';pinTemp='';
-  document.getElementById('pinLabel').textContent=hasPin?'Digite seu PIN':'Crie um PIN de 4 dígitos';
-  updatePinDots();
-  document.getElementById('lockScreen').classList.remove('hidden');
-  // Draw logo
-  try{
-    const cv=document.getElementById('pinLogoCanvas');
-    if(cv){const ctx=cv.getContext('2d');ctx.clearRect(0,0,cv.width,cv.height);
-      const th=localStorage.getItem('value_theme')||'light';
-      const sc=th==='alf'?'#a02060':th==='dark'?'#1e4230':'#2d5a3d';
-      bill(ctx,cv.width,cv.height,sc,th==='alf'?'#fde8f2':'#f0d84e');}
-  }catch(e){}
-}
-
-function hideLockScreen(){
-  document.getElementById('lockScreen').classList.add('hidden');
-}
-
-function pinKey(digit){
-  if(pinBuffer.length>=4)return;
-  pinBuffer+=digit;
-  updatePinDots();
-  if(pinBuffer.length===4)setTimeout(processPinEntry,120);
-}
-
-function pinDel(){
-  pinBuffer=pinBuffer.slice(0,-1);
-  updatePinDots();
-}
-
-function updatePinDots(){
-  for(let i=0;i<4;i++){
-    const d=document.getElementById('pd'+i);
-    if(d){d.className='pin-dot'+(i<pinBuffer.length?' filled':'');}
-  }
-}
-
-function pinError(msg){
-  for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);if(d)d.classList.add('error');}
-  document.getElementById('pinLabel').textContent=msg;
-  setTimeout(()=>{
-    pinBuffer='';
-    updatePinDots();
-    if(pinMode==='verify')document.getElementById('pinLabel').textContent='Digite seu PIN';
-    else document.getElementById('pinLabel').textContent='Crie um PIN de 4 dígitos';
-  },900);
-}
-
-function processPinEntry(){
-  if(pinMode==='verify'){
-    if(verifyPin(pinBuffer)){
-      hideLockScreen();
-      if(window._pinAfterVerify==='change'){
-        window._pinAfterVerify=null;
-        setTimeout(()=>{
-          pinMode='set';pinBuffer='';
-          document.getElementById('pinLabel').textContent='Digite o novo PIN';
-          updatePinDots();
-          document.getElementById('lockScreen').classList.remove('hidden');
-        },200);
-      }
-    } else pinError('PIN incorreto. Tente novamente.');
-  } else if(pinMode==='set'){
-    pinTemp=pinBuffer;pinBuffer='';
-    pinMode='confirm';
-    document.getElementById('pinLabel').textContent='Confirme o PIN';
-    updatePinDots();
-  } else if(pinMode==='confirm'){
-    if(pinBuffer===pinTemp){
-      savePin(pinBuffer);
-      hideLockScreen();
-      toast('PIN criado com sucesso! ✓');
-    } else {
-      pinMode='set';pinTemp='';
-      pinError('PINs diferentes. Tente novamente.');
-    }
-  }
-}
-
-function changePIN(){
-  // Ask current PIN first if one exists
-  if(getStoredPin()){
-    pinMode='verify';
-    pinBuffer='';
-    document.getElementById('pinLabel').textContent='Digite o PIN atual';
-    // After verify, switch to set
-    window._pinAfterVerify='change';
-  } else {
-    pinMode='set';
-    pinBuffer='';
-    document.getElementById('pinLabel').textContent='Crie um PIN de 4 dígitos';
-  }
-  updatePinDots();
-  document.getElementById('lockScreen').classList.remove('hidden');
-}
-
-function removePIN(){
-  if(!getStoredPin()){toast('Nenhum PIN configurado');return;}
-  clearPin();
-  toast('PIN removido');
-  renderSettings();
-}
-
-/* ══════════════════════════════════════════════════════
    CSV IMPORT
 ══════════════════════════════════════════════════════ */
+let _csvRawRows=null;
+let _csvExtractType='corrente';
+let _csvFormat='csv'; // 'csv' | 'ofx' | 'xlsx'
+
 function importCSV(event){
   const file=event.target.files[0];
   if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const text=e.target.result;
-      const rows=parseCSV(text);
-      const imported=mapCSVRows(rows);
-      if(!imported.length){toast('Nenhuma transação encontrada no CSV');return;}
-      // Show preview modal
-      showCSVPreview(imported);
-    }catch(err){toast('Erro ao ler o CSV: '+err.message);}
-  };
-  reader.readAsText(file,'UTF-8');
+  const ext=file.name.split('.').pop().toLowerCase();
+
+  if(ext==='xlsx'||ext==='xls'){
+    _csvFormat='xlsx';
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:'array'});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const data=XLSX.utils.sheet_to_json(ws,{header:1,raw:false,dateNF:'yyyy-mm-dd'});
+        if(data.length<2){toast('Planilha vazia ou inválida');return;}
+        _csvRawRows=data.map(row=>row.map(cell=>cell==null?'':String(cell)));
+        openCSVTypeStep();
+      }catch(err){toast('Erro ao ler planilha: '+err.message);}
+    };
+    reader.readAsArrayBuffer(file);
+
+  } else if(ext==='pdf'){
+    _csvFormat='pdf';
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        if(typeof pdfjsLib==='undefined'){toast('PDF.js não carregado. Tente novamente.');return;}
+        parsePDFExtrato(e.target.result).then(rows=>{
+          if(!rows.length){toast('Nenhuma transação encontrada no PDF');return;}
+          _csvRawRows=rows;
+          openCSVTypeStep();
+        }).catch(err=>toast('Erro ao ler PDF: '+err.message));
+      }catch(err){toast('Erro ao ler PDF: '+err.message);}
+    };
+    reader.readAsArrayBuffer(file);
+
+  } else if(ext==='ofx'||ext==='qfx'){
+    _csvFormat='ofx';
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const txs=parseOFX(e.target.result);
+        if(!txs.length){toast('Nenhuma transação encontrada no OFX');return;}
+        _csvRawRows=txs; // already parsed objects
+        openCSVTypeStep();
+      }catch(err){toast('Erro ao ler OFX: '+err.message);}
+    };
+    reader.readAsText(file,'UTF-8');
+
+  } else {
+    // CSV / TXT
+    _csvFormat='csv';
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const text=e.target.result;
+        const rows=parseCSV(text);
+        if(rows.length<2){toast('CSV vazio ou inválido');return;}
+        _csvRawRows=rows;
+        openCSVTypeStep();
+      }catch(err){toast('Erro ao ler CSV: '+err.message);}
+    };
+    reader.readAsText(file,'UTF-8');
+  }
+}
+
+function openCSVTypeStep(){
+  document.getElementById('csvStep1').style.display='block';
+  document.getElementById('csvStep2').style.display='none';
+  document.getElementById('csvConfirmBtn').style.display='none';
+  document.getElementById('csvModalTitle').textContent='Importar extrato';
+  document.getElementById('csvModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function selectCSVType(type){
+  _csvExtractType=type;
+  try{
+    let imported;
+    if(_csvFormat==='ofx'){
+      imported=mapOFXRows(_csvRawRows,type);
+    } else if(_csvFormat==='pdf'){
+      imported=mapPDFRows(_csvRawRows,type);
+    } else {
+      imported=mapCSVRows(_csvRawRows,type);
+    }
+    if(!imported.length){toast('Nenhuma transação encontrada');return;}
+    // Apply auto-categorization (learned + rules)
+    let autoCount=0;
+    imported.forEach(r=>{
+      if(!r.category){
+        const guess=guessCategoryFromDesc(r.desc,r.type);
+        if(guess){
+          r.category=guess.id;
+          r._autoGuessed=true;
+          r._learned=(guess.source==='learned');
+          autoCount++;
+        }
+      }
+    });
+    showCSVPreview(imported,type);
+  }catch(err){toast('Erro: '+err.message);}
+}
+
+function backToCSVStep1(){
+  document.getElementById('csvStep1').style.display='block';
+  document.getElementById('csvStep2').style.display='none';
+  document.getElementById('csvConfirmBtn').style.display='none';
+  document.getElementById('csvModalTitle').textContent='Importar extrato';
 }
 
 function parseCSV(text){
@@ -2663,49 +2657,91 @@ function parseCSV(text){
   });
 }
 
-function mapCSVRows(rows){
+function mapCSVRows(rows,extractType){
   if(rows.length<2)return[];
+  extractType=extractType||'corrente';
   const header=rows[0].map(h=>h.toLowerCase().replace(/[^a-záéíóúâêîôûãõç0-9]/gi,''));
-  // Detect column indices
   const dateIdx=findCol(header,['data','date','dt']);
   const descIdx=findCol(header,['descricao','descri','historico','memo','description','lançamento','lancamento']);
   const valIdx=findCol(header,['valor','value','amount','vlr','debito','credito']);
-  const typeIdx=findCol(header,['tipo','type','natureza','dc','credito','debito']);
+  const typeIdx=findCol(header,['tipo','type','natureza','dc']);
 
   if(dateIdx===-1||descIdx===-1||valIdx===-1)throw new Error('Colunas obrigatórias não encontradas (data, descrição, valor)');
+
+  // Keywords that identify income in account statements
+  const incomeKeywords=['pix recebido','pagamento recebido','transferência recebida','transferencia recebida',
+    'depósito','deposito','crédito','credito em conta','salário','salario','rendimento','juros',
+    'reembolso','estorno','cashback','recebimento','renda'];
+
+  // Keywords that identify refunds/credits in credit card statements
+  const creditCardRefunds=['estorno','reembolso','cashback','pagamento de fatura','crédito'];
 
   const results=[];
   for(let i=1;i<rows.length;i++){
     const row=rows[i];
     if(!row[dateIdx]||!row[descIdx])continue;
-    // Parse date — handles DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY
-    const rawDate=row[dateIdx].trim();
-    const date=parseDate(rawDate);
+    const date=parseDate(row[dateIdx].trim());
     if(!date)continue;
-    // Parse value — detect BR format (1.234,56) vs international (1,234.56)
+
     let rawVal=(row[valIdx]||'').trim().replace(/[R$\s]/g,'');
     let amount;
     if(/^-?[\d.]+,[\d]{2}$/.test(rawVal)){
-      // BR format: 1.234,56 — remove dots, replace comma
       amount=parseFloat(rawVal.replace(/\./g,'').replace(',','.'));
     } else if(/^-?[\d,]+\.[\d]{2}$/.test(rawVal)){
-      // International format: 1,234.56 — just remove commas
       amount=parseFloat(rawVal.replace(/,/g,''));
     } else {
-      // Fallback: remove everything except digits, dot, minus
       amount=parseFloat(rawVal.replace(/[^\d.-]/g,''));
     }
     if(isNaN(amount))continue;
-    // Determine type
-    let type='saida';
-    if(typeIdx!==-1){
-      const t=(row[typeIdx]||'').toLowerCase();
-      if(t.includes('c')||t.includes('cred')||t.includes('entrada'))type='entrada';
+
+    const desc=row[descIdx].trim();
+    const descLow=desc.toLowerCase();
+    let type;
+
+    if(extractType==='cartao'){
+      // Skip payment lines — these are transfers, not real income/expense
+      const isPayment=[
+        'pagamento recebido','pagamento de fatura','pagamento da fatura',
+        'limite convertido em saldo','crédito de fatura','credito de fatura',
+        'pagamento efetuado','fatura paga'
+      ].some(k=>descLow.includes(k));
+      if(isPayment)continue;
+      // Everything else is expense EXCEPT refunds/chargebacks
+      const isRefund=['estorno','reembolso','cashback','chargeback'].some(k=>descLow.includes(k));
+      type=isRefund?'entrada':'saida';
+      // Negative value on card = credit/refund
+      if(amount<0)type='entrada';
+
     } else {
-      if(amount>0)type='entrada';
+      // Conta corrente / poupança
+      // Check type column first
+      if(typeIdx!==-1){
+        const t=(row[typeIdx]||'').toLowerCase();
+        if(t.startsWith('c')||t.includes('cred')||t==='entrada')type='entrada';
+        else type='saida';
+      } else if(amount!==0){
+        // Use sign: positive=entrada, negative=saida (most BR banks)
+        // BUT some banks (Nubank) invert: negative=gasto, positive=recebido
+        // Detect by checking description keywords
+        const keywordMatch=incomeKeywords.some(k=>descLow.includes(k));
+        if(keywordMatch){
+          type='entrada';
+        } else if(amount<0){
+          // Negative value without income keyword = expense
+          type='saida';
+        } else {
+          // Positive value without income keyword = expense (Nubank style fatura)
+          // But for conta corrente, positive usually means entrada
+          type='entrada';
+        }
+      } else {
+        type='saida';
+      }
     }
+
     amount=Math.abs(amount);
-    results.push({date,desc:row[descIdx].trim(),amount,type,category:'',account:''});
+    if(amount===0)continue;
+    results.push({date,desc,amount,type,category:'',account:''});
   }
   return results;
 }
@@ -2731,48 +2767,466 @@ function parseDate(raw){
   return null;
 }
 
-function showCSVPreview(rows){
-  const modal=document.getElementById('csvModal');
-  if(!modal)return;
-  document.getElementById('csvPreviewCount').textContent=rows.length+' transações encontradas';
-  document.getElementById('csvPreviewList').innerHTML=rows.slice(0,10).map(r=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd)">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.desc}</div>
-        <div style="font-size:11px;color:var(--tx3)">${fmtD(r.date)}</div>
-      </div>
-      <div style="font-size:13px;font-weight:500" class="${r.type==='entrada'?'cin':'cout'}">${r.type==='entrada'?'+':'-'}${fmt(r.amount)}</div>
-    </div>`).join('')+
-  (rows.length>10?`<div style="text-align:center;padding:10px;font-size:12px;color:var(--tx3)">+${rows.length-10} mais...</div>`:'');
+function showCSVPreview(rows,type){
+  const typeLabels={corrente:'Conta corrente',poupanca:'Poupança',cartao:'Fatura do cartão'};
+  const typeEmojis={corrente:'🏦',poupanca:'💰',cartao:'💳'};
+  const label=typeLabels[type]||type;
+  const emoji=typeEmojis[type]||'📄';
+
+  // Switch to step 2
+  document.getElementById('csvStep1').style.display='none';
+  document.getElementById('csvStep2').style.display='block';
+  document.getElementById('csvConfirmBtn').style.display='flex';
+  document.getElementById('csvModalTitle').textContent='Confirmar importação';
+
+  // Show type label with back button
+  const entradas=rows.filter(r=>r.type==='entrada').length;
+  const saidas=rows.filter(r=>r.type==='saida').length;
+  const fmtLabels={csv:'CSV',ofx:'OFX/QFX',xlsx:'Excel',pdf:'PDF'};
+  const fmtLabel=fmtLabels[_csvFormat]||'';
+  document.getElementById('csvTypeLabel').innerHTML=
+    `<button onclick="backToCSVStep1()" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:12px;padding:0;font-family:var(--sans)">← Voltar</button>
+     <span style="background:var(--sf2);border-radius:20px;padding:3px 10px;font-size:11px">${emoji} ${label}</span>
+     <span style="background:var(--sf2);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--tx3)">${fmtLabel}</span>`;
+
+  document.getElementById('csvPreviewCount').innerHTML=
+    `<strong>${rows.length}</strong> transações encontradas &nbsp;·&nbsp;
+     <span class="cin">↑ ${entradas} entradas</span> &nbsp;·&nbsp;
+     <span class="cout">↓ ${saidas} saídas</span>`;
+
+  // Build category options per type
+  function catOpts(type){
+    const cats=S.categories.filter(c=>c.type===type);
+    cats.sort((a,b)=>(b.fav?1:0)-(a.fav?1:0));
+    return'<option value="">— sem categoria —</option>'+
+      cats.map(c=>`<option value="${c.id}">${c.fav?'⭐ ':''}${c.icon} ${c.name}</option>`).join('');
+  }
+
+  const uncatCount=rows.filter(r=>!r.category).length;
+  document.getElementById('csvPreviewCount').innerHTML=
+    `<strong>${rows.length}</strong> transações &nbsp;·&nbsp;
+     <span class="cin">↑ ${entradas} entradas</span> &nbsp;·&nbsp;
+     <span class="cout">↓ ${saidas} saídas</span>`+
+    (uncatCount>0?` &nbsp;·&nbsp; <span style="color:var(--am)">${uncatCount} sem categoria</span>`:'');
+
+  document.getElementById('csvPreviewList').innerHTML=
+    `<div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;padding:6px 0 4px">Revise e categorize antes de importar</div>`+
+    rows.map((r,i)=>{
+      const learned=r._learned?`<span class="csv-learned-badge">aprendido</span>`:'';
+      const catColor=r.category?'var(--sf2)':'var(--aml)';
+      return`<div class="csv-cat-row">
+        <div class="csv-cat-icon" style="background:${r.type==='entrada'?'var(--acl)':'var(--rel)'}">${r.type==='entrada'?'↑':'↓'}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.desc}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+            <select class="csv-cat-sel ${r.category?'':'unset'}" onchange="setCsvRowCat(${i},this.value)" style="background:${catColor}">
+              ${catOpts(r.type)}
+            </select>
+            ${learned}
+          </div>
+        </div>
+        <div style="font-size:13px;font-weight:600;letter-spacing:-.2px;flex-shrink:0" class="${r.type==='entrada'?'cin':'cout'}">${r.type==='entrada'?'+':'-'}${fmt(r.amount)}</div>
+      </div>`;
+    }).join('')+
+    (rows.length>30?`<div style="text-align:center;padding:10px;font-size:12px;color:var(--tx3)">mostrando ${rows.length} transações</div>`:'');
+
+  // Set select values after render
+  setTimeout(()=>{
+    rows.forEach((r,i)=>{
+      const sel=document.querySelectorAll('.csv-cat-sel')[i];
+      if(sel&&r.category)sel.value=r.category;
+    });
+  },50);
+
   window._csvPending=rows;
-  modal.classList.add('open');
-  document.body.style.overflow='hidden';
+}
+
+
+
+
+/* ══════════════════════════════════════════════════════
+   PDF EXTRATO PARSER
+   Testado: Itaú conta corrente
+   Estratégia: extrai texto por página, reconstrói linhas
+   por proximidade vertical, identifica colunas por posição X
+══════════════════════════════════════════════════════ */
+async function parsePDFExtrato(arrayBuffer){
+  const pdf=await pdfjsLib.getDocument({data:arrayBuffer}).promise;
+  const allItems=[];
+
+  for(let p=1;p<=pdf.numPages;p++){
+    const page=await pdf.getPage(p);
+    const content=await page.getTextContent();
+    const viewport=page.getViewport({scale:1});
+    const pageH=viewport.height;
+
+    // Collect text items with normalized Y (top=0)
+    content.items.forEach(item=>{
+      if(!item.str.trim())return;
+      const x=Math.round(item.transform[4]);
+      const y=Math.round(pageH-item.transform[5]); // flip Y so top=0
+      allItems.push({x,y,str:item.str.trim(),page:p});
+    });
+  }
+
+  // Group items into lines by Y proximity (within 4px = same line)
+  allItems.sort((a,b)=>a.page!==b.page?a.page-b.page:a.y!==b.y?a.y-b.y:a.x-b.x);
+
+  const lines=[];
+  let curLine=null,curY=-999,curPage=-1;
+  for(const item of allItems){
+    if(item.page!==curPage||Math.abs(item.y-curY)>6){
+      if(curLine)lines.push(curLine);
+      curLine={y:item.y,page:item.page,items:[item]};
+      curY=item.y;curPage=item.page;
+    } else {
+      curLine.items.push(item);
+    }
+  }
+  if(curLine)lines.push(curLine);
+
+  // Parse each line — look for date pattern DD/MM/YYYY at start
+  const dateRe=/^(\d{2}\/\d{2}\/\d{4})$/;
+  // Amount pattern: number with comma, optional minus/negative color
+  const amtRe=/^-?[\d.]+,\d{2}$/;
+
+  const rows=[];
+  for(const line of lines){
+    const strs=line.items.sort((a,b)=>a.x-b.x).map(i=>i.str);
+    const full=strs.join(' ');
+
+    // Skip header/footer lines
+    if(/saldo do dia|período|emitido|lançamentos|data.*valor|extrato/i.test(full))continue;
+
+    // Find date token
+    const dateToken=strs.find(s=>dateRe.test(s));
+    if(!dateToken)continue;
+
+    // Find amount tokens (could be value and balance columns)
+    const amtTokens=strs.filter(s=>amtRe.test(s.replace(/\s/g,'')));
+    if(!amtTokens.length)continue;
+
+    // Description = everything between date and first amount
+    const dateIdx2=strs.indexOf(dateToken);
+    const firstAmtIdx=strs.findIndex(s=>amtRe.test(s.replace(/\s/g,'')));
+    const descTokens=strs.slice(dateIdx2+1,firstAmtIdx);
+    const desc=descTokens.join(' ').trim();
+    if(!desc)continue;
+
+    // Date conversion: DD/MM/YYYY → YYYY-MM-DD
+    const [dd,mm,yyyy]=dateToken.split('/');
+    const date=`${yyyy}-${mm}-${dd}`;
+
+    // Value = first amount token (not the balance column)
+    // On Itaú layout: value col is before saldo col
+    // Negative amounts come as red text — PDF.js doesn't give color,
+    // but negative sign may be present or we use position heuristic
+    const rawAmt=amtTokens[0].replace(/\s/g,'');
+    const numVal=parseFloat(rawAmt.replace(/\./g,'').replace(',','.'));
+    if(isNaN(numVal)||numVal===0)continue;
+
+    rows.push({date,desc,rawAmt:numVal});
+  }
+  return rows;
+}
+
+function mapPDFRows(rows,extractType){
+  const incomeKeywords=['pix transf','pix recebido','recebido','transferência recebida',
+    'transferencia recebida','depósito','deposito','ted recebido','doc recebido','crédito'];
+  const skipKeywords=['saldo','fatura paga','pagamento de fatura'];
+  const skipCartao=['fatura paga','pagamento recebido','pagamento de fatura','limite convertido'];
+
+  const results=[];
+  for(const tx of rows){
+    const descLow=tx.desc.toLowerCase();
+    if(skipKeywords.some(k=>descLow.includes(k)))continue;
+
+    const amt=Math.abs(tx.rawAmt);
+    if(amt===0)continue;
+
+    let type;
+    if(extractType==='cartao'){
+      if(skipCartao.some(k=>descLow.includes(k)))continue;
+      const isRefund=['estorno','reembolso','cashback'].some(k=>descLow.includes(k));
+      type=isRefund?'entrada':'saida';
+      if(tx.rawAmt>0&&!isRefund)type='saida'; // card positives = charges
+    } else {
+      // Itaú conta corrente:
+      // Positive values in PDF = credits (entrada)
+      // Negative values = debits (saida)
+      // BUT: "PIX TRANSF" can be either — check sign first, then keywords
+      if(tx.rawAmt<0){
+        type='saida';
+      } else {
+        // Positive: check if it's a real income or just formatting
+        const isIncome=incomeKeywords.some(k=>descLow.includes(k));
+        type=isIncome?'entrada':'entrada'; // positive = entrada on conta corrente
+      }
+      // Override with keywords for safety
+      if(incomeKeywords.some(k=>descLow.includes(k)))type='entrada';
+    }
+
+    results.push({date:tx.date,desc:tx.desc,amount:amt,type,category:'',account:''});
+  }
+  return results;
+}
+
+/* ══════════════════════════════════════════════════════
+   OFX / QFX PARSER
+   Suporte: Bradesco, Itaú, BB, Caixa, Santander, BTG,
+            Sicoob, Sicredi, Nubank OFX
+══════════════════════════════════════════════════════ */
+function parseOFX(text){
+  // OFX can be SGML (old) or XML (new) — handle both
+  // Normalize line endings
+  text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+
+  // Try XML-style first (OFX 2.x)
+  const isXML=text.trim().startsWith('<?xml')||text.includes('<OFX>');
+
+  const txs=[];
+  // Extract all STMTTRN blocks
+  const blockRe=/<STMTTRN[^>]*>([\s\S]*?)<\/STMTTRN>/gi;
+  let match;
+
+  if(isXML){
+    while((match=blockRe.exec(text))!==null){
+      const block=match[1];
+      const tx=parseOFXBlock(block,true);
+      if(tx)txs.push(tx);
+    }
+  } else {
+    // SGML style: <STMTTRN>...<STMTTRN> or until next top-level tag
+    const sgmlBlocks=text.split(/<STMTTRN>/i).slice(1);
+    for(const block of sgmlBlocks){
+      const tx=parseOFXBlock(block,false);
+      if(tx)txs.push(tx);
+    }
+  }
+  return txs;
+}
+
+function parseOFXBlock(block,isXML){
+  function getVal(tag){
+    // XML: <TAG>value</TAG>  SGML: <TAG>value\n
+    const xmlRe=new RegExp('<'+tag+'[^>]*>([^<]*)<\/'+tag+'>','i');
+    const sgmlRe=new RegExp('<'+tag+'>([^\n<]*)','i');
+    const m=block.match(isXML?xmlRe:sgmlRe);
+    return m?m[1].trim():'';
+  }
+
+  const rawAmt=getVal('TRNAMT').replace(',','.');
+  const amount=parseFloat(rawAmt);
+  if(isNaN(amount)||amount===0)return null;
+
+  // Date: YYYYMMDD or YYYYMMDDHHMMSS
+  const rawDate=getVal('DTPOSTED')||getVal('DTUSER');
+  const date=parseOFXDate(rawDate);
+  if(!date)return null;
+
+  const desc=(getVal('MEMO')||getVal('NAME')||getVal('PAYEE')||'').trim();
+  if(!desc)return null;
+
+  const trntype=(getVal('TRNTYPE')||'').toUpperCase();
+
+  return{rawAmt:amount,desc,date,trntype};
+}
+
+function parseOFXDate(raw){
+  // YYYYMMDD or YYYYMMDDHHMMSS[.000][+offset]
+  const clean=raw.replace(/[\[\+\-\.].*/,'').replace(/\D/g,'');
+  if(clean.length<8)return null;
+  const y=clean.slice(0,4),m=clean.slice(4,6),d=clean.slice(6,8);
+  return`${y}-${m}-${d}`;
+}
+
+function mapOFXRows(txs,extractType){
+  // OFX already has parsed objects from parseOFX
+  const incomeKeywords=['pix recebido','pagamento recebido','transferência recebida',
+    'transferencia recebida','depósito','deposito','salário','salario','rendimento',
+    'crédito','credito em conta','estorno','reembolso'];
+  const skipCartao=['pagamento recebido','pagamento de fatura','pagamento da fatura',
+    'limite convertido','crédito de fatura','credito de fatura'];
+
+  const results=[];
+  for(const tx of txs){
+    const descLow=tx.desc.toLowerCase();
+    const amt=Math.abs(tx.rawAmt);
+    if(amt===0)continue;
+
+    let type;
+    if(extractType==='cartao'){
+      if(skipCartao.some(k=>descLow.includes(k)))continue;
+      // OFX TRNTYPE: CREDIT=entrada, DEBIT=saida
+      if(tx.trntype==='CREDIT'||tx.rawAmt>0){
+        const isRefund=['estorno','reembolso','cashback','chargeback'].some(k=>descLow.includes(k));
+        type=isRefund?'entrada':'saida';
+      } else {
+        type='saida';
+      }
+    } else {
+      // Conta corrente / poupança
+      // OFX TRNTYPE is reliable: CREDIT=entrada, DEBIT=saida
+      if(tx.trntype==='CREDIT'||tx.trntype==='INT'||tx.trntype==='DIV'){
+        type='entrada';
+      } else if(tx.trntype==='DEBIT'||tx.trntype==='CHECK'||tx.trntype==='PAYMENT'){
+        type='saida';
+      } else {
+        // Fallback to amount sign
+        type=tx.rawAmt>0?'entrada':'saida';
+      }
+      // Double-check with keywords
+      if(incomeKeywords.some(k=>descLow.includes(k)))type='entrada';
+    }
+
+    results.push({date:tx.date,desc:tx.desc,amount:amt,type,category:'',account:''});
+  }
+  return results;
+}
+
+/* ══════════════════════════════════════════════════════
+   CATEGORIZAÇÃO AUTOMÁTICA DE CSV
+══════════════════════════════════════════════════════ */
+const CSV_CAT_RULES = [
+  // Alimentação / Mercado
+  { keywords:['mercado','supermercado','hortifruti','atacado','atacadão','assaí','carrefour','extra','pão de açúcar','bahamas','comper','bretas','dia%','varejão'], cat:'Alimentação' },
+  // Restaurante / Delivery
+  { keywords:['restaurante','lanchonete','hamburger','hamburguer','burger','pizza','pizzaria','sushi','churrasco','padaria','panificadora','pastelaria','doceria','sorveteria','acai','açaí','ifood','rappi','uber eats','goomer','sobrado','casa do','sabor'], cat:'Restaurante' },
+  // Transporte
+  { keywords:['uber','99 taxi','99pop','cabify','táxi','taxi','posto','combustível','combustivel','gasolina','etanol','shell','petrobras','ipiranga','br distribuidora','ale','raizen','auto posto','estacionamento','pedágio','pedagio','ônibus','onibus','metrô','metro','bilhete único'], cat:'Transporte' },
+  // Saúde
+  { keywords:['farmácia','farmacia','drogaria','droga','ultrafarma','drogasil','pacheco','nissei','pague menos','panvel','droga raia','clinica','clínica','hospital','laboratório','laboratorio','médico','medico','dentista','odonto','plano de saúde','unimed','amil','bradesco saude','hapvida','sulamerica saude'], cat:'Saúde' },
+  // Assinaturas / Streaming
+  { keywords:['netflix','spotify','amazon prime','prime video','disney','hbo','globoplay','paramount','apple','google one','youtube premium','xbox','playstation','steam','nuuvem','adobe','microsoft','dropbox','icloud','tiktok','bytedance','deezer','crunchyroll'], cat:'Assinaturas' },
+  // Educação
+  { keywords:['escola','faculdade','universidade','curso','udemy','alura','hotmart','eduzz','kiwify','cursinho','colégio','colegio','ensino','educação','educacao','livro','livraria','saraiva','cultura'], cat:'Educação' },
+  // Roupas / Compras
+  { keywords:['renner','riachuelo','c&a','cea','hering','marisa','zara','shein','shopee','americanas','magazine luiza','magalu','casas bahia','extra.com','mercado livre','amazon','aliexpress','netshoes','centauro','decathlon','arezzo','melissa','havaianas'], cat:'Roupas' },
+  // Moradia
+  { keywords:['aluguel','condomínio','condominio','iptu','luz','energia','enel','cpfl','cemig','coelba','copel','agua','saneamento','sabesp','cedae','gas encanado','comgas','telefone','internet','vivo','claro','tim','oi ','net ','sky '], cat:'Moradia' },
+  // Lazer
+  { keywords:['cinema','ingresso','teatro','show','evento','parque','museu','bar ','balada','festa','viagem','hotel','airbnb','booking','decolar','hurb','trivago','passagem','latam','gol ','azul ','tam '], cat:'Lazer' },
+  // Salário / Receita (entrada)
+  { keywords:['salário','salario','pagamento recebido','holerite','pro-labore','prolabore','freelance','honorários','honorarios'], cat:'Salário', onlyType:'entrada' },
+  // Investimentos (entrada)
+  { keywords:['rendimento','dividendo','jcp','fii','tesouro','cdb','lci','lca','poupança','poupanca'], cat:'Investimentos', onlyType:'entrada' },
+];
+
+function guessCategoryFromDesc(desc, type){
+  // 1. Check learned first — user's own history beats rules
+  const learnedId=guessFromLearned(desc);
+  if(learnedId){
+    const cat=S.categories.find(c=>c.id===learnedId);
+    if(cat)return{id:learnedId,source:'learned'};
+  }
+  // 2. Keyword rules
+  const d = desc.toLowerCase();
+  for(const rule of CSV_CAT_RULES){
+    if(rule.onlyType && rule.onlyType !== type) continue;
+    const match = rule.keywords.some(k => {
+      if(k.endsWith('%')) return d.includes(k.slice(0,-1));
+      return d.includes(k);
+    });
+    if(match){
+      const cat = S.categories.find(c =>
+        c.type === type &&
+        c.name.toLowerCase() === rule.cat.toLowerCase()
+      );
+      if(cat) return{id:cat.id,source:'rule'};
+      const catFuzzy = S.categories.find(c =>
+        c.type === type &&
+        (c.name.toLowerCase().includes(rule.cat.toLowerCase().split(' ')[0]) ||
+         rule.cat.toLowerCase().includes(c.name.toLowerCase().split(' ')[0]))
+      );
+      if(catFuzzy) return{id:catFuzzy.id,source:'rule'};
+    }
+  }
+  return null;
+}
+
+
+/* ══════════════════════════════════════════════════════
+   APRENDIZADO DE CATEGORIAS — CSV IMPORT
+   Salva: descrição normalizada → categoria id
+   Aprende com cada importação manual do usuário
+══════════════════════════════════════════════════════ */
+const LEARN_KEY='value_cat_learn';
+
+function loadLearnedCats(){
+  try{const d=localStorage.getItem(LEARN_KEY);return d?JSON.parse(d):{};}catch(e){return{};}
+}
+function saveLearnedCats(map){
+  try{localStorage.setItem(LEARN_KEY,JSON.stringify(map));}catch(e){}
+}
+
+function normalizeDesc(desc){
+  // Remove date suffixes like 28/03, numbers, extra spaces
+  // Keep the meaningful part: name/place
+  return desc.toLowerCase()
+    .replace(/\d{2}\/\d{2}(\/\d{4})?/g,'')  // remove dates
+    .replace(/\s*-\s*parcela.*$/i,'')            // remove installment suffix
+    .replace(/\s*\d+\/\d+$/,'')               // remove X/Y at end
+    .replace(/[^a-záéíóúâêîôûãõç\s]/gi,' ')     // keep only letters
+    .replace(/\s+/g,' ').trim();
+}
+
+function learnCategory(desc,catId){
+  if(!catId)return;
+  const key=normalizeDesc(desc);
+  if(!key||key.length<3)return;
+  const map=loadLearnedCats();
+  map[key]=catId;
+  saveLearnedCats(map);
+}
+
+function guessFromLearned(desc){
+  const map=loadLearnedCats();
+  const key=normalizeDesc(desc);
+  if(!key)return null;
+  // Exact match
+  if(map[key])return map[key];
+  // Partial: check if any learned key is contained in desc or vice versa
+  for(const [learned,catId] of Object.entries(map)){
+    if(learned.length>=4&&(key.includes(learned)||learned.includes(key)))return catId;
+  }
+  return null;
+}
+
+function setCsvRowCat(idx,catId){
+  if(!window._csvPending||!window._csvPending[idx])return;
+  window._csvPending[idx].category=catId;
+  // Update select styling
+  const sels=document.querySelectorAll('.csv-cat-sel');
+  if(sels[idx]){
+    sels[idx].classList.toggle('unset',!catId);
+    sels[idx].style.background=catId?'var(--sf2)':'var(--aml)';
+  }
 }
 
 function confirmCSVImport(){
   const rows=window._csvPending||[];
-  let added=0;
+  let added=0,learned=0,autoCat=0;
   rows.forEach(r=>{
+    // Learn from manually set categories
+    if(r.category&&!r._autoGuessed){
+      learnCategory(r.desc,r.category);
+      learned++;
+    }
     S.transactions.unshift({id:uid(),...r,recurrence:'none',createdAt:new Date().toISOString()});
     added++;
+    if(r.category)autoCat++;
   });
   persist();
   closeM('csvModal');
   renderAll();
-  toast(added+' transações importadas! ✓');
+  const catMsg=autoCat>0?` · ${autoCat} com categoria`:'';
+  const learnMsg=learned>0?` · ${learned} aprendidas`:'';
+  toast(added+' transações importadas!'+catMsg+learnMsg+' ✓');
   window._csvPending=null;
 }
 
 
-function changePIN(){
-  if(!currentUserId){toast('Nenhum usuário ativo');return;}
-  pinBuffer='';pinTemp='';
-  pinMode='set';
-  pinTargetUser=currentUserId;
-  document.getElementById('pinLabel').textContent='Crie um novo PIN de 4 dígitos';
-  updatePinDots();
-  document.getElementById('lockScreen').classList.remove('hidden');
-}
+
 /* ── BOOT ── */
 
 // System dark mode listener
@@ -2850,8 +3304,6 @@ loadWallpaper();
 updateInstallUI();
 loadNotifs();
 setTimeout(requestNotifPermission,3000);
-// Show PIN screen if PIN is set
-if(getStoredPin()){showLockScreen();}
 </script>
 </body>
 </html>
