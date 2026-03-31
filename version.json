@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "notes": "Conta fixa, exportação filtrada, seleção múltipla e muito mais.",
   "changes": [
     "✔ Agora é possível duplicar categorias"
