@@ -49,13 +49,14 @@
 }
 [data-theme=alf]{
   --ac:#d63a82;--chart-ac:#d63a82;
-  --bg:#fff0f6;--sf:#fff5f9;--sf2:#fde8f2;--sf3:#fbd5e8;
-  --bd:rgba(210,60,120,.1);--bd2:rgba(210,60,120,.2);
-  --tx:#5a1a35;--tx2:#9b5070;--tx3:#c890a8;
-  --ac:#d63a82;--acl:#fde8f2;
-  --am:#c0658a;--aml:#fde8f2;
-  --re:#b02060;--rel:#ffe0ee;
-  --bl:#9b3070;--bll:#fde8f2;
+  /* Tinted white — fundo quase branco com toque rosado */
+  --bg:#fdf8fb;--sf:#ffffff;--sf2:#fef2f7;--sf3:#fde8f2;
+  --bd:rgba(210,60,130,.08);--bd2:rgba(210,60,130,.16);
+  --tx:#2d1420;--tx2:#7a4060;--tx3:#b890a4;
+  --acl:#fde8f2;
+  --am:#e07020;--aml:#fff3e8;
+  --re:#c0392b;--rel:#ffebee;
+  --bl:#4a6abf;--bll:#eef1fb;
   --serif:'Playfair Display',Georgia,serif;
   --sans:'Inter',system-ui,sans-serif;
   --r:16px;--rs:12px;
@@ -66,20 +67,14 @@ body{display:flex;flex-direction:column;padding-top:var(--sft)}
 .app{display:flex;flex:1;overflow:hidden;position:relative;min-height:0}
 
 /* analu bg pattern - CSS only, no perf impact */
-[data-theme=alf] .scroll::before{
-  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
-  background-image:
-    radial-gradient(circle at 15% 20%,rgba(214,58,130,.06) 0%,transparent 50%),
-    radial-gradient(circle at 85% 10%,rgba(214,58,130,.05) 0%,transparent 40%),
-    radial-gradient(circle at 50% 80%,rgba(214,58,130,.04) 0%,transparent 40%);
-}
+[data-theme=alf] .scroll::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(circle at 15% 20%,rgba(214,58,130,.04) 0%,transparent 50%),radial-gradient(circle at 85% 80%,rgba(214,58,130,.03) 0%,transparent 50%)}
 [data-theme=alf] .scroll{position:relative;}
 
 @keyframes fadeIn{0%{opacity:0;transform:translateY(4px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes sparkle{0%,100%{opacity:.1;transform:scale(1)}50%{opacity:.3;transform:scale(1.2)}}
 
-[data-theme=alf] .kpi,[data-theme=alf] .card{border-color:rgba(214,58,130,.15)}
-[data-theme=alf] .ni.on{background:#fde8f2;color:#d63a82}
+[data-theme=alf] .kpi,[data-theme=alf] .card{border-color:rgba(214,58,130,.12);background:#ffffff}
+[data-theme=alf] .ni.on{background:#fde8f2;color:#d63a82}[data-theme=alf] .sidebar,[data-theme=alf] .topbar{background:rgba(255,255,255,.95)}
 
 [data-theme=alf] 
 [data-theme=alf] 
@@ -355,17 +350,29 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 /* ── DOCK NAVIGATION — style D ── */
 .bnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;padding:0 10px calc(env(safe-area-inset-bottom,0px) + 8px);background:transparent;pointer-events:none}
 .bnav-inner{pointer-events:all;background:var(--sf);border:0.5px solid var(--bd2);border-radius:22px;height:56px;display:flex;align-items:center;padding:0 4px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 4px 24px rgba(0,0,0,.12)}
-.bi{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:48px;border:none;background:none;cursor:pointer;border-radius:16px;color:var(--tx3);transition:color .15s,background .15s;position:relative;padding:0}
+.bi{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;border:none;background:none;cursor:pointer;border-radius:14px;color:var(--tx3);transition:color .15s,background .15s;position:relative;padding:0 2px;gap:2px}
 .bi svg{width:21px;height:21px;flex-shrink:0}
-.bi span{display:none}
+.bi span{font-size:9px;color:inherit;margin-top:1px;letter-spacing:-.01em;white-space:nowrap}
 .bi.on{color:var(--ac)}
-.bi.on::after{content:'';position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--ac)}
+.bi.on::after{content:'';position:absolute;bottom:5px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--ac)}[data-theme=alf] .bi.on::after{background:#d63a82}[data-theme=alf] .bi.on{color:#d63a82}
 .bi:active{background:var(--sf2);transform:scale(.9)}
 .bfab{flex:0 0 52px;display:flex;align-items:center;justify-content:center;height:100%;border:none;background:none;cursor:pointer;padding:0}
 .fabcircle{width:42px;height:42px;border-radius:14px;background:var(--ac);display:flex;align-items:center;justify-content:center;transition:transform .12s}
 .fabcircle:active{transform:scale(.88)}
 .fabcircle svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round}
-[data-theme=alf] .fabcircle{background:#d63a82}
+[data-theme=alf] .fabcircle{background:#d63a82}[data-theme=alf] .bnav-inner{background:rgba(255,255,255,.96);border-color:rgba(214,58,130,.15)}
+
+
+/* ── SELECTION MODE ── */
+.sel-bar{position:fixed;bottom:calc(72px + env(safe-area-inset-bottom,0px));left:12px;right:12px;background:var(--ac);color:#fff;border-radius:16px;padding:10px 14px;display:none;align-items:center;gap:8px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.sel-bar.active{display:flex}
+[data-theme=alf] .sel-bar{background:#d63a82}
+.sel-count{font-size:13px;font-weight:500;flex:1}
+.sel-btn{background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:10px;padding:6px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.sel-btn:active{background:rgba(255,255,255,.35)}
+.sel-btn.red{background:rgba(255,60,60,.35)}
+.txrow.sel{background:var(--acl)!important;outline:2px solid var(--ac);outline-offset:-2px;border-radius:var(--rs)}
+[data-theme=alf] .txrow.sel{background:#fde8f2!important;outline-color:#d63a82}
 </style>
 </head>
 <body>
@@ -534,6 +541,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4 8h8M6 12h4"/></svg>
             Filtrar
           </button>
+          <button class="btn bsec bsm" onclick="selStart('tx')" style="display:flex;align-items:center;gap:5px">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="10" y="1" width="5" height="5" rx="1"/><rect x="1" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/></svg>
+            Selecionar
+          </button>
           <select id="txSort" onchange="renderTxPg()" style="font-size:12px;padding:5px 24px 5px 8px;height:32px;border:1px solid var(--bd2);border-radius:var(--rs);background:var(--sf);color:var(--tx)">
             <option value="date-desc">Data ↓</option>
             <option value="date-asc">Data ↑</option>
@@ -562,7 +573,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="page" id="page-goals">
         <div id="savingsSuggestion"></div>
         <div id="goalsList"></div>
-        <button class="btn bsec bblk" onclick="openM('goalModal')" style="margin-top:4px">+ Nova meta</button>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn bsec" style="flex:1" onclick="openM('goalModal')">+ Nova meta</button>
+          <button class="btn bsec" style="flex:1" onclick="selStart('goal')">Selecionar</button>
+        </div>
       </div>
 
       <div class="page" id="page-reports">
@@ -596,7 +610,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <div class="card" style="margin-bottom:0"><div class="ctitle">Saídas</div><div id="catOut"></div></div>
           <div class="card" style="margin-bottom:0"><div class="ctitle">Entradas</div><div id="catIn"></div></div>
         </div>
-        <button class="btn bsec bblk" onclick="openM('catModal')" style="margin-top:13px">+ Nova categoria</button>
+        <div style="display:flex;gap:8px;margin-top:13px">
+          <button class="btn bsec" style="flex:1" onclick="openM('catModal')">+ Nova categoria</button>
+          <button class="btn bsec" style="flex:1" onclick="selStart('cat')">Selecionar</button>
+        </div>
       </div>
 
       <div class="page" id="page-subscriptions">
@@ -676,32 +693,40 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
   <nav class="bnav">
     <div class="bnav-inner">
-      <button class="bi on" id="bn-dashboard" onclick="go('dashboard',null);setBn('dashboard')" title="Início">
+      <button class="bi on" id="bn-dashboard" onclick="go('dashboard',null);setBn('dashboard')">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="8" height="8" rx="2"/><rect x="12" y="2" width="8" height="8" rx="2"/><rect x="2" y="12" width="8" height="8" rx="2"/><rect x="12" y="12" width="8" height="8" rx="2"/></svg>
+        <span>Início</span>
       </button>
-      <button class="bi" id="bn-transactions" onclick="go('transactions',null);setBn('transactions')" title="Lançamentos">
+      <button class="bi" id="bn-transactions" onclick="go('transactions',null);setBn('transactions')">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h16M3 11h10M3 16h13"/></svg>
+        <span>Transações</span>
       </button>
-      <button class="bi" id="bn-accounts" onclick="go('accounts',null);setBn('accounts')" title="Contas">
+      <button class="bi" id="bn-accounts" onclick="go('accounts',null);setBn('accounts')">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="5" width="18" height="13" rx="2"/><path d="M2 9h18"/><circle cx="7" cy="14" r="1.2" fill="currentColor" stroke="none"/></svg>
+        <span>Contas</span>
       </button>
-      <button class="bi" id="bn-goals" onclick="go('goals',null);setBn('goals')" title="Metas">
+      <button class="bi" id="bn-goals" onclick="go('goals',null);setBn('goals')">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><circle cx="11" cy="11" r="3.5"/></svg>
+        <span>Metas</span>
       </button>
-      <button class="bfab" onclick="openM('txModal')" title="Nova transação">
+      <button class="bfab" onclick="openM('txModal')">
         <div class="fabcircle"><svg viewBox="0 0 22 22"><path d="M11 4v14M4 11h14"/></svg></div>
       </button>
-      <button class="bi" id="bn-categories" onclick="go('categories',null);setBn('categories')" title="Categorias">
+      <button class="bi" id="bn-categories" onclick="go('categories',null);setBn('categories')">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="5" r="2.5"/><circle cx="17" cy="5" r="2.5"/><circle cx="5" cy="17" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>
+        <span>Categ.</span>
       </button>
-      <button class="bi" id="bn-reports" onclick="go('reports',null);setBn('reports')" title="Relatórios">
+      <button class="bi" id="bn-reports" onclick="go('reports',null);setBn('reports')">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 16L7 10l3 3 3-5 4 7"/></svg>
+        <span>Relatórios</span>
       </button>
-      <button class="bi" id="bn-subscriptions" onclick="go('subscriptions',null);setBn('subscriptions')" title="Agenda">
+      <button class="bi" id="bn-subscriptions" onclick="go('subscriptions',null);setBn('subscriptions')">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="16" height="15" rx="2"/><path d="M3 9h16M8 2v4M14 2v4"/></svg>
+        <span>Agenda</span>
       </button>
-      <button class="bi" id="bn-settings" onclick="go('settings',null);setBn('settings')" title="Config">
+      <button class="bi" id="bn-settings" onclick="go('settings',null);setBn('settings')">
         <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="3"/><path d="M11 2v3M11 17v3M2 11h3M17 11h3"/></svg>
+        <span>Config</span>
       </button>
     </div>
   </nav>
@@ -975,6 +1000,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <button class="btn bprim bblk" onclick="saveSched()">Agendar</button>
     </div>
   </div>
+</div>
+
+
+<div class="sel-bar" id="selBar">
+  <span class="sel-count" id="selCount">0 selecionados</span>
+  <button class="sel-btn" id="selEditBtn" onclick="selDo('edit')">Editar</button>
+  <button class="sel-btn" onclick="selDo('dup')">Duplicar</button>
+  <button class="sel-btn red" onclick="selDo('del')">Excluir</button>
+  <button class="sel-btn" onclick="selEnd()">✕</button>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -1851,7 +1885,19 @@ function renderTxPg(){
   const le=document.getElementById('txList'),ee=document.getElementById('txEmpty');
   if(!txs.length){le.innerHTML='';ee.style.display='block';document.getElementById('txSum').innerHTML='';return;}
   ee.style.display='none';
-  le.innerHTML=txs.map(tx=>{const cat=gCat(tx.category);return`<div class="txrow" onclick="showDet('${tx.id}')"><div class="txic" style="background:${cat.color}22">${cat.icon}</div><div class="txinf"><div class="txnm">${tx.desc}</div><div class="txsb">${fmtD(tx.date)} · <span style="color:${cat.color}">${cat.name}</span>${tx.recurrence&&tx.recurrence!=='none'?' 🔄':''}</div></div><div class="txamt ${tx.type==='entrada'?'cin':'cout'}">${tx.type==='entrada'?'+':'-'}${fmt(tx.amount)}</div></div>`;}).join('');
+  le.innerHTML=txs.map(tx=>{
+    const cat=gCat(tx.category);
+    const isSel=_sel.has(tx.id);
+    const cls='txrow'+(isSel?' sel':'');
+    const click=_selCtx?'selToggle(\''+tx.id+'\')':'showDet(\''+tx.id+'\')';
+    return'<div class="'+cls+'" data-selid="'+tx.id+'" onclick="'+click+'"'
+      +' onpointerdown="selLongPress(\''+tx.id+'\',\'tx\',this)" onpointerup="selLongCancel()" onpointercancel="selLongCancel()">'
+      +'<div class="txic" style="background:'+cat.color+'22">'+cat.icon+'</div>'
+      +'<div class="txinf"><div class="txnm">'+tx.desc+'</div>'
+      +'<div class="txsb">'+fmtD(tx.date)+' · <span style="color:'+cat.color+'">'+cat.name+'</span>'+(tx.recurrence&&tx.recurrence!=='none'?' 🔄':'')+'</div></div>'
+      +'<div class="txamt '+(tx.type==='entrada'?'cin':'cout')+'">'+(tx.type==='entrada'?'+':'-')+fmt(tx.amount)+'</div>'
+      +'</div>';
+  }).join('');
   const ti=txs.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
   const to=txs.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
   document.getElementById('txSum').innerHTML=`<span class="cin">↑ ${fmt(ti)}</span><span style="color:var(--tx3)">·</span><span class="cout">↓ ${fmt(to)}</span><span style="color:var(--tx3)">·</span><span style="color:${ti-to>=0?'var(--ac)':'var(--re)'}">= ${fmt(ti-to)}</span><span style="color:var(--tx3)">(${txs.length})</span>`;
@@ -1994,17 +2040,35 @@ function renderGoals(){
   renderSavingsSuggestion();
   const el=document.getElementById('goalsList');
   if(!S.goals.length){el.innerHTML=`<div class="card"><div class="empty"><div class="eico">🎯</div><p>Nenhuma meta criada.</p></div></div>`;return;}
-  el.innerHTML=S.goals.map(g=>{const p=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;const dl=g.deadline?Math.ceil((new Date(g.deadline)-new Date())/864e5):null;const mn=dl&&dl>0?((g.target-g.current)/(dl/30)):null;return`<div class="gcard"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px"><div style="font-weight:500;font-size:14px">${g.name}</div><div style="display:flex;gap:4px;align-items:center">
+  el.innerHTML=S.goals.map(g=>{
+    const p=g.target>0?Math.min(100,Math.round(g.current/g.target*100)):0;
+    const dl=g.deadline?Math.ceil((new Date(g.deadline)-new Date())/864e5):null;
+    const mn=dl&&dl>0?((g.target-g.current)/(dl/30)):null;
+    const isSel=_sel.has(g.id);
+    const gClick=_selCtx==='goal'?`selToggle('${g.id}')`:''  ;
+    return`<div class="gcard${isSel?' sel':''}" data-selid="${g.id}" onclick="${gClick}"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px"><div style="font-weight:500;font-size:14px">${g.name}</div><div style="display:flex;gap:4px;align-items:center">
 <button onclick="editGoal('${g.id}')" style="background:var(--sf2);border:1px solid var(--bd2);border-radius:var(--rs);padding:3px 9px;cursor:pointer;font-size:11px;font-weight:500;color:var(--tx2)">Editar</button>
 <button onclick="delGoal('${g.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;padding:0 4px">×</button>
-</div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>${fmt(g.current)}</span><span style="font-weight:500;color:var(--tx)">${fmt(g.target)}</span></div><div class="ptrack"><div class="pbar" style="width:${p}%;background:${g.color}"></div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:9px">${p}% · faltam ${fmt(g.target-g.current)}</div>${dl!==null?`<div style="font-size:11px;color:var(--tx2);margin-bottom:9px">${dl>0?dl+' dias restantes':'⚠️ Prazo encerrado'}${mn&&dl>0?' · guardar '+fmt(mn)+'/mês':''}</div>`:''}<div style="display:flex;gap:7px"><input id="gi_${g.id}" type="text" placeholder="R$ 0,00" style="flex:1;height:36px;font-size:13px;font-weight:500" inputmode="numeric" oninput="onGoalInput(this)" autocomplete="off"><button class="btn bprim bsm" onclick="updGoal('${g.id}',document.getElementById('gi_${g.id}'))">Guardar</button></div></div>`;}).join('');
+</div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>${fmt(g.current)}</span><span style="font-weight:500;color:var(--tx)">${fmt(g.target)}</span></div><div class="ptrack"><div class="pbar" style="width:${p}%;background:${g.color}"></div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:9px">${p}% · faltam ${fmt(g.target-g.current)}</div>${dl!==null?`<div style="font-size:11px;color:var(--tx2);margin-bottom:9px">${dl>0?dl+' dias restantes':'⚠️ Prazo encerrado'}${mn&&dl>0?' · guardar '+fmt(mn)+'/mês':''}</div>`:''}<div style="display:flex;gap:7px"><input id="gi_${g.id}" type="text" placeholder="R$ 0,00" style="flex:1;height:36px;font-size:13px;font-weight:500" inputmode="numeric" oninput="onGoalInput(this)" autocomplete="off"><button class="btn bprim bsm" onclick="updGoal('${g.id}',document.getElementById('gi_${g.id}'))">Guardar</button></div></div>`;
+  }).join('');
 }
+
 
 /* ── CATEGORIES PAGE ── */
 function renderCats(){
-  const render=(elId,type)=>{const el=document.getElementById(elId);const cats=S.categories.filter(c=>c.type===type);if(!cats.length){el.innerHTML='<div class="empty"><p>Nenhuma</p></div>';return;}el.innerHTML=cats.map(c=>`<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--bd)"><div style="width:30px;height:30px;border-radius:9px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${c.icon}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">${c.name}${c.fav?' ⭐':''}</div>${c.budget>0?`<div style="font-size:11px;color:var(--tx3)">${fmt(c.budget)}/mês</div>`:''}</div><button onclick="toggleFav('${c.id}')" style="background:none;border:none;color:${c.fav?'var(--am)':'var(--tx3)'};cursor:pointer;font-size:16px;padding:0 4px" title="${c.fav?'Remover favorito':'Favoritar'}">${c.fav?'★':'☆'}</button><button onclick="editCat('${c.id}')" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:11px;font-weight:500;padding:0 5px">✎</button><button onclick="delCat('${c.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;padding:0 4px">×</button></div>`).join('');};
+  const render=(elId,type)=>{
+    const el=document.getElementById(elId);
+    const cats=S.categories.filter(c=>c.type===type);
+    if(!cats.length){el.innerHTML='<div class="empty"><p>Nenhuma</p></div>';return;}
+    el.innerHTML=cats.map(c=>{
+      const isSel=_sel.has(c.id);
+      const cClick=_selCtx==='cat'?`selToggle('${c.id}')`:''  ;
+      return`<div class="${isSel?'sel ':''}" data-selid="${c.id}" onclick="${cClick}" style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--bd)"><div style="width:30px;height:30px;border-radius:9px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${c.icon}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500">${c.name}${c.fav?' ⭐':''}</div>${c.budget>0?`<div style="font-size:11px;color:var(--tx3)">${fmt(c.budget)}/mês</div>`:''}</div><button onclick="toggleFav('${c.id}')" style="background:none;border:none;color:${c.fav?'var(--am)':'var(--tx3)'};cursor:pointer;font-size:16px;padding:0 4px" title="${c.fav?'Remover favorito':'Favoritar'}">${c.fav?'★':'☆'}</button><button onclick="editCat('${c.id}')" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:11px;font-weight:500;padding:0 5px">✎</button><button onclick="delCat('${c.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;padding:0 4px">×</button></div>`;
+    }).join('');
+  };
   render('catOut','saida');render('catIn','entrada');
 }
+
 
 /* ── REPORTS ── */
 function renderRep(){
@@ -3727,6 +3791,154 @@ function showUpdateBanner(version,notes){
     <button onclick="document.getElementById('updateBanner').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-family:var(--sans)">OK</button>`;
   document.body.prepend(b);
   setTimeout(()=>{if(b.parentNode)b.remove();},8000);
+}
+
+
+
+/* ── SELECTION MODE ── */
+let _sel=new Set(), _selCtx='', _lpt=null;
+
+function selStart(ctx){
+  _selCtx=ctx; _sel.clear();
+  selUpdateBar();
+  if(ctx==='tx')renderTxPg();
+}
+function selEnd(){
+  _sel.clear(); _selCtx='';
+  document.getElementById('selBar').classList.remove('active');
+  renderTxPg(); renderGoals(); renderCats();
+}
+function selToggle(id){
+  if(_sel.has(id))_sel.delete(id); else _sel.add(id);
+  selUpdateBar();
+  // Update row highlight without full re-render
+  document.querySelectorAll('[data-selid="'+id+'"]').forEach(el=>{
+    el.classList.toggle('sel', _sel.has(id));
+  });
+}
+function selUpdateBar(){
+  const bar=document.getElementById('selBar');
+  const n=_sel.size;
+  if(!_selCtx){bar.classList.remove('active');return;}
+  bar.classList.add('active');
+  document.getElementById('selCount').textContent=
+    n===0?'Toque para selecionar':n+' selecionado'+(n>1?'s':'');
+  const editBtn=document.getElementById('selEditBtn');
+  if(editBtn)editBtn.style.display=n===1?'':'none';
+}
+function selDo(action){
+  const ids=[..._sel];
+  if(!ids.length&&action!=='dup')return;
+  if(action==='del'){
+    if(!confirm('Excluir '+ids.length+' item'+(ids.length>1?'s':'')+'?'))return;
+    if(_selCtx==='tx')S.transactions=S.transactions.filter(t=>!ids.includes(t.id));
+    else if(_selCtx==='goal')S.goals=S.goals.filter(g=>!ids.includes(g.id));
+    else if(_selCtx==='cat')S.categories=S.categories.filter(c=>!ids.includes(c.id));
+    persist(); selEnd(); renderAll();
+    toast(ids.length+' item'+(ids.length>1?'s':'')+' excluído'+(ids.length>1?'s':'')+'!');
+  } else if(action==='dup'&&_selCtx==='tx'){
+    ids.forEach(id=>{
+      const tx=S.transactions.find(t=>t.id===id);
+      if(tx)S.transactions.unshift({...tx,id:uid(),date:new Date().toISOString().split('T')[0],createdAt:new Date().toISOString()});
+    });
+    persist(); selEnd(); renderAll();
+    toast(ids.length+' transaç'+(ids.length>1?'ões':'ão')+' duplicada'+(ids.length>1?'s':'')+'! ✓');
+  } else if(action==='edit'&&ids.length===1){
+    const id=ids[0]; const ctx=_selCtx; selEnd();
+    if(ctx==='tx')editTx(id);
+    else if(ctx==='goal')editGoal(id);
+    else if(ctx==='cat')editCat(id);
+  }
+}
+function selLongPress(id,ctx,el){
+  _lpt=setTimeout(()=>{
+    if(!_selCtx)selStart(ctx);
+    selToggle(id);
+  },500);
+}
+function selLongCancel(){clearTimeout(_lpt);}
+
+
+/* ══════════════════════════════════════════════════════
+   SELECTION MODE
+══════════════════════════════════════════════════════ */
+let selMode=false;
+let selItems=new Set();
+let selContext='';
+
+function txRowClick(id){if(selMode)toggleSelItem(id);else showDet(id);}
+function goalRowClick(id){if(selMode)toggleSelItem(id);}
+function catRowClick(id){if(selMode)toggleSelItem(id);}
+
+let _lpTimer=null;
+function startLongPress(id,context){
+  _lpTimer=setTimeout(()=>{if(!selMode){enterSelMode(context);toggleSelItem(id);}},500);
+}
+function cancelLongPress(){if(_lpTimer){clearTimeout(_lpTimer);_lpTimer=null;}}
+
+function enterSelMode(context){
+  selMode=true;selContext=context;selItems.clear();renderSelBar();
+  if(context==='tx')renderTxPg();
+  else if(context==='goal')renderGoals();
+  else if(context==='cat')renderCats();
+}
+
+function clearSelection(){
+  const ctx=selContext;
+  selMode=false;selItems.clear();selContext='';
+  document.getElementById('selBar').classList.add('hidden');
+  if(ctx==='tx')renderTxPg();
+  else if(ctx==='goal')renderGoals();
+  else if(ctx==='cat')renderCats();
+}
+
+function toggleSelItem(id){
+  if(selItems.has(id))selItems.delete(id);else selItems.add(id);
+  renderSelBar();
+  const row=document.querySelector('[data-id="'+id+'"]');
+  if(row)row.classList.toggle('selected',selItems.has(id));
+}
+
+function renderSelBar(){
+  const bar=document.getElementById('selBar');
+  const count=document.getElementById('selCount');
+  const editBtn=document.getElementById('selEditBtn');
+  if(!bar)return;
+  if(!selMode){bar.classList.add('hidden');return;}
+  bar.classList.remove('hidden');
+  const n=selItems.size;
+  if(count)count.textContent=n?n+' selecionado'+(n>1?'s':''):'Toque para selecionar';
+  if(editBtn)editBtn.style.display=n===1?'inline-block':'none';
+}
+
+function selAction(action){
+  const ids=[...selItems];
+  if(!ids.length)return;
+  if(action==='delete'){
+    const n=ids.length;
+    if(!confirm('Excluir '+n+' item'+(n>1?'s':'')+'?'))return;
+    if(selContext==='tx')S.transactions=S.transactions.filter(t=>!ids.includes(t.id));
+    else if(selContext==='goal')S.goals=S.goals.filter(g=>!ids.includes(g.id));
+    else if(selContext==='cat')S.categories=S.categories.filter(c=>!ids.includes(c.id));
+    persist();clearSelection();renderAll();
+    toast(n+' item'+(n>1?'s':'')+' excluído'+(n>1?'s':'')+'!');
+  } else if(action==='duplicate'){
+    if(selContext==='tx'){
+      ids.forEach(id=>{
+        const tx=S.transactions.find(t=>t.id===id);
+        if(tx)S.transactions.unshift({...tx,id:uid(),date:new Date().toISOString().split('T')[0],createdAt:new Date().toISOString()});
+      });
+      persist();clearSelection();renderAll();
+      toast(ids.length+' transação'+(ids.length>1?'ões':'o')+' duplicada'+(ids.length>1?'s':'')+'! ✓');
+    }
+  } else if(action==='edit'){
+    if(ids.length!==1)return;
+    const id=ids[0];
+    clearSelection();
+    if(selContext==='tx')editTx(id);
+    else if(selContext==='goal')editGoal(id);
+    else if(selContext==='cat')editCat(id);
+  }
 }
 // ── BOOT ──
 const th=localStorage.getItem('value_theme')||'light';
