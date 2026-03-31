@@ -244,6 +244,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .page{display:none}.page.on{display:block}
 
 /* responsive */
+
+.bnav{display:block;position:fixed;bottom:0;left:0;right:0;z-index:100;padding:0 10px calc(env(safe-area-inset-bottom,0px) + 8px);background:transparent;pointer-events:none}
+.bnav-inner{pointer-events:all;background:var(--sf);border:0.5px solid var(--bd2);border-radius:22px;height:56px;display:flex;align-items:center;padding:0 4px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 4px 24px rgba(0,0,0,.12)}
 @media(max-width:680px){
   .sidebar{display:none}
   
@@ -257,9 +260,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   html,body{height:100svh;height:100dvh}
   .app{flex:1;min-height:0}
   .main{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
-  
-  .bnav{display:block}}
+  }
 @media(min-width:681px){
+  .bnav{display:none}
   .kgrid{grid-template-columns:repeat(4,1fr)}
   .hd{display:none}
   .overlay{align-items:center}
@@ -348,8 +351,6 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .csv-learned-badge{font-size:9px;letter-spacing:.06em;text-transform:uppercase;background:var(--acl);color:var(--ac);border-radius:10px;padding:2px 6px;flex-shrink:0}
 
 /* ── DOCK NAVIGATION — style D ── */
-.bnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:100;padding:0 10px calc(env(safe-area-inset-bottom,0px) + 8px);background:transparent;pointer-events:none}
-.bnav-inner{pointer-events:all;background:var(--sf);border:0.5px solid var(--bd2);border-radius:22px;height:56px;display:flex;align-items:center;padding:0 4px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 4px 24px rgba(0,0,0,.12)}
 .bi{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;border:none;background:none;cursor:pointer;border-radius:14px;color:var(--tx3);transition:color .15s,background .15s;position:relative;padding:0 2px;gap:2px}
 .bi svg{width:21px;height:21px;flex-shrink:0}
 .bi span{font-size:9px;color:inherit;margin-top:1px;letter-spacing:-.01em;white-space:nowrap}
