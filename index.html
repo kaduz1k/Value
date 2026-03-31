@@ -4268,26 +4268,28 @@ async function checkAppVersion(){
     const changes=data.changes||[];
     const lastSeen=localStorage.getItem('value_version_seen');
 
-    if(latest){
-      if(latest===APP_VERSION&&lastSeen!==latest){
-        // App was just updated — mark as seen, no popup needed
-        localStorage.setItem('value_version_seen',latest);
-      } else if(latest!==APP_VERSION&&lastSeen!==latest){
-        // New version available on server
-        localStorage.setItem('value_version_seen',latest);
-        if('serviceWorker' in navigator){
-          const reg=await navigator.serviceWorker.getRegistration();
-          if(reg)reg.update();
+    // Always trigger SW update check so it downloads new files in background
+    if('serviceWorker' in navigator){
+      const reg=await navigator.serviceWorker.getRegistration();
+      if(reg){
+        reg.update().catch(()=>{});
+        // If new SW already waiting, activate it immediately
+        if(reg.waiting){
+          reg.waiting.postMessage({type:'SKIP_WAITING'});
         }
-        const usb=document.getElementById('updateSettingsBtn');
-        const usn=document.getElementById('updateSettingsNote');
-        if(usb)usb.style.display='block';
-        if(usn)usn.textContent=notes||'Novas melhorias disponíveis.';
-        addNotif('✨ Value '+latest+' disponível — toque para atualizar',
-          notes||'Novas melhorias instaladas.','info',
-          ()=>showUpdateModal(latest,notes,changes));
-        showUpdateModal(latest,notes,changes);
       }
+    }
+
+    if(latest&&latest!==lastSeen){
+      localStorage.setItem('value_version_seen',latest);
+      const usb=document.getElementById('updateSettingsBtn');
+      const usn=document.getElementById('updateSettingsNote');
+      if(usb)usb.style.display='block';
+      if(usn)usn.textContent=notes||'Novas melhorias disponíveis.';
+      addNotif('✨ Value '+latest+' disponível',
+        notes||'Toque para ver as novidades.','info',
+        ()=>showUpdateModal(latest,notes,changes));
+      showUpdateModal(latest,notes,changes);
     }
   }catch(e){}
 }
@@ -4353,28 +4355,27 @@ function showUpdateModal(version,notes,changes){
 }
 
 async function doAppUpdate(){
-  // Show loading state on button
   const btn=document.querySelector('#updateModal button:first-of-type');
   if(btn){btn.textContent='Atualizando...';btn.disabled=true;}
   try{
-    // Tell SW to skip waiting and take control immediately
     if('serviceWorker' in navigator){
       const reg=await navigator.serviceWorker.getRegistration();
       if(reg){
+        // Force SW update fetch
         await reg.update();
+        // If new SW waiting, skip waiting and reload on controllerchange
         if(reg.waiting){
           reg.waiting.postMessage({type:'SKIP_WAITING'});
-          // Wait for SW to take control then reload
           navigator.serviceWorker.addEventListener('controllerchange',()=>{
-            window.location.reload();
+            window.location.reload(true);
           });
           return;
         }
       }
     }
   }catch(e){}
-  // Fallback: hard reload bypassing cache
-  window.location.reload(true);
+  // Hard reload — clears HTTP cache, forces fresh fetch
+  window.location.href=window.location.href.split('?')[0]+'?v='+Date.now();
 }
 
 
@@ -4389,7 +4390,16 @@ installCanvasIcons();
 loadNotifs();
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    navigator.serviceWorker.register('./sw.js').then(reg=>{
+      // When a new SW takes control, reload to get fresh app
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        // Only reload if we're not already in the middle of an update
+        if(!window._valueUpdating){
+          window._valueUpdating=true;
+          window.location.reload(true);
+        }
+      });
+    }).catch(()=>{});
   });
 }
 setTimeout(()=>{
