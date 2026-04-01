@@ -1032,6 +1032,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
 
 <div class="sel-bar" id="selBar">
   <span class="sel-count" id="selCount">0 selecionados</span>
+  <button class="sel-btn" id="selAllBtn" onclick="selAll()" style="display:none">Todas</button>
   <button class="sel-btn" id="selEditBtn" onclick="selDo('edit')">Editar</button>
   <button class="sel-btn" onclick="selDo('dup')">Duplicar</button>
   <button class="sel-btn red" onclick="selDo('del')">Excluir</button>
@@ -3831,6 +3832,16 @@ let _sel=new Set();
 let _selCtx='';
 let _lpt=null;
 
+function selAll(){
+  if(_selCtx!=='tx')return;
+  // Get visible txs from the rendered list
+  document.querySelectorAll('[data-selid]').forEach(el=>{
+    const id=el.dataset.selid;
+    if(id)_sel.add(id);
+    el.classList.add('sel');
+  });
+  _updSelBar();
+}
 function selStart(ctx){
   _selCtx=ctx;
   _sel.clear();
@@ -3861,12 +3872,14 @@ function _updSelBar(){
   const bar=document.getElementById('selBar');
   const cnt=document.getElementById('selCount');
   const editBtn=document.getElementById('selEditBtn');
+  const allBtn=document.getElementById('selAllBtn');
   if(!bar)return;
   if(!_selCtx){bar.classList.remove('active');return;}
   bar.classList.add('active');
   const n=_sel.size;
   if(cnt)cnt.textContent=n===0?'Toque para selecionar':n+' selecionado'+(n>1?'s':'');
   if(editBtn)editBtn.style.display=n===1?'inline-block':'none';
+  if(allBtn)allBtn.style.display=_selCtx==='tx'?'inline-block':'none';
 }
 
 function selDo(action){
