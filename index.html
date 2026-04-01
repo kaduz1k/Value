@@ -672,7 +672,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             <label class="btn bsec bblk" style="cursor:pointer;text-align:center">⬆ Importar JSON<input type="file" accept=".json" style="display:none" onchange="impJSON(event)"></label>
             <label class="btn bsec bblk" style="cursor:pointer;text-align:center">📊 Importar extrato (CSV, OFX, XLSX, PDF)<input type="file" accept=".csv,.txt,.ofx,.qfx,.xlsx,.xls,.pdf" style="display:none" onchange="importCSV(event)"></label>
             <button class="btn bdng bblk" onclick="clearData()">🗑 Limpar todos os dados</button>
-          <button class="btn bsec bblk" onclick="localStorage.removeItem('value_onboarded');location.reload()" style="margin-top:8px">↩ Ver tutorial novamente</button>
+          <button class="btn bsec bblk" onclick="localStorage.removeItem('value_onboarded');checkOnboarding()" style="margin-top:8px">↩ Ver tutorial novamente</button>
           </div>
         </div>
         <div class="card">
@@ -3935,19 +3935,18 @@ function obFinish(){
 }
 function checkOnboarding(){
   const done=localStorage.getItem('value_onboarded');
-  if(!done){
+  if(done)return;
+  // Use requestAnimationFrame to ensure DOM is fully rendered
+  requestAnimationFrame(()=>{
     const ob=document.getElementById('onboarding');
-    if(ob){
-      ob.style.display='flex';
-      // Pre-fill name if already set
-      const nameEl=document.getElementById('obName');
-      if(nameEl&&S.settings?.name)nameEl.value=S.settings.name;
-      setTimeout(()=>{
-        const nameEl2=document.getElementById('obName');
-        if(nameEl2)nameEl2.focus();
-      },300);
-    }
-  }
+    if(!ob)return;
+    ob.style.display='flex';
+    const nameEl=document.getElementById('obName');
+    if(nameEl&&S.settings?.name)nameEl.value=S.settings.name;
+    setTimeout(()=>{
+      if(nameEl)nameEl.focus();
+    },400);
+  });
 }
 
 /* ── BOOT ── */
@@ -4499,7 +4498,8 @@ setTimeout(()=>{
   checkSalaryReminder();
   checkAppVersion();
 },1500);
-checkOnboarding();
+// Delay onboarding check to ensure DOM is fully loaded
+setTimeout(checkOnboarding, 100);
 </script>
 <div id="onboarding" style="display:none;position:fixed;inset:0;z-index:99999;background:var(--bg);font-family:var(--sans);flex-direction:column;align-items:center;justify-content:center;padding:32px 24px">
 
@@ -4507,12 +4507,12 @@ checkOnboarding();
   <div id="ob1" style="width:100%;max-width:360px;text-align:center">
     <div style="font-size:48px;margin-bottom:16px">👋</div>
     <div style="font-size:24px;font-weight:700;letter-spacing:-.4px;color:var(--tx);margin-bottom:8px">Bem-vindo ao Value</div>
-    <div style="font-size:14px;color:var(--tx2);margin-bottom:32px;line-height:1.5">Seu controle financeiro pessoal,<br>simples e bonito.</div>
+    <div style="font-size:14px;color:var(--tx2);margin-bottom:32px;line-height:1.5">Suas finanças, sob controle.</div>
     <div style="text-align:left;margin-bottom:24px">
       <label style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:8px">Como posso te chamar?</label>
       <input id="obName" type="text" placeholder="Seu nome" style="width:100%;font-size:16px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--bd2);background:var(--sf);color:var(--tx);outline:none;box-sizing:border-box" oninput="obValidate(1)">
     </div>
-    <button id="obBtn1" onclick="obNext(2)" disabled style="width:100%;background:var(--ac);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--sans);opacity:.4;transition:opacity .2s">Continuar →</button>
+    <button id="obBtn1" onclick="obNext(2)" disabled style="width:100%;background:var(--ac);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:not-allowed;font-family:var(--sans);opacity:.4;transition:opacity .2s">Continuar →</button>
   </div>
 
   <!-- Step 2: Moeda + Salário -->
