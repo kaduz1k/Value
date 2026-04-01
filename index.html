@@ -97,7 +97,7 @@ body.has-wp .sidebar,body.has-wp .topbar,body.has-wp
 .sidebar{width:216px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;position:relative;z-index:2}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .topbar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;padding:9px 14px;background:var(--sf);border-bottom:1px solid var(--bd);flex-shrink:0;gap:8px;position:relative;z-index:2}
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:none;height:0}
 .content{padding:18px;max-width:980px;margin:0 auto;width:100%}
 
 /* bottom nav */
@@ -1943,7 +1943,7 @@ function saveTx(){
     toast('Transação salva! ✓');
   }
   persist();closeM('txModal');renderAll();
-  try{if(navigator.vibrate)navigator.vibrate([40]);}catch(e){}
+  haptic();
 }
 function delTx(id,allFuture){
   const tx=S.transactions.find(t=>t.id===id);
@@ -2103,7 +2103,7 @@ function guardarAcc(id,el){
   a.balance=Math.round((a.balance+added)*100)/100;
   persist();renderAll();
   toast('+'+fmt(added)+' guardado em '+a.name+'! 💰');
-  if(navigator.vibrate)navigator.vibrate([40]);
+  haptic();
 }
 
 /* ── GOALS ── */
@@ -2845,10 +2845,7 @@ function renderGoals(){
     const mn=dl&&dl>0?((g.target-g.current)/(dl/30)):null;
     const isSel=_sel.has(g.id);
     const gClick=_selCtx==='goal'?`selToggle('${g.id}')`:''  ;
-    return`<div class="gcard${isSel?' sel':''}" data-selid="${g.id}" onclick="${gClick}"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px"><div style="font-weight:500;font-size:14px">${g.name}</div><div style="display:flex;gap:4px;align-items:center">
-<button onclick="editGoal('${g.id}')" style="background:var(--sf2);border:1px solid var(--bd2);border-radius:var(--rs);padding:3px 9px;cursor:pointer;font-size:11px;font-weight:500;color:var(--tx2)">Editar</button>
-<button onclick="delGoal('${g.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;padding:0 4px">×</button>
-</div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>${fmt(g.current)}</span><span style="font-weight:500;color:var(--tx)">${fmt(g.target)}</span></div><div class="ptrack"><div class="pbar" style="width:${p}%;background:${g.color}"></div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:9px">${p}% · faltam ${fmt(g.target-g.current)}</div>${dl!==null?`<div style="font-size:11px;color:var(--tx2);margin-bottom:9px">${dl>0?dl+' dias restantes':'⚠️ Prazo encerrado'}${mn&&dl>0?' · guardar '+fmt(mn)+'/mês':''}</div>`:''}<div style="display:flex;gap:7px"><input id="gi_${g.id}" type="text" placeholder="R$ 0,00" style="flex:1;height:36px;font-size:13px;font-weight:500" inputmode="numeric" oninput="onGoalInput(this)" autocomplete="off"><button class="btn bprim bsm" onclick="updGoal('${g.id}',document.getElementById('gi_${g.id}'))">Guardar</button></div></div>`;
+    return`<div class="gcard${isSel?' sel':''}" data-selid="${g.id}" onclick="${gClick}"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px"><div style="font-weight:500;font-size:14px">${g.name}</div><div class="tdot"><button class="tdot-btn" onclick="tdotToggle(this,event)" data-actions="<button onclick='editGoal(&quot;${g.id}&quot;)'>&#9998; Editar</button><button class='red' onclick='delGoal(&quot;${g.id}&quot;)'>&#215; Excluir</button>" style="color:var(--tx3);font-size:20px;padding:0 4px">⋯</button></div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>${fmt(g.current)}</span><span style="font-weight:500;color:var(--tx)">${fmt(g.target)}</span></div><div class="ptrack"><div class="pbar" style="width:${p}%;background:${g.color}"></div></div><div style="font-size:11px;color:var(--tx3);margin-bottom:9px">${p}% · faltam ${fmt(g.target-g.current)}</div>${dl!==null?`<div style="font-size:11px;color:var(--tx2);margin-bottom:9px">${dl>0?dl+' dias restantes':'⚠️ Prazo encerrado'}${mn&&dl>0?' · guardar '+fmt(mn)+'/mês':''}</div>`:''}<div style="display:flex;gap:7px"><input id="gi_${g.id}" type="text" placeholder="R$ 0,00" style="flex:1;height:36px;font-size:13px;font-weight:500" inputmode="numeric" oninput="onGoalInput(this)" autocomplete="off"><button class="btn bprim bsm" onclick="updGoal('${g.id}',document.getElementById('gi_${g.id}'))">Guardar</button></div></div>`;
   }).join('');
 }
 
@@ -4666,7 +4663,7 @@ function obFinish(){
   renderSettings();
   // Focus first action
   setTimeout(()=>openM('txModal'),400);
-  try{if(navigator.vibrate)navigator.vibrate([40,30,40]);}catch(e){}
+  haptic('heavy');
 }
 function checkOnboarding(){
   const done=localStorage.getItem('value_onboarded');
@@ -4744,7 +4741,7 @@ function confirmFixedPayment(gid,desc,amount,category,account){
   persist();
   renderAll();
   toast('Pagamento de "'+desc+'" registrado! ✓');
-  if(navigator.vibrate)navigator.vibrate(40);
+  haptic();
 }
 
 
@@ -5053,7 +5050,7 @@ function tdotToggle(btn,e){
         safeArrays();renderAll();
         if(ind){ind.classList.remove('visible');ind.style.height='0';}
         triggered=false;startY=0;
-        if(navigator.vibrate)navigator.vibrate([30]);
+        haptic('light');
       },600);
     } else {
       if(ind){ind.classList.remove('visible');ind.style.height='0';}
@@ -5456,7 +5453,7 @@ async function fetchFXRate(){
   // Fetch fresh
   updFXRateRow(null,null,true);
   try{
-    const res=await fetch(`https://economia.awesomeapi.com.br/json/last/${code}-BRL`,{cache:'no-store'});
+    const res=await fetch(`https://economia.awesomeapi.com.br/last/${code}-BRL`,{cache:'no-store',mode:'cors'});
     if(!res.ok)throw new Error('HTTP '+res.status);
     const data=await res.json();
     const key=`${code}BRL`;
@@ -5505,6 +5502,24 @@ function updFXRateRow(rate,ts,loading=false,offline=false){
 function fxConvert(amountBRL){
   if(!_fxEnabled||_fxCurrency==='R$'||_fxRate===1)return amountBRL;
   return amountBRL*_fxRate;
+}
+
+
+/* ── HAPTIC FEEDBACK ── */
+function haptic(type='light'){
+  // Android: Web Vibration API
+  try{if(navigator.vibrate){navigator.vibrate(type==='heavy'?[60]:type==='medium'?[40]:[20]);return;}}catch(e){}
+  // iOS: AudioContext click (imperceptible sound triggers haptic on some devices)
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.001,ctx.currentTime);
+    osc.frequency.setValueAtTime(1,ctx.currentTime);
+    osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.01);
+    ctx.close();
+  }catch(e){}
 }
 
 /* ── BOOT ── */
