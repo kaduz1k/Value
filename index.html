@@ -968,7 +968,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
     </div>
     <div class="mfoot">
       <button class="btn bsec bblk" onclick="closeM('csvModal')">Cancelar</button>
-      <button class="btn bprim bblk" id="csvConfirmBtn" onclick="confirmCSVImport()" style="display:none">Importar tudo</button>
+      <button class="btn bprim bblk" id="csvConfirmBtn" onclick="confirmCSVImport()" style="display:none">Importar selecionadas</button>
     </div>
   </div>
 </div>
@@ -1112,12 +1112,29 @@ let sAcCol=PAL[0],sGCol=PAL[0],sCCol=PAL[0];
 let CH={};
 let dI=null;
 
-function persist(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
+function persist(){
+  try{
+    const data=JSON.stringify(S);
+    // Keep a backup of last good save
+    const prev=localStorage.getItem(SK);
+    if(prev)localStorage.setItem(SK+'_bak',prev);
+    localStorage.setItem(SK,data);
+  }catch(e){}
+}
 function hydrate(){
   try{
     const d=localStorage.getItem(SK);
-    if(d){const parsed=JSON.parse(d);if(parsed&&typeof parsed==='object')S=parsed;}
-  }catch(e){}
+    if(d){
+      const parsed=JSON.parse(d);
+      if(parsed&&typeof parsed==='object')S=parsed;
+    }
+  }catch(e){
+    // Main data corrupt — try backup
+    try{
+      const bak=localStorage.getItem(SK+'_bak');
+      if(bak){const parsed=JSON.parse(bak);if(parsed&&typeof parsed==='object')S=parsed;}
+    }catch(e2){}
+  }
   // Always ensure all arrays exist — guards against .filter() on undefined
   if(!Array.isArray(S.transactions))S.transactions=[];
   if(!Array.isArray(S.accounts))S.accounts=[];
@@ -3371,11 +3388,13 @@ function showCSVPreview(rows,type){
     (uncatCount>0?` &nbsp;·&nbsp; <span style="color:var(--am)">${uncatCount} sem categoria</span>`:'');
 
   document.getElementById('csvPreviewList').innerHTML=
-    `<div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;padding:6px 0 4px">Revise e categorize antes de importar</div>`+
+    `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 8px;border-bottom:1px solid var(--bd);margin-bottom:4px"><span style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em">Selecione as transações</span><div style="display:flex;gap:8px"><button onclick="csvSelAll(true)" style="font-size:11px;color:var(--ac);background:none;border:none;cursor:pointer;font-family:var(--sans)">Todas</button><button onclick="csvSelAll(false)" style="font-size:11px;color:var(--tx3);background:none;border:none;cursor:pointer;font-family:var(--sans)">Nenhuma</button></div></div> e categorize antes de importar</div>`+
     rows.map((r,i)=>{
       const learned=r._learned?`<span class="csv-learned-badge">aprendido</span>`:'';
       const catColor=r.category?'var(--sf2)':'var(--aml)';
-      return`<div class="csv-cat-row">
+      return`<div class="csv-cat-row" style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" id="csvChk_${i}" class="exp-chk" checked style="flex-shrink:0">
+        <div class="exp-chk-box" style="flex-shrink:0" onclick="document.getElementById('csvChk_${i}').click();csvUpdCount()"></div>
         <div class="csv-cat-icon" style="background:${r.type==='entrada'?'var(--acl)':'var(--rel)'}">${r.type==='entrada'?'↑':'↓'}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.desc}</div>
@@ -3400,6 +3419,7 @@ function showCSVPreview(rows,type){
   },50);
 
   window._csvPending=rows;
+  setTimeout(csvUpdCount,60);
 }
 
 
@@ -3764,15 +3784,32 @@ function setCsvRowCat(idx,catId){
   }
 }
 
+function csvSelAll(v){
+  (window._csvPending||[]).forEach((_,i)=>{
+    const chk=document.getElementById('csvChk_'+i);
+    if(chk)chk.checked=v;
+  });
+  csvUpdCount();
+}
+function csvUpdCount(){
+  const rows=window._csvPending||[];
+  const checked=rows.filter((_,i)=>{const c=document.getElementById('csvChk_'+i);return c?c.checked:true;}).length;
+  const el=document.getElementById('csvPreviewCount');
+  if(el)el.textContent=checked+' de '+rows.length+' transações selecionadas';
+  const btn=document.getElementById('csvConfirmBtn');
+  if(btn)btn.textContent='Importar '+checked+' transação'+(checked!==1?'ões':'');
+}
 function confirmCSVImport(){
   const rows=window._csvPending||[];
+  // Get only checked rows
+  const checkedRows=rows.filter((_,i)=>{
+    const chk=document.getElementById('csvChk_'+i);
+    return chk?chk.checked:true;
+  });
+  if(!checkedRows.length){toast('Selecione pelo menos uma transação');return;}
   let added=0,learned=0,autoCat=0;
-  rows.forEach(r=>{
-    // Learn from manually set categories
-    if(r.category&&!r._autoGuessed){
-      learnCategory(r.desc,r.category);
-      learned++;
-    }
+  checkedRows.forEach(r=>{
+    if(r.category&&!r._autoGuessed){learnCategory(r.desc,r.category);learned++;}
     S.transactions.unshift({id:uid(),...r,recurrence:'none',createdAt:new Date().toISOString()});
     added++;
     if(r.category)autoCat++;
@@ -3780,8 +3817,8 @@ function confirmCSVImport(){
   persist();
   closeM('csvModal');
   renderAll();
-  const catMsg=autoCat>0?` · ${autoCat} com categoria`:'';
-  const learnMsg=learned>0?` · ${learned} aprendidas`:'';
+  const catMsg=autoCat>0?' · '+autoCat+' com categoria':'';
+  const learnMsg=learned>0?' · '+learned+' aprendidas':'';
   toast(added+' transações importadas!'+catMsg+learnMsg+' ✓');
   window._csvPending=null;
 }
@@ -3888,9 +3925,13 @@ function selLongCancel(){
 /* ── ONBOARDING ── */
 function obValidate(step){
   if(step===1){
-    const v=document.getElementById('obName')?.value.trim().length>1;
+    const v=document.getElementById('obName')?.value.trim().length>0;
     const btn=document.getElementById('obBtn1');
-    if(btn){btn.disabled=!v;btn.style.opacity=v?'1':'.4';}
+    if(btn){
+      btn.disabled=!v;
+      btn.style.opacity=v?'1':'.4';
+      btn.style.cursor=v?'pointer':'default';
+    }
   }
 }
 function obNext(step){
@@ -4512,7 +4553,7 @@ setTimeout(checkOnboarding, 100);
       <label style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--tx3);display:block;margin-bottom:8px">Como posso te chamar?</label>
       <input id="obName" type="text" placeholder="Seu nome" style="width:100%;font-size:16px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--bd2);background:var(--sf);color:var(--tx);outline:none;box-sizing:border-box" oninput="obValidate(1)">
     </div>
-    <button id="obBtn1" onclick="obNext(2)" disabled style="width:100%;background:var(--ac);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:not-allowed;font-family:var(--sans);opacity:.4;transition:opacity .2s">Continuar →</button>
+    <button id="obBtn1" onclick="obNext(2)" disabled style="width:100%;background:var(--ac);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--sans);opacity:.4;transition:opacity .2s">Continuar →</button>
   </div>
 
   <!-- Step 2: Moeda + Salário -->
