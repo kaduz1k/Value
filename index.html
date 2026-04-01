@@ -388,6 +388,12 @@ div.sel{background:var(--acl)!important;outline:2px solid var(--ac);outline-offs
 .exp-chk:checked+.exp-chk-box{background:var(--ac);border-color:var(--ac)}
 .exp-chk:checked+.exp-chk-box::after{content:'';display:block;width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(0px,-1px)}
 [data-theme=alf] .exp-chk:checked+.exp-chk-box{background:#d63a82;border-color:#d63a82}
+
+/* ── ACCOUNT FILTER PILLS (dashboard) ── */
+.acc-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding:0 2px}
+.acc-pill{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--bd2);color:var(--tx2);background:var(--sf);transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px;letter-spacing:.01em}
+.acc-pill.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.acc-pill .apdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -1834,6 +1840,17 @@ function renderSettings(){
 }
 
 /* ── DASHBOARD ── */
+function calcAccBalance(acc){
+  // Filosofia C: saldo_inicial + entradas - saidas vinculadas
+  const txs=S.transactions.filter(t=>t.account===acc.id&&!t.transfer);
+  const entradas=txs.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
+  const saidas=txs.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
+  return acc.balance+entradas-saidas;
+}
+function setDashAccFilter(id){
+  _dashAccFilter=id;
+  renderDash();
+}
 function renderDash(){
   // Weekly tab banner
   const weeklyBanner=document.getElementById('weeklyBanner');
@@ -1848,15 +1865,40 @@ function renderDash(){
   const txM=S.transactions.filter(tx=>(dashTab==='weekly'?inWeek(tx):inM(tx,cY,cM))&&!tx.transfer);
   const inc=txM.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
   const exp=txM.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
-  // Total: if accounts exist use their sum, else compute from all transactions
-  const accTotal=S.accounts.reduce((a,ac)=>a+ac.balance,0);
-  const allInc=S.transactions.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
-  const allExp=S.transactions.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
-  const allNet=allInc-allExp;
-  const tot=S.accounts.length>0?accTotal:allNet;
+  // Filosofia C: saldo calculado dinamicamente por conta
+  let tot=0,kpiLabel='Saldo total',kpiSub='todas as contas';
+  if(S.accounts.length===0){
+    const allInc=S.transactions.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
+    const allExp=S.transactions.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
+    tot=allInc-allExp;
+  } else if(_dashAccFilter){
+    const acc=S.accounts.find(a=>a.id===_dashAccFilter);
+    if(acc){tot=calcAccBalance(acc);kpiLabel='Saldo · '+acc.name;kpiSub='';}
+    else{_dashAccFilter=null;tot=S.accounts.reduce((a,ac)=>a+calcAccBalance(ac),0);}
+  } else {
+    tot=S.accounts.reduce((a,ac)=>a+calcAccBalance(ac),0);
+  }
   const sp=inc>0?((inc-exp)/inc*100):0;
+  // Build account pills
+  const pillsHtml=S.accounts.length>0?`
+    <div class="acc-pills">
+      <div class="acc-pill${!_dashAccFilter?' on':''}" onclick="setDashAccFilter(null)">Todas</div>
+      ${S.accounts.map(a=>{
+        const sel=_dashAccFilter===a.id;
+        const bg=sel?a.color:'var(--sf)';
+        const border=sel?a.color:'var(--bd2)';
+        const txt=sel?'#fff':'var(--tx2)';
+        return`<div class="acc-pill" style="background:${bg};border-color:${border};color:${txt}" onclick="setDashAccFilter('${a.id}')">${a.name}</div>`;
+      }).join('')}
+    </div>`:'';
+
   document.getElementById('kgrid').innerHTML=`
-    <div class="kpi"><div class="klbl">Saldo total</div><div class="kval ${tot>=0?'cin':'cout'}">${tot<0?'- ':'+​'}${fmt(Math.abs(tot))}</div><span class="badge ${(inc-exp)>=0?'bg':'br'}">${(inc-exp)>=0?'▲':'▼'} ${fmt(Math.abs(inc-exp))}</span></div>
+    <div class="kpi" style="grid-column:1/-1">
+      <div class="klbl">${kpiLabel}</div>
+      <div class="kval ${tot>=0?'cin':'cout'}">${tot<0?'- ':'+​'}${fmt(Math.abs(tot))}</div>
+      ${kpiSub?`<div style="font-size:10px;color:var(--tx3);margin-top:2px">${kpiSub}</div>`:''}
+      ${pillsHtml}
+    </div>
     <div class="kpi"><div class="klbl cin">Receitas</div><div class="kval cin">${fmt(inc)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='entrada').length} itens</div></div>
     <div class="kpi"><div class="klbl cout">Despesas</div><div class="kval cout">-${fmt(exp)}</div><div style="font-size:10px;color:var(--tx3)">${txM.filter(t=>t.type==='saida').length} itens</div></div>
     <div class="kpi"><div class="klbl">Poupança</div><div class="kval">${sp.toFixed(1)}%</div><span class="badge ${sp>=20?'bg':sp>=10?'bam':'br'}">${sp>=20?'Ótimo':sp>=10?'Regular':'Atenção'}</span></div>`;
@@ -3036,6 +3078,7 @@ function checkBudgetNotifs(txM){
    WEEKLY SUMMARY
 ══════════════════════════════════════════════════════ */
 let dashTab='monthly';
+let _dashAccFilter=null; // null = all accounts
 
 function setDashTab(tab,btn){
   dashTab=tab;
