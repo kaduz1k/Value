@@ -1554,7 +1554,7 @@ function seedC(){
 
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
 function cr(){return S.settings?.currency||'R$';}
-function fmt(v){const converted=fxConvert(Math.abs(+v||0));return cr()+' '+converted.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmt(v){const raw=parseFloat(v)||0;const converted=fxConvert(Math.abs(raw));const safe=isNaN(converted)?0:converted;return cr()+' '+safe.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtD(d){if(!d)return'';const[y,m,dy]=d.split('-');return`${dy}/${m}/${y}`;}
 function gCat(id){return S.categories.find(c=>c.id===id)||{name:'—',icon:'•',color:'#888',budget:0};}
 function gAcc(id){return S.accounts.find(a=>a.id===id)||{name:'—',color:'#888'};}
@@ -5395,6 +5395,17 @@ const FX_CODES={
 };
 
 function initFX(){
+  // Clear old cache format (fxRate key) if present
+  try{
+    const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
+    let changed=false;
+    Object.keys(cached).forEach(k=>{
+      if(cached[k].fxRate!==undefined&&cached[k].brlPerUnit===undefined){
+        delete cached[k];changed=true;
+      }
+    });
+    if(changed)localStorage.setItem(FX_CACHE_KEY,JSON.stringify(cached));
+  }catch(e){}
   _fxEnabled=localStorage.getItem('value_fx_enabled')==='1';
   _fxCurrency=S.settings?.currency||'R$';
   const toggle=document.getElementById('fxToggle');
@@ -5405,8 +5416,8 @@ function initFX(){
     if(code){
       try{
         const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
-        if(cached[code]?.fxRate){
-          _fxRate=cached[code].fxRate;
+        if(cached[code]?.brlPerUnit){
+          _fxRate=1/cached[code].brlPerUnit;
           updFXRateRow(cached[code].brlPerUnit,cached[code].ts,false);
         } else {
           updFXRateRow(null,null,true);
@@ -5439,66 +5450,67 @@ async function fetchFXRate(){
   const code=FX_CODES[cur];
   if(!code){_fxRate=1;updFXRateRow();renderAll();return;}
 
-  // Check cache first (4h TTL)
+  // Check cache (4h TTL)
   try{
     const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
-    if(cached[code]&&Date.now()-cached[code].ts<FX_CACHE_TTL){
-      _fxRate=cached[code].fxRate;
-      updFXRateRow(cached[code].brlPerUnit,cached[code].ts,false);
+    const entry=cached[code];
+    if(entry&&entry.brlPerUnit&&Date.now()-entry.ts<FX_CACHE_TTL){
+      _fxRate=1/entry.brlPerUnit;
+      updFXRateRow(entry.brlPerUnit,entry.ts,false);
       renderAll();
       return;
     }
   }catch(e){}
 
-  // Fetch from open.er-api.com — free, no key, proper CORS
-  // Returns rates FROM BRL: {rates:{USD:0.1704, EUR:0.1563...}}
   updFXRateRow(null,null,true);
+
+  // Try primary: open.er-api.com
+  let brlPerUnit=0;
   try{
-    const res=await fetch(`https://open.er-api.com/v6/latest/BRL`);
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),8000);
+    const res=await fetch('https://open.er-api.com/v6/latest/BRL',{signal:controller.signal});
+    clearTimeout(timer);
     const data=await res.json();
-    if(data.result!=='success')throw new Error('API error');
-    const rateFromBRL=data.rates[code]; // how much 1 BRL = X foreign
-    if(!rateFromBRL)throw new Error('no rate for '+code);
-    const brlPerUnit=1/rateFromBRL; // how much 1 foreign = X BRL (for display)
+    if(data.result==='success'&&data.rates[code]){
+      brlPerUnit=1/data.rates[code];
+    }
+  }catch(e){}
+
+  // Try fallback: AwesomeAPI
+  if(!brlPerUnit){
+    try{
+      const res=await fetch(`https://economia.awesomeapi.com.br/last/${code}-BRL`);
+      const data=await res.json();
+      brlPerUnit=parseFloat(data[code+'BRL']?.bid||0);
+    }catch(e){}
+  }
+
+  if(brlPerUnit&&!isNaN(brlPerUnit)){
     // Save cache
-    const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
-    cached[code]={fxRate:rateFromBRL,brlPerUnit,ts:Date.now()};
-    localStorage.setItem(FX_CACHE_KEY,JSON.stringify(cached));
-    _fxRate=rateFromBRL; // 1 BRL = rateFromBRL units of foreign currency
+    try{
+      const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
+      cached[code]={brlPerUnit,ts:Date.now()};
+      localStorage.setItem(FX_CACHE_KEY,JSON.stringify(cached));
+    }catch(e){}
+    _fxRate=1/brlPerUnit;
     updFXRateRow(brlPerUnit,Date.now(),false);
     renderAll();
-  }catch(e){
-    // Fallback: try AwesomeAPI as backup
+  } else {
+    // Use stale cache
     try{
-      const res2=await fetch(`https://economia.awesomeapi.com.br/last/${code}-BRL`);
-      if(!res2.ok)throw new Error('HTTP '+res2.status);
-      const data2=await res2.json();
-      const key=`${code}BRL`;
-      const brlPerUnit=parseFloat(data2[key]?.bid||0);
-      if(!brlPerUnit)throw new Error('no rate');
-      const rateFromBRL=1/brlPerUnit;
       const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
-      cached[code]={fxRate:rateFromBRL,brlPerUnit,ts:Date.now()};
-      localStorage.setItem(FX_CACHE_KEY,JSON.stringify(cached));
-      _fxRate=rateFromBRL;
-      updFXRateRow(brlPerUnit,Date.now(),false);
-      renderAll();
-    }catch(e2){
-      // Fallback to stale cache
-      try{
-        const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
-        if(cached[code]?.fxRate){
-          _fxRate=cached[code].fxRate;
-          updFXRateRow(cached[code].brlPerUnit,cached[code].ts,false,true);
-          renderAll();
-          return;
-        }
-      }catch(e3){}
-      _fxRate=1;
-      updFXRateRow(null,null,false,true);
-      renderAll();
-    }
+      const entry=cached[code];
+      if(entry?.brlPerUnit){
+        _fxRate=1/entry.brlPerUnit;
+        updFXRateRow(entry.brlPerUnit,entry.ts,false,true);
+        renderAll();
+        return;
+      }
+    }catch(e){}
+    _fxRate=1;
+    updFXRateRow(null,null,false,true);
+    renderAll();
   }
 }
 
@@ -5515,12 +5527,15 @@ function updFXRateRow(rate,ts,loading=false,offline=false){
   if(!rate){label.innerHTML=offline?'⚠️ Sem conexão — usando cotação anterior':'⏳ Buscando cotação...';return;}
   const ago=ts?timeAgo(new Date(ts).toISOString()):'agora';
   const staleTxt=offline?' · <span style="color:var(--am)">desatualizada</span>':'';
-  label.innerHTML=`<span style="color:var(--ac)">●</span> 1 ${cur} = R$ ${rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4})} · ${ago}${staleTxt}`;
+  const rateFormatted=rate>=100?rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):rate.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:4});
+  label.innerHTML=`<span style="color:var(--ac)">●</span> 1 ${cur} = R$ ${rateFormatted} · ${ago}${staleTxt}`;
 }
 
 function fxConvert(amountBRL){
-  if(!_fxEnabled||_fxCurrency==='R$'||_fxRate===1)return amountBRL;
-  return amountBRL*_fxRate;
+  const v=parseFloat(amountBRL)||0;
+  if(!_fxEnabled||_fxCurrency==='R$'||!_fxRate||_fxRate===1||isNaN(_fxRate))return v;
+  const result=v*_fxRate;
+  return isNaN(result)?v:result;
 }
 
 
