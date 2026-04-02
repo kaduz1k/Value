@@ -4254,7 +4254,7 @@ function showCSVPreview(rows,type){
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.desc}</div>
           <div style="display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap">
-            <select class="csv-cat-sel" style="font-size:11px;background:${catBg};border:${catBorder};border-radius:6px;padding:2px 4px;max-width:160px" onchange="setCsvRowCat(${i},this.value)">
+            <select class="csv-cat-sel" data-row="${i}" style="font-size:11px;background:${catBg};border:${catBorder};border-radius:6px;padding:2px 4px;max-width:160px" onchange="setCsvRowCat(${i},this.value)">
               ${catOpts(r.type)}
             </select>
             ${learned}
@@ -4630,11 +4630,11 @@ function guessFromLearned(desc){
 function setCsvRowCat(idx,catId){
   if(!window._csvPending||!window._csvPending[idx])return;
   window._csvPending[idx].category=catId;
-  // Update select styling
-  const sels=document.querySelectorAll('.csv-cat-sel');
-  if(sels[idx]){
-    sels[idx].classList.toggle('unset',!catId);
-    sels[idx].style.background=catId?'var(--sf2)':'var(--aml)';
+  // Update select styling using data-row attribute
+  const sel=document.querySelector(`.csv-cat-sel[data-row="${idx}"]`);
+  if(sel){
+    sel.classList.toggle('unset',!catId);
+    sel.style.background=catId?'var(--sf2)':'var(--aml)';
   }
 }
 
@@ -5768,9 +5768,18 @@ function csvApplyBulkCat(){
     // Update visual select
     const sel=row.querySelector('.csv-cat-sel');
     if(sel){
+      // Add option if not present (category type mismatch)
+      if(!sel.querySelector(`option[value="${catId}"]`)){
+        const cat=gCat(catId);
+        const opt=document.createElement('option');
+        opt.value=catId;
+        opt.textContent=cat.icon+' '+cat.name;
+        sel.appendChild(opt);
+      }
       sel.value=catId;
       sel.style.background='var(--sf2)';
-      sel.style.border='0.5px solid var(--bd)';
+      sel.style.borderColor='var(--bd)';
+      sel.classList.remove('unset');
     }
     count++;
   });
