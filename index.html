@@ -1519,7 +1519,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
     </div>
     <div class="mfoot">
       <button class="btn bsec bblk" onclick="closeM('csvModal')">Cancelar</button>
-      <button class="btn bprim bblk" id="csvConfirmBtn" onclick="confirmCSVImport()" style="display:none">Importar selecionadas</button>
+      <button class="btn bprim bblk" id="csvConfirmBtn" onclick="confirmCSVImport()" style="display:none">✓ Importar</button>
     </div>
   </div>
 </div>
@@ -4005,9 +4005,10 @@ function importCSV(event){
 }
 
 function openCSVTypeStep(){
-  // Close any other open modals first
-  document.querySelectorAll('.overlay.open').forEach(o=>{
-    if(o.id!=='csvModal')o.classList.remove('open');
+  // Force close ALL other modals explicitly
+  ['txModal','accModal','goalModal','catModal','transferModal','repExportModal','subModal','schedModal','notifPanel'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.classList.remove('open');el.style.display='';}
   });
   document.getElementById('csvStep1').style.display='block';
   document.getElementById('csvStep2').style.display='none';
