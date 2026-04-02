@@ -1306,7 +1306,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
     </div>
   </div>
 </div>
-<div class="overlay" id="csvModal">
+<div class="overlay" id="csvModal" style="z-index:600">
   <div class="modal">
     <div class="mhandle"></div>
     <div class="mhdr"><div class="mtitle" id="csvModalTitle">Importar extrato</div><button class="mclose" onclick="closeM('csvModal')">×</button></div>
@@ -4005,6 +4005,10 @@ function importCSV(event){
 }
 
 function openCSVTypeStep(){
+  // Close any other open modals first
+  document.querySelectorAll('.overlay.open').forEach(o=>{
+    if(o.id!=='csvModal')o.classList.remove('open');
+  });
   document.getElementById('csvStep1').style.display='block';
   document.getElementById('csvStep2').style.display='none';
   document.getElementById('csvConfirmBtn').style.display='none';
@@ -4666,16 +4670,51 @@ function csvUpdCount(){
 }
 function confirmCSVImport(){
   const rows=window._csvPending||[];
-  // Get only checked rows
-  const checkedRows=rows.filter((_,i)=>{
-    const chk=document.getElementById('csvChk_'+i);
-    return chk?chk.checked:true;
+
+  // Coletar linhas VISÍVEIS e MARCADAS usando data-idx
+  const checkedRows=[];
+  document.querySelectorAll('.csv-cat-row').forEach(row=>{
+    if(row.style.display==='none')return;
+    const idx=parseInt(row.dataset.idx);
+    if(isNaN(idx)||!rows[idx])return;
+    const chk=document.getElementById('csvChk_'+idx);
+    if(chk&&chk.checked)checkedRows.push(rows[idx]);
   });
+  // Fallback sem filtro ativo
+  if(!checkedRows.length){
+    rows.forEach((_,i)=>{
+      const chk=document.getElementById('csvChk_'+i);
+      if(chk&&chk.checked)checkedRows.push(rows[i]);
+    });
+  }
   if(!checkedRows.length){toast('Selecione pelo menos uma transação');return;}
+
+  // TRAVA: conta obrigatória
+  const accId=document.getElementById('csvAccFilter')?.value||'';
+  if(!accId){
+    toast('⚠️ Escolha uma conta de destino antes de importar');
+    document.getElementById('csvAccFilter')?.focus();
+    return;
+  }
+  checkedRows.forEach(r=>r.account=accId);
+
+  // Alerta para sem categoria
+  const semCat=checkedRows.filter(r=>!r.category).length;
+  if(semCat>0){
+    const ok=confirm(semCat+' transação(ões) sem categoria. Deseja importar mesmo assim?');
+    if(!ok)return;
+  }
+
+  // Importar
   let added=0,learned=0,autoCat=0;
   checkedRows.forEach(r=>{
     if(r.category&&!r._autoGuessed){learnCategory(r.desc,r.category);learned++;}
-    S.transactions.unshift({id:uid(),...r,recurrence:'none',createdAt:new Date().toISOString()});
+    S.transactions.unshift({
+      id:uid(),desc:r.desc||'Importado',type:r.type||'saida',
+      amount:r.amount||0,date:r.date||new Date().toISOString().split('T')[0],
+      category:r.category||'',account:r.account||'',
+      notes:r.notes||'',recurrence:'none',createdAt:new Date().toISOString()
+    });
     added++;
     if(r.category)autoCat++;
   });
@@ -4687,15 +4726,6 @@ function confirmCSVImport(){
   toast(added+' transações importadas!'+catMsg+learnMsg+' ✓');
   window._csvPending=null;
 }
-
-
-
-/* ══════════════════════════════════════════════════════
-   SELECTION MODE
-══════════════════════════════════════════════════════ */
-let _sel=new Set();
-let _selCtx='';
-let _lpt=null;
 
 function selAll(){
   if(_selCtx!=='tx')return;
@@ -4712,6 +4742,10 @@ function selNone(){
   _updSelBar();
   document.querySelectorAll('[data-selid]').forEach(el=>el.classList.remove('sel'));
 }
+let _sel=new Set();
+let _selCtx='';
+let _lpt=null;
+
 function selStart(ctx){
   _selCtx=ctx;
   _sel.clear();
