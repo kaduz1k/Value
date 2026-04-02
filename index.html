@@ -1336,6 +1336,180 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
 
       <!-- Step 2: preview -->
       <div id="csvStep2" style="display:none">
+
+        <!-- Header info bar -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <button onclick="backToCSVStep1()" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:12px;padding:0;font-family:var(--sans);font-weight:500">← Voltar</button>
+          <div id="csvTypeLabel" style="display:flex;align-items:center;gap:6px;flex:1"></div>
+          <div id="csvPreviewCount" style="font-size:12px;color:var(--tx3)"></div>
+        </div>
+
+        <!-- Filtros e conta destino -->
+        <div id="csvFiltersBar"></div>
+
+        <!-- Header da lista -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 8px;border-bottom:1px solid var(--bd)">
+          <span style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em">Selecione as transações</span>
+          <div style="display:flex;gap:12px">
+            <button onclick="csvSelAll()" style="font-size:12px;font-weight:600;color:var(--ac);background:none;border:none;cursor:pointer;font-family:var(--sans)">Todas</button>
+            <button onclick="csvSelNone()" style="font-size:12px;color:var(--tx3);background:none;border:none;cursor:pointer;font-family:var(--sans)">Nenhuma</button>
+          </div>
+        </div>
+
+        <!-- Lista de transações -->
+        <div id="csvPreviewList"></div>
+      </div>    </div>
+    <div class="mfoot">
+      <button class="btn bsec bblk" onclick="closeM('txModal')">Cancelar</button>
+      <button class="btn bprim bblk" id="txSaveBtn" onclick="saveTx()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="accModal">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle" id="accMTitle">Nova Conta</div><button class="mclose" onclick="closeM('accModal')">×</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="flbl">Nome</label><input id="acNm" type="text" placeholder="Ex: Nubank..."></div>
+      <div class="frow c2">
+        <div class="fg"><label class="flbl">Tipo</label>
+          <select id="acTp"><option value="corrente">Corrente</option><option value="poupanca">Poupança</option><option value="credito">Crédito</option><option value="investimento">Investimento</option><option value="dinheiro">Dinheiro</option></select>
+        </div>
+        <div class="fg"><label class="flbl">Saldo inicial (R$)</label><input id="acBl" type="text" inputmode="numeric" data-money="1" placeholder="R$ 0,00" oninput="onMoneyInput(this,'acBlCents')" autocomplete="off"></div>
+      </div>
+      <div class="fg"><label class="flbl">Cor</label>
+        <div class="swatches" id="acCols" style="margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="color" id="acColorPicker" style="width:40px;height:36px;padding:2px;border-radius:var(--rs);border:1px solid var(--bd2);cursor:pointer" onchange="onColorPick('ac',this.value)">
+          <input type="text" id="acColorHex" placeholder="#2d5a3d" style="flex:1;font-family:monospace;font-size:13px" oninput="onHexInput('ac',this.value)" maxlength="7">
+          <div id="acColorPreview" style="width:36px;height:36px;border-radius:var(--rs);border:1px solid var(--bd2)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bsec bblk" onclick="closeM('accModal')">Cancelar</button>
+      <button class="btn bprim bblk" id="accSaveBtn" onclick="saveAcc()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="goalModal">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle" id="goalMTitle">Nova Meta</div><button class="mclose" onclick="closeM('goalModal')">×</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="flbl">Nome</label><input id="gnm" type="text" placeholder="Ex: Viagem, Carro..."></div>
+      <div class="frow c2">
+        <div class="fg"><label class="flbl">Já guardado</label><input id="gcur" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'gcurCents')" autocomplete="off"></div>
+        <div class="fg"><label class="flbl">Objetivo</label>
+          <input id="gtgt" type="text" inputmode="numeric" data-money="1" placeholder="R$ 0,00" oninput="onMoneyInput(this,'gtgtCents');updateGoalEstimate()" autocomplete="off">
+          <div style="font-size:10px;color:var(--tx3);margin-top:3px">Valor em R$ · o app converte automaticamente</div><div id="goalEstimate" style="font-size:11px;color:var(--tx2);margin-top:3px;min-height:16px"></div>
+        </div>
+      </div>
+      <div class="fg"><label class="flbl">Prazo (opcional)</label><input id="gdl" type="date"></div>
+      <div class="fg"><label class="flbl">Cor</label>
+        <div class="swatches" id="gCols" style="margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="color" id="gColorPicker" style="width:40px;height:36px;padding:2px;border-radius:var(--rs);border:1px solid var(--bd2);cursor:pointer" onchange="onColorPick('g',this.value)">
+          <input type="text" id="gColorHex" placeholder="#2d5a3d" style="flex:1;font-family:monospace;font-size:13px" oninput="onHexInput('g',this.value)" maxlength="7">
+          <div id="gColorPreview" style="width:36px;height:36px;border-radius:var(--rs);border:1px solid var(--bd2)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bsec bblk" onclick="closeM('goalModal')">Cancelar</button>
+      <button class="btn bprim bblk" id="goalSaveBtn" onclick="saveGoal()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="catModal">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle" id="catMTitle">Nova Categoria</div><button class="mclose" onclick="closeM('catModal')">×</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="flbl">Nome</label><input id="cnm" type="text" placeholder="Ex: Alimentação..."></div>
+      <div class="frow c2">
+        <div class="fg"><label class="flbl">Tipo</label><select id="ctp"><option value="saida">Saída</option><option value="entrada">Entrada</option></select></div>
+        <div class="fg"><label class="flbl">Emoji</label><input id="cico" type="text" placeholder="🏠" maxlength="2"></div>
+      </div>
+      <div class="fg"><label class="flbl">Defina um limite</label><input id="cbud" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onBudgetInput(this.value)" autocomplete="off"></div>
+      <div class="fg"><label class="flbl">Cor</label>
+        <div class="swatches" id="cCols" style="margin-bottom:10px"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="color" id="cColorPicker" style="width:40px;height:36px;padding:2px;border-radius:var(--rs);border:1px solid var(--bd2);cursor:pointer" onchange="onColorPick('c',this.value)">
+          <input type="text" id="cColorHex" placeholder="#2d5a3d" style="flex:1;font-family:monospace;font-size:13px" oninput="onHexInput('c',this.value)" maxlength="7">
+          <div id="cColorPreview" style="width:36px;height:36px;border-radius:var(--rs);border:1px solid var(--bd2)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bsec bblk" onclick="closeM('catModal')">Cancelar</button>
+      <button class="btn bprim bblk" id="catSaveBtn" onclick="saveCat()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="txDet">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle">Detalhes</div><button class="mclose" onclick="closeM('txDet')">×</button></div>
+    <div class="mbody" id="txDetBody"></div>
+    <div class="mfoot" id="txDetFoot"></div>
+  </div>
+</div>
+
+
+<div class="overlay" id="transferModal">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle">Transferência entre contas</div><button class="mclose" onclick="closeM('transferModal')">×</button></div>
+    <div class="mbody">
+      <div class="fg"><label class="flbl">De</label><select id="trFrom"></select></div>
+      <div class="fg"><label class="flbl">Para</label><select id="trTo"></select></div>
+      <div class="fg"><label class="flbl">Valor</label>
+        <input id="trAmt" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'trAmtCents')" autocomplete="off">
+      </div>
+      <div class="fg"><label class="flbl">Data</label><input id="trDt" type="date"></div>
+      <div class="fg"><label class="flbl">Notas (opcional)</label><input id="trNts" type="text" placeholder="Ex: Reserva de emergência..."></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn bsec bblk" onclick="closeM('transferModal')">Cancelar</button>
+      <button class="btn bprim bblk" onclick="saveTransfer()">Transferir</button>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="csvModal">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mhdr"><div class="mtitle" id="csvModalTitle">Importar extrato</div><button class="mclose" onclick="closeM('csvModal')">×</button></div>
+    <div class="mbody">
+
+      <!-- Step 1: choose extract type -->
+      <div id="csvStep1">
+        <p style="font-size:13px;color:var(--tx2);margin-bottom:16px;line-height:1.6">Qual é o tipo do extrato que você está importando?</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="csv-type-btn" onclick="selectCSVType('corrente')">
+            <div style="font-size:20px;margin-bottom:4px">🏦</div>
+            <div style="font-weight:500;font-size:14px">Conta corrente</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px">Nubank, Inter, Bradesco, Itaú...</div>
+          </button>
+          <button class="csv-type-btn" onclick="selectCSVType('poupanca')">
+            <div style="font-size:20px;margin-bottom:4px">💰</div>
+            <div style="font-weight:500;font-size:14px">Poupança</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px">Extrato de conta poupança</div>
+          </button>
+          <button class="csv-type-btn" onclick="selectCSVType('cartao')">
+            <div style="font-size:20px;margin-bottom:4px">💳</div>
+            <div style="font-weight:500;font-size:14px">Fatura do cartão de crédito</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px">Todos os lançamentos são despesas</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: preview -->
+      <div id="csvStep2" style="display:none">
         <div id="csvTypeLabel" style="font-size:11px;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:6px">
           <button onclick="backToCSVStep1()" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:12px;padding:0;font-family:var(--sans)">← Voltar</button>
         </div>
@@ -4007,8 +4181,7 @@ function parseDate(raw){
 function showCSVPreview(rows,type){
   const typeLabels={corrente:'Conta corrente',poupanca:'Poupança',cartao:'Fatura do cartão'};
   const typeEmojis={corrente:'🏦',poupanca:'💰',cartao:'💳'};
-  const label=typeLabels[type]||type;
-  const emoji=typeEmojis[type]||'📄';
+  const fmtLabels={csv:'CSV',ofx:'OFX/QFX',xlsx:'Excel',pdf:'PDF'};
 
   // Switch to step 2
   document.getElementById('csvStep1').style.display='none';
@@ -4016,22 +4189,21 @@ function showCSVPreview(rows,type){
   document.getElementById('csvConfirmBtn').style.display='flex';
   document.getElementById('csvModalTitle').textContent='Confirmar importação';
 
-  // Show type label with back button
   const entradas=rows.filter(r=>r.type==='entrada').length;
   const saidas=rows.filter(r=>r.type==='saida').length;
-  const fmtLabels={csv:'CSV',ofx:'OFX/QFX',xlsx:'Excel',pdf:'PDF'};
-  const fmtLabel=fmtLabels[_csvFormat]||'';
+  const uncatCount=rows.filter(r=>!r.category).length;
+
+  // Type label
   document.getElementById('csvTypeLabel').innerHTML=
-    `<button onclick="backToCSVStep1()" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:12px;padding:0;font-family:var(--sans)">← Voltar</button>
-     <span style="background:var(--sf2);border-radius:20px;padding:3px 10px;font-size:11px">${emoji} ${label}</span>
-     <span style="background:var(--sf2);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--tx3)">${fmtLabel}</span>`;
+    `<span style="background:var(--acl);color:var(--ac);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600">${typeEmojis[type]||'📄'} ${typeLabels[type]||type}</span>
+     <span style="background:var(--sf2);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--tx3)">${fmtLabels[_csvFormat]||''}</span>`;
 
+  // Count
   document.getElementById('csvPreviewCount').innerHTML=
-    `<strong>${rows.length}</strong> transações encontradas &nbsp;·&nbsp;
-     <span class="cin">↑ ${entradas} entradas</span> &nbsp;·&nbsp;
-     <span class="cout">↓ ${saidas} saídas</span>`;
+    `<span class="cin">↑${entradas}</span> <span style="color:var(--tx3)">·</span> <span class="cout">↓${saidas}</span>`+
+    (uncatCount>0?` <span style="color:var(--am)">· ${uncatCount} sem cat.</span>`:'');
 
-  // Build category options per type
+  // Build category options
   function catOpts(type){
     const cats=S.categories.filter(c=>c.type===type);
     cats.sort((a,b)=>(b.fav?1:0)-(a.fav?1:0));
@@ -4039,68 +4211,58 @@ function showCSVPreview(rows,type){
       cats.map(c=>`<option value="${c.id}">${c.fav?'⭐ ':''}${c.icon} ${c.name}</option>`).join('');
   }
 
-  const uncatCount=rows.filter(r=>!r.category).length;
-  document.getElementById('csvPreviewCount').innerHTML=
-    `<strong>${rows.length}</strong> transações &nbsp;·&nbsp;
-     <span class="cin">↑ ${entradas} entradas</span> &nbsp;·&nbsp;
-     <span class="cout">↓ ${saidas} saídas</span>`+
-    (uncatCount>0?` &nbsp;·&nbsp; <span style="color:var(--am)">${uncatCount} sem categoria</span>`:'');
-
-  // ── Filters bar ─────────────────────────────────────────────────
-  const accOpts='<option value="">— escolha a conta —</option>'+
+  // Filters bar
+  const accOpts='<option value="">⚠️ Escolha a conta destino</option>'+
     S.accounts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
-  const catOptsSaida=catOpts('saida');
-  const catOptsAll='<option value="">— aplicar categoria —</option>'+
+  const catOptsAll='<option value="">— aplicar categoria às selecionadas —</option>'+
     S.categories.map(cat=>`<option value="${cat.id}">${cat.icon} ${cat.name}</option>`).join('');
+
   const filtersBar=document.getElementById('csvFiltersBar');
   if(filtersBar) filtersBar.innerHTML=`
-    <div style="background:var(--sf2);border-radius:12px;padding:12px;margin-bottom:10px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <div>
-          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);margin-bottom:4px">⚠️ Conta destino (obrigatório)</div>
-          <select id="csvAccFilter" style="width:100%;border-color:var(--am)" onchange="csvApplyBulkAcc()">
-            ${accOpts}
-          </select>
-        </div>
-        <div>
-          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);margin-bottom:4px">Mostrar</div>
-          <select id="csvTypeFilter" style="width:100%" onchange="csvFilterByType(this.value)">
-            <option value="">Todos (${rows.length})</option>
-            <option value="entrada">Só entradas (${entradas})</option>
-            <option value="saida">Só saídas (${saidas})</option>
-          </select>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <div style="font-size:11px;color:var(--tx3);white-space:nowrap">Selecionadas →</div>
-        <select id="csvBulkCat" style="flex:1">${catOptsAll}</select>
-        <button onclick="csvApplyBulkCat()" style="background:var(--ac);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap">Aplicar</button>
-      </div>
+    <div style="border:1.5px solid var(--am);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--aml)">
+      <div style="font-size:11px;font-weight:700;color:var(--am);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">⚠️ Conta destino — obrigatório</div>
+      <select id="csvAccFilter" style="width:100%;border:1.5px solid var(--am)" onchange="csvApplyBulkAcc(this.value)">
+        ${accOpts}
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <select id="csvTypeFilter" style="flex:1" onchange="csvFilterByType(this.value)">
+        <option value="">Todos (${rows.length})</option>
+        <option value="entrada">Só entradas (${entradas})</option>
+        <option value="saida">Só saídas (${saidas})</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;padding-top:8px;border-top:0.5px solid var(--bd)">
+      <span style="font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0">Selecionadas →</span>
+      <select id="csvBulkCat" style="flex:1;font-size:12px">${catOptsAll}</select>
+      <button onclick="csvApplyBulkCat()" style="background:var(--ac);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">Aplicar</button>
     </div>
   `;
 
+  // Build rows
   document.getElementById('csvPreviewList').innerHTML=
-    `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 8px;border-bottom:1px solid var(--bd);margin-bottom:4px"><span style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em">Selecione as transações</span><div style="display:flex;gap:8px"><button onclick="csvSelAll(true)" style="font-size:11px;color:var(--ac);background:none;border:none;cursor:pointer;font-family:var(--sans)">Todas</button><button onclick="csvSelAll(false)" style="font-size:11px;color:var(--tx3);background:none;border:none;cursor:pointer;font-family:var(--sans)">Nenhuma</button></div></div> e categorize antes de importar</div>`+
     rows.map((r,i)=>{
-      const learned=r._learned?`<span class="csv-learned-badge">aprendido</span>`:'';
-      const catColor=r.category?'var(--sf2)':'var(--aml)';
-      return`<div class="csv-cat-row" style="display:flex;align-items:center;gap:8px">
-        <input type="checkbox" id="csvChk_${i}" class="exp-chk" checked style="flex-shrink:0">
-        <div class="exp-chk-box" style="flex-shrink:0" onclick="document.getElementById('csvChk_${i}').click();csvUpdCount()"></div>
-        <div class="csv-cat-icon" style="background:${r.type==='entrada'?'var(--acl)':'var(--rel)'}">${r.type==='entrada'?'↑':'↓'}</div>
+      const learned=r._learned?`<span style="font-size:9px;background:var(--acl);color:var(--ac);border-radius:4px;padding:1px 5px;font-weight:600">APRENDIDO</span>`:'';
+      const catBg=r.category?'var(--sf2)':'var(--aml)';
+      const catBorder=r.category?'':'1px solid var(--am)';
+      const amtSign=r.type==='entrada'?'+':'-';
+      const amtClass=r.type==='entrada'?'cin':'cout';
+      return`<div class="csv-cat-row" style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--bd)">
+        <input type="checkbox" id="csvChk_${i}" class="csv-chk exp-chk" checked>
+        <div class="exp-chk-box" onclick="document.getElementById('csvChk_${i}').click();csvUpdCount()"></div>
+        <div style="width:28px;height:28px;border-radius:8px;background:${r.type==='entrada'?'var(--acl)':'var(--rel)'};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${r.type==='entrada'?'↑':'↓'}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.desc}</div>
-          <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
-            <select class="csv-cat-sel ${r.category?'':'unset'}" onchange="setCsvRowCat(${i},this.value)" style="background:${catColor}">
+          <div style="display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap">
+            <select class="csv-cat-sel" style="font-size:11px;background:${catBg};border:${catBorder};border-radius:6px;padding:2px 4px;max-width:160px" onchange="setCsvRowCat(${i},this.value)">
               ${catOpts(r.type)}
             </select>
             ${learned}
           </div>
         </div>
-        <div style="font-size:13px;font-weight:600;letter-spacing:-.2px;flex-shrink:0" class="${r.type==='entrada'?'cin':'cout'}">${r.type==='entrada'?'+':'-'}${fmt(r.amount)}</div>
+        <div style="font-size:13px;font-weight:600;flex-shrink:0" class="${amtClass}">${amtSign}${fmt(r.amount)}</div>
       </div>`;
-    }).join('')+
-    (rows.length>30?`<div style="text-align:center;padding:10px;font-size:12px;color:var(--tx3)">mostrando ${rows.length} transações</div>`:'');
+    }).join('');
 
   // Set select values after render
   setTimeout(()=>{
@@ -4476,18 +4638,13 @@ function setCsvRowCat(idx,catId){
   }
 }
 
-function csvSelAll(v){
-  (window._csvPending||[]).forEach((_,i)=>{
-    const chk=document.getElementById('csvChk_'+i);
-    if(chk)chk.checked=v;
-  });
-  csvUpdCount();
-}
+// csvSelAll overridden below
 function csvUpdCount(){
   const rows=window._csvPending||[];
-  const checked=rows.filter((_,i)=>{const c=document.getElementById('csvChk_'+i);return c?c.checked:true;}).length;
+  const total=document.querySelectorAll('.csv-chk').length||rows.length;
+  const checked=document.querySelectorAll('.csv-chk:checked').length;
   const el=document.getElementById('csvPreviewCount');
-  if(el)el.textContent=checked+' de '+rows.length+' transações selecionadas';
+  if(el)el.innerHTML=`<strong>${checked}</strong> de ${total} selecionadas`;
   const btn=document.getElementById('csvConfirmBtn');
   if(btn)btn.textContent='Importar '+checked+' transação'+(checked!==1?'ões':'');
 }
@@ -5556,6 +5713,47 @@ function updMoneyPlaceholders(){
         el.value='R$ '+(cents/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
       }
     }
+  });
+}
+
+
+/* ── CSV BULK OPERATIONS ── */
+function csvSelAll(){
+  document.querySelectorAll('.csv-chk').forEach(chk=>chk.checked=true);
+  csvUpdCount();
+}
+function csvSelNone(){
+  document.querySelectorAll('.csv-chk').forEach(chk=>chk.checked=false);
+  csvUpdCount();
+}
+function csvApplyBulkAcc(accId){
+  if(accId===undefined)accId=document.getElementById('csvAccFilter')?.value||'';
+  if(!window._csvPending)return;
+  window._csvPending.forEach(r=>r.account=accId);
+  const sel=document.getElementById('csvAccFilter');
+  if(sel)sel.style.borderColor=accId?'var(--ac)':'var(--am)';
+}
+function csvApplyBulkCat(){
+  const catId=document.getElementById('csvBulkCat')?.value;
+  if(!catId||!window._csvPending)return;
+  // Apply to all checked rows
+  const rows=window._csvPending;
+  rows.forEach((r,i)=>{
+    const chk=document.getElementById('csvChk_'+i);
+    if(chk&&chk.checked){
+      r.category=catId;
+      const sel=document.querySelectorAll('.csv-cat-sel')[i];
+      if(sel){sel.value=catId;sel.style.background='var(--sf2)';sel.style.border='none';}
+    }
+  });
+  const checked=rows.filter((_,i)=>{const c=document.getElementById('csvChk_'+i);return c&&c.checked;}).length;
+  toast(checked+' transações categorizadas ✓');
+}
+function csvFilterByType(type){
+  document.querySelectorAll('.csv-cat-row').forEach((row,i)=>{
+    const r=window._csvPending?.[i];
+    if(!r)return;
+    row.style.display=(!type||r.type===type)?'flex':'none';
   });
 }
 
