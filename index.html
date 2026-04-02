@@ -2077,14 +2077,12 @@ function saveAcc(){
   if(eAccId){
     const a=S.accounts.find(a=>a.id===eAccId);
     if(a){
-      const newBalBRL=getMoneyVal('acBlCents');
-      const newBal=fxConvert(newBalBRL);
+      const newBal=getMoneyVal('acBlCents');
       Object.assign(a,{name,type,color:sAcCol,balance:newBal});
     }
     eAccId=null;toast('Conta atualizada! ✓');
   } else {
-    const balanceBRL=getMoneyVal('acBlCents');
-    const balance=fxConvert(balanceBRL);
+    const balance=getMoneyVal('acBlCents');
     S.accounts.push({id:uid(),name,type,balance,color:sAcCol});
     toast('Conta criada! ✓');
   }
@@ -2110,10 +2108,8 @@ function guardarAcc(id,el){
   let cents=parseInt(el.dataset.cents||'0',10);
   if(!cents){const raw=(el.value||'').replace(/[^0-9]/g,'');cents=parseInt(raw||'0',10);}
   if(!cents){toast('Informe o valor a guardar');return;}
-  // User typed in R$ — convert to active currency before adding
-  const addedBRL=cents/100;
-  const added=fxConvert(addedBRL);
-  a.balance=Math.round((a.balance+added)*10000)/10000;
+  const added=cents/100;
+  a.balance=Math.round((a.balance+added)*100)/100;
   persist();renderAll();
   toast('+'+fmt(added)+' guardado em '+a.name+'! 💰');
   haptic();
@@ -2146,13 +2142,10 @@ function prepGoal(){
 }
 function saveGoal(){
   const name=document.getElementById('gnm').value.trim();
-  // User always types in R$ — convert to active currency if FX is on
-  const targetBRL=getMoneyVal('gtgtCents');
-  const currentBRL=getMoneyVal('gcurCents');
-  if(!name||!targetBRL){toast('Preencha nome e objetivo');return;}
-  // fxConvert: R$ value → active currency
-  const target=fxConvert(targetBRL);
-  const current=fxConvert(currentBRL);
+  // Values stored in BRL always — fmt() handles FX display
+  const target=getMoneyVal('gtgtCents');
+  const current=getMoneyVal('gcurCents');
+  if(!name||!target){toast('Preencha nome e objetivo');return;}
   const deadline=document.getElementById('gdl').value;
   if(eGoalId){
     const g=S.goals.find(g=>g.id===eGoalId);
@@ -2178,10 +2171,9 @@ function updGoal(id,el){
     cents=parseInt(raw||'0',10);
   }
   if(!cents){toast('Informe o valor a guardar');return;}
-  // User typed in R$ — convert to active currency before adding
-  const addedBRL=cents/100;
-  const added=fxConvert(addedBRL);
-  g.current=Math.round((g.current+added)*10000)/10000;
+  // Store in BRL — fmt() handles display conversion
+  const added=cents/100;
+  g.current=Math.round((g.current+added)*100)/100;
   persist();
   // Check if goal completed
   if(g.current>=g.target){
