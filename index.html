@@ -748,7 +748,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="c13" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Salário bruto (R$)</label>
-                <input type="text" id="c13sal" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcTrezeno())">
+                <input type="text" id="c13sal" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,()=>calcTrezeno())">
               </div>
               <div class="fg"><label class="flbl">Meses trabalhados no ano</label>
                 <select id="c13mes" onchange="calcTrezeno()">
@@ -780,7 +780,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cfer" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Salário bruto (R$)</label>
-                <input type="text" id="cfersal" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcFerias())">
+                <input type="text" id="cfersal" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,()=>calcFerias())">
               </div>
               <div class="fg"><label class="flbl">Dias de férias</label>
                 <select id="cferdays" onchange="calcFerias()">
@@ -827,7 +827,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
                 </select>
               </div>
               <div class="fg"><label class="flbl">Último salário bruto (R$)</label>
-                <input type="text" id="crescsal" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcRescisao())">
+                <input type="text" id="crescsal" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,()=>calcRescisao())">
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                 <div class="fg"><label class="flbl">Anos na empresa</label>
@@ -860,10 +860,10 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cjur" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Capital inicial (R$)</label>
-                <input type="text" id="cjurcap" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcJuros())">
+                <input type="text" id="cjurcap" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,()=>calcJuros())">
               </div>
               <div class="fg"><label class="flbl">Aporte mensal (R$)</label>
-                <input type="text" id="cjuraporte" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcJuros())">
+                <input type="text" id="cjuraporte" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,()=>calcJuros())">
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                 <div class="fg"><label class="flbl">Taxa mensal (%)</label>
@@ -886,7 +886,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cfin" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Valor financiado (R$)</label>
-                <input type="text" id="cfinval" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcFin())">
+                <input type="text" id="cfinval" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,()=>calcFin())">
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                 <div class="fg"><label class="flbl">Taxa mensal (%)</label>
@@ -909,7 +909,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cdesc" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Valor original (R$)</label>
-                <input type="text" id="cdescval" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcDesc())">
+                <input type="text" id="cdescval" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,()=>calcDesc())">
               </div>
               <div class="fg" style="margin-bottom:0"><label class="flbl">Desconto (%)</label>
                 <input type="text" id="cdescpct" inputmode="decimal" placeholder="Ex: 15" oninput="calcDesc()">
@@ -927,7 +927,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cdiv" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Valor total (R$)</label>
-                <input type="text" id="cdivval" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcDiv())">
+                <input type="text" id="cdivval" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,()=>calcDiv())">
               </div>
               <div class="fg" style="margin-bottom:0"><label class="flbl">Número de pessoas</label>
                 <input type="number" id="cdivpes" min="2" max="100" placeholder="2" oninput="calcDiv()">
@@ -1695,6 +1695,7 @@ function go(id,snBtn){
     if(sideBtn)sideBtn.classList.add('on');
     renderAll();
     if(id==='reports') setTimeout(renderRep,60);
+  if(id==='calc') ensureFXRate();
   }catch(e){console.error('go('+id+'):', e);}
 }
 function goTx(){
@@ -5187,17 +5188,25 @@ function calcIRRF(baseCalculo,deps=0){
   }
   return 0;
 }
+function fmtCalcBRL(v){
+  // Always R$ — for intermediate calc rows
+  return 'R$ '+Math.abs(parseFloat(v)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
 function calcRow(label,value,color=''){
   const c2=color?`color:${color};font-weight:700`:'color:var(--tx2)';
   return`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--bd)">
     <span style="font-size:12px;color:var(--tx3)">${label}</span>
-    <span style="font-size:13px;font-weight:600;${c2}">${fmtCalc(value)}</span>
+    <span style="font-size:13px;font-weight:600;${c2}">${fmtCalcBRL(value)}</span>
   </div>`;
 }
 function calcTotal(label,value,color='var(--ac)'){
-  return`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0 0">
+  // Final result: show in app currency (converted if FX active)
+  const displayFinal=fmtCalc(value);
+  const hasFX=_fxEnabled&&_fxCurrency!=='R$';
+  const brlNote=hasFX?`<div style="font-size:10px;color:var(--tx3);margin-top:2px">= R$ ${Math.abs(parseFloat(value)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>`:'';
+  return`<div style="display:flex;justify-content:space-between;align-items:flex-end;padding:8px 0 0">
     <span style="font-size:13px;font-weight:700;color:var(--tx)">${label}</span>
-    <span style="font-size:16px;font-weight:700;color:${color}">${fmtCalc(value)}</span>
+    <div style="text-align:right"><span style="font-size:16px;font-weight:700;color:${color}">${displayFinal}</span>${brlNote}</div>
   </div>`;
 }
 
@@ -5206,6 +5215,7 @@ function switchCalcTab(tab,btn){
   btn.classList.add('on');
   document.getElementById('calcClt').style.display=tab==='clt'?'block':'none';
   document.getElementById('calcMoney').style.display=tab==='money'?'block':'none';
+  ensureFXRate();
 }
 
 function toggleCalc(id){
@@ -5472,6 +5482,13 @@ function initFX(){
   }
 }
 
+// Called when calc page is opened — ensure rate is loaded
+function ensureFXRate(){
+  if(_fxEnabled&&_fxCurrency!=='R$'&&(_fxRate===1||!_fxRate)){
+    fetchFXRate();
+  }
+}
+
 function toggleFX(){
   _fxEnabled=!_fxEnabled;
   localStorage.setItem('value_fx_enabled',_fxEnabled?'1':'0');
@@ -5538,6 +5555,12 @@ async function fetchFXRate(){
     _fxRate=1/brlPerUnit;
     updFXRateRow(brlPerUnit,Date.now(),false);
     renderAll();
+    // Re-run any open calculator result
+    ['calcTrezeno','calcFerias','calcRescisao','calcJuros','calcFin','calcDesc','calcDiv'].forEach(fn=>{
+      const resId={'calcTrezeno':'c13res','calcFerias':'cferres','calcRescisao':'crescres',
+        'calcJuros':'cjurres','calcFin':'cfinres','calcDesc':'cdescres','calcDiv':'cdivres'}[fn];
+      if(document.getElementById(resId)?.style.display==='block')window[fn]&&window[fn]();
+    });
   } else {
     // Use stale cache
     try{
@@ -5575,7 +5598,8 @@ function updFXRateRow(rate,ts,loading=false,offline=false){
 
 function fxConvert(amountBRL){
   const v=parseFloat(amountBRL)||0;
-  if(!_fxEnabled||_fxCurrency==='R$'||!_fxRate||_fxRate===1||isNaN(_fxRate))return v;
+  // Only skip if FX disabled, R$ selected, or rate is invalid/zero
+  if(!_fxEnabled||_fxCurrency==='R$'||!_fxRate||isNaN(_fxRate)||_fxRate<=0)return v;
   const result=v*_fxRate;
   return isNaN(result)?v:result;
 }
