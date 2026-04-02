@@ -1349,7 +1349,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
 
         <!-- Header da lista -->
         <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 8px;border-bottom:1px solid var(--bd)">
-          <span style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em">Selecione as transações</span>
+          <span id="csvListCount" style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em">Selecione as transações</span>
           <div style="display:flex;gap:12px">
             <button onclick="csvSelAll()" style="font-size:12px;font-weight:600;color:var(--ac);background:none;border:none;cursor:pointer;font-family:var(--sans)">Todas</button>
             <button onclick="csvSelNone()" style="font-size:12px;color:var(--tx3);background:none;border:none;cursor:pointer;font-family:var(--sans)">Nenhuma</button>
@@ -4047,6 +4047,11 @@ function backToCSVStep1(){
   document.getElementById('csvStep2').style.display='none';
   document.getElementById('csvConfirmBtn').style.display='none';
   document.getElementById('csvModalTitle').textContent='Importar extrato';
+  // Clear search and filters
+  const srch=document.getElementById('csvSearch');
+  if(srch)srch.value='';
+  const tf=document.getElementById('csvTypeFilter');
+  if(tf)tf.value='';
 }
 
 function parseCSV(text){
@@ -4219,23 +4224,26 @@ function showCSVPreview(rows,type){
 
   const filtersBar=document.getElementById('csvFiltersBar');
   if(filtersBar) filtersBar.innerHTML=`
-    <div style="border:1.5px solid var(--am);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--aml)">
-      <div style="font-size:11px;font-weight:700;color:var(--am);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">⚠️ Conta destino — obrigatório</div>
-      <select id="csvAccFilter" style="width:100%;border:1.5px solid var(--am)" onchange="csvApplyBulkAcc(this.value)">
-        ${accOpts}
-      </select>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <select id="csvTypeFilter" style="flex:1" onchange="csvFilterByType(this.value)">
-        <option value="">Todos (${rows.length})</option>
-        <option value="entrada">Só entradas (${entradas})</option>
-        <option value="saida">Só saídas (${saidas})</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;padding-top:8px;border-top:0.5px solid var(--bd)">
-      <span style="font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0">Selecionadas →</span>
-      <select id="csvBulkCat" style="flex:1;font-size:12px">${catOptsAll}</select>
-      <button onclick="csvApplyBulkCat()" style="background:var(--ac);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">Aplicar</button>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
+      <div style="display:flex;gap:6px">
+        <select id="csvAccFilter" style="flex:2;border:1.5px solid var(--am);font-size:12px" onchange="csvApplyBulkAcc(this.value)">
+          ${accOpts}
+        </select>
+        <select id="csvTypeFilter" style="flex:1;font-size:12px" onchange="csvFilterByType(this.value)">
+          <option value="">Todos (${rows.length})</option>
+          <option value="entrada">↑ Entradas (${entradas})</option>
+          <option value="saida">↓ Saídas (${saidas})</option>
+        </select>
+      </div>
+      <div style="position:relative">
+        <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:13px;pointer-events:none">🔍</span>
+        <input id="csvSearch" type="text" placeholder="Buscar transação..." oninput="csvSearchFilter(this.value)"
+          style="width:100%;padding:7px 10px 7px 30px;border:0.5px solid var(--bd2);border-radius:8px;font-size:12px;background:var(--sf2);color:var(--tx);font-family:var(--sans);box-sizing:border-box">
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;padding-top:6px;border-top:0.5px solid var(--bd)">
+        <select id="csvBulkCat" style="flex:1;font-size:12px">${catOptsAll}</select>
+        <button onclick="csvApplyBulkCat()" style="background:var(--ac);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0">Aplicar</button>
+      </div>
     </div>
   `;
 
@@ -5787,15 +5795,39 @@ function csvApplyBulkCat(){
   toast(count+' transações categorizadas ✓');
 }
 function csvFilterByType(type){
+  const q=(document.getElementById('csvSearch')?.value||'').toLowerCase().trim();
   document.querySelectorAll('.csv-cat-row').forEach(row=>{
     const idx=parseInt(row.dataset.idx);
     const r=window._csvPending?.[idx];
     if(!r){row.style.display='none';return;}
-    row.style.display=(!type||r.type===type)?'flex':'none';
+    const matchesType=!type||r.type===type;
+    const matchesSearch=!q||r.desc.toLowerCase().includes(q);
+    row.style.display=(matchesType&&matchesSearch)?'flex':'none';
   });
   csvUpdCount();
 }
 
+
+function csvSearchFilter(query){
+  const q=(query||'').toLowerCase().trim();
+  let visible=0;
+  document.querySelectorAll('.csv-cat-row').forEach(row=>{
+    const idx=parseInt(row.dataset.idx);
+    const r=window._csvPending?.[idx];
+    if(!r){row.style.display='none';return;}
+    // Also respect type filter
+    const typeFilter=document.getElementById('csvTypeFilter')?.value||'';
+    const matchesType=!typeFilter||r.type===typeFilter;
+    const matchesSearch=!q||r.desc.toLowerCase().includes(q);
+    const show=matchesType&&matchesSearch;
+    row.style.display=show?'flex':'none';
+    if(show)visible++;
+  });
+  // Update count label
+  const lbl=document.getElementById('csvListCount');
+  if(lbl)lbl.textContent=q?`${visible} resultado${visible!==1?'s':''}`:' Selecione as transações';
+  csvUpdCount();
+}
 /* ── BOOT ── */
 
 // System dark mode listener
