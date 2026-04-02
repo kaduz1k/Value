@@ -1418,7 +1418,8 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
 
 <div class="sel-bar" id="selBar">
   <span class="sel-count" id="selCount">0 selecionados</span>
-  <button class="sel-btn" id="selAllBtn" onclick="selAll()" style="display:none">Todas</button>
+  <button class="sel-btn" id="selAllBtn" onclick="selAll()">Todas</button>
+  <button class="sel-btn" id="selNoneBtn" onclick="selNone()" style="display:none">Nenhuma</button>
   <button class="sel-btn" id="selEditBtn" onclick="selDo('edit')">Editar</button>
   <button class="sel-btn" onclick="selDo('dup')">Duplicar</button>
   <button class="sel-btn red" onclick="selDo('del')">Excluir</button>
@@ -1557,7 +1558,7 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function cr(){return S.settings?.currency||'R$';}
 function fmt(v){const raw=parseFloat(v)||0;const converted=fxConvert(Math.abs(raw));const safe=isNaN(converted)?0:converted;return cr()+' '+safe.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtD(d){if(!d)return'';const[y,m,dy]=d.split('-');return`${dy}/${m}/${y}`;}
-function gCat(id){return S.categories.find(c=>c.id===id)||{name:'—',icon:'•',color:'#888',budget:0};}
+function gCat(id){if(id==='_transfer_')return{id:'_transfer_',name:'Transferência',icon:'↔',color:'#534ab7',budget:0,type:'transfer'};return S.categories.find(c=>c.id===id)||{name:'—',icon:'•',color:'#888',budget:0};}
 function gAcc(id){return S.accounts.find(a=>a.id===id)||{name:'—',color:'#888'};}
 function inM(tx,y,m){if(!tx.date)return false;const[ty,tm]=tx.date.split('-').map(Number);return ty===y&&tm===m+1;}
 function toast(msg,d=2400){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
@@ -1752,8 +1753,9 @@ function updateFixedPreview(){
   }
 }
 function fmtCents(cents){
-  const cv=cr();
-  return cv+' '+(cents/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  // Always show R$ in input fields — data is stored in BRL
+  // FX conversion only happens in display via fmt()
+  return 'R$ '+(cents/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function setAmtDisplay(amount){
   txCents=Math.round((amount||0)*100);
@@ -2086,7 +2088,13 @@ function saveAcc(){
   }
   persist();closeM('accModal');renderAll();
 }
-function delAcc(id){if(!confirm('Excluir conta?'))return;S.accounts=S.accounts.filter(a=>a.id!==id);persist();renderAll();toast('Conta excluída');}
+function delAcc(id){
+  if(!confirm('Excluir conta?'))return;
+  S.accounts=S.accounts.filter(a=>a.id!==id);
+  // Remove orphaned transactions from deleted account
+  // Keep them but unlink from account
+  S.transactions.forEach(t=>{if(t.account===id)t.account='';});
+  persist();renderAll();toast('Conta excluída ✓');;toast('Conta excluída');}
 function updAccBal(id,el){
   const a=S.accounts.find(a=>a.id===id);if(!a)return;
   let cents=parseInt(el.dataset.cents||'0',10);
@@ -2251,7 +2259,7 @@ function calcAccBalance(acc){
   // Contas fixas futuras NAO entram no saldo atual
   const today=new Date().toISOString().split('T')[0];
   const txs=S.transactions.filter(t=>
-    t.account===acc.id&&!t.transfer&&(t.date<=today||t.fixedPaid===true)
+    t.account===acc.id&&(t.date<=today||t.fixedPaid===true)
   );
   const entradas=txs.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
   const saidas=txs.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
@@ -2277,7 +2285,9 @@ function renderDash(){
       weeklyBanner.style.display='none';
     }
   }
-  const txM=S.transactions.filter(tx=>(dashTab==='weekly'?inWeek(tx):inM(tx,cY,cM))&&!tx.transfer);
+  // Filter transactions by current period AND active account filter
+  let txM=S.transactions.filter(tx=>(dashTab==='weekly'?inWeek(tx):inM(tx,cY,cM))&&!tx.transfer);
+  if(_dashAccFilter)txM=txM.filter(tx=>tx.account===_dashAccFilter);
   const inc=txM.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
   const exp=txM.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
   // Filosofia C: saldo calculado dinamicamente por conta
@@ -3561,8 +3571,8 @@ function installCanvasIcons(){
 ══════════════════════════════════════════════════════ */
 let notifications=[];
 
-function addNotif(title,desc,type='info',action=null){
-  const n={id:uid(),title,desc,type,time:new Date().toISOString(),read:false,action};
+function addNotif(title,desc,type='info',action=null,actionType=null){
+  const n={id:uid(),title,desc,type,time:new Date().toISOString(),read:false,action,actionType};
   notifications.unshift(n);
   if(notifications.length>50)notifications=notifications.slice(0,50);
   try{localStorage.setItem('value_notifs',JSON.stringify(notifications));}catch(e){}
@@ -3597,7 +3607,7 @@ function renderNotifList(){
   el.innerHTML=notifications.slice(0,20).map(n=>{
     const ago=timeAgo(n.time);
     const dot=n.type==='danger'?'red':n.type==='warn'?'amber':'';
-    const hasAction=n.action&&!n.actionDone;
+    const hasAction=n.action&&!n.actionDone&&n.actionType==='fixedPayment';
     return`<div class="notif-item ${n.read?'':'unread'}" onclick="markRead('${n.id}')">
       <div class="notif-dot ${dot}"></div>
       <div style="flex:1;min-width:0">
@@ -4508,6 +4518,11 @@ function selAll(){
   });
   _updSelBar();
 }
+function selNone(){
+  _sel.clear();
+  _updSelBar();
+  document.querySelectorAll('[data-selid]').forEach(el=>el.classList.remove('sel'));
+}
 function selStart(ctx){
   _selCtx=ctx;
   _sel.clear();
@@ -4693,7 +4708,8 @@ function checkFixedDue(){
       '📅 '+tx.desc+' vence hoje',
       fmt(tx.amount)+' · Toque em "Já paguei" para registrar o pagamento.',
       'info',
-      ()=>confirmFixedPayment(tx.fixedGid,tx.desc,tx.amount,tx.category,tx.account)
+      ()=>confirmFixedPayment(tx.fixedGid,tx.desc,tx.amount,tx.category,tx.account),
+      'fixedPayment'
     );
 
     // Push notification
@@ -5619,13 +5635,14 @@ function saveTransfer(){
   const notes=document.getElementById('trNts').value||('Transferência: '+from.name+' → '+to.name);
   // Create saida from source and entrada to destination
   const gid=uid();
-  S.transactions.unshift({id:uid(),type:'saida',desc:'Transferência para '+to.name,
-    amount,date,category:'',account:fromId,notes,recurrence:'none',transfer:gid,createdAt:new Date().toISOString()});
-  S.transactions.unshift({id:uid(),type:'entrada',desc:'Transferência de '+from.name,
-    amount,date,category:'',account:toId,notes,recurrence:'none',transfer:gid,createdAt:new Date().toISOString()});
-  // Update account balances immediately
-  from.balance=Math.round((from.balance-amount)*100)/100;
-  to.balance=Math.round((to.balance+amount)*100)/100;
+  const trCatId='_transfer_';
+  S.transactions.unshift({id:uid(),type:'saida',desc:'↔ Transferência → '+to.name,
+    amount,date,category:trCatId,account:fromId,notes,recurrence:'none',transfer:gid,createdAt:new Date().toISOString()});
+  S.transactions.unshift({id:uid(),type:'entrada',desc:'↔ Transferência ← '+from.name,
+    amount,date,category:trCatId,account:toId,notes,recurrence:'none',transfer:gid,createdAt:new Date().toISOString()});
+  // NOTE: do NOT modify account.balance here
+  // calcAccBalance() already counts transfer transactions via t.transfer flag
+  // Only the initial balance (acc.balance) is the starting point
   persist();closeM('transferModal');renderAll();
   toast('Transferência realizada! ✓');
 }
@@ -5890,6 +5907,24 @@ function markSchedDone(id){
   persist();renderAll();toast('Lançamento registrado! ✓');
 }
 
+function editSched(id){
+  const s=S.scheduled.find(s=>s.id===id);if(!s)return;
+  // Open sched modal pre-filled
+  document.getElementById('schedMTitle').textContent='Editar agendamento';
+  document.getElementById('schedDesc').value=s.desc;
+  document.getElementById('schedDt').value=s.date;
+  document.getElementById('schedAmt').value='';
+  setMoneyInput('schedAmt','schedAmtCents',s.amount);
+  document.getElementById('schedType').value=s.type;
+  document.getElementById('schedAcc').value=s.account||'';
+  window._editSchedId=id;
+  document.getElementById('schedModal').classList.add('open');
+}
+function dupSched(id){
+  const s=S.scheduled.find(s=>s.id===id);if(!s)return;
+  S.scheduled.unshift({...s,id:uid(),done:false,createdAt:new Date().toISOString()});
+  persist();renderScheduled();toast('Agendamento duplicado ✓');
+}
 function delSched(id){
   S.scheduled=S.scheduled.filter(s=>s.id!==id);
   persist();renderScheduled();
@@ -5917,9 +5952,8 @@ function renderScheduled(){
       </div>
       <div style="text-align:right;flex-shrink:0">
         <div class="${s.type==='entrada'?'cin':'cout'}" style="font-size:14px;font-weight:600;letter-spacing:-.2px">${s.type==='entrada'?'+':'-'}${fmt(s.amount)}</div>
-        <div style="display:flex;gap:4px;margin-top:4px;justify-content:flex-end">
-          <button onclick="markSchedDone('${s.id}')" style="background:var(--acl);border:1px solid var(--ac);border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer;color:var(--ac);font-weight:500">✓ Registrar</button>
-          <button onclick="delSched('${s.id}')" style="background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;padding:0 3px">×</button>
+        <div class="tdot" style="display:block;position:relative">
+          <button class="tdot-btn" onclick="tdotToggle(this,event)" data-actions="<button onclick=\'markSchedDone(&quot;${s.id}&quot;)\'>\xe2\x9c\x93 Registrar</button><button onclick=\'editSched(&quot;${s.id}&quot;)\'>\xe2\x9c\x8e Editar</button><button onclick=\'dupSched(&quot;${s.id}&quot;)\'>&#9645; Duplicar</button><button class=\'red\' onclick=\'delSched(&quot;${s.id}&quot;)\'>&#215; Excluir</button>" style="color:var(--tx3);font-size:20px;padding:0 6px;background:none;border:none;cursor:pointer">\xe2\x8b\xaf</button>
         </div>
       </div>
     </div>`;
