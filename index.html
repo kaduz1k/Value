@@ -397,15 +397,7 @@ div.sel{background:var(--acl)!important;outline:2px solid var(--ac);outline-offs
 .acc-pill .apdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
 /* ── SWIPE ACTIONS (iOS style) ── */
-.swipe-wrap{position:relative;overflow:hidden;border-radius:inherit}
-.swipe-row{transition:transform .2s cubic-bezier(.25,.46,.45,.94);touch-action:pan-y;will-change:transform}
-.swipe-actions{position:absolute;top:0;right:0;bottom:0;display:flex;align-items:stretch}
-.swipe-actions-left{position:absolute;top:0;left:0;bottom:0;display:flex;align-items:stretch}
-.swipe-act{display:flex;align-items:center;justify-content:center;padding:0 18px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;white-space:nowrap;border:none;outline:none}
-.swipe-act.del{background:#c0392b}
-.swipe-act.edit{background:#2d7a50}
-.swipe-act.fav{background:#f0a500}
-.swipe-act.dup{background:#534ab7}
+
 
 /* ── 3-DOT MENU (desktop) ── */
 .tdot{display:block;position:relative}
@@ -415,7 +407,7 @@ div.sel{background:var(--acl)!important;outline:2px solid var(--ac);outline-offs
 .tdot-menu button{display:block;width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:8px 12px;font-size:13px;color:var(--tx);border-radius:7px;font-family:var(--sans)}
 .tdot-menu button:hover{background:var(--sf2)}
 .tdot-menu button.red{color:var(--re)}
-@media(min-width:681px){.tdot{display:block}.swipe-actions,.swipe-actions-left{display:none!important}}
+@media(min-width:681px){.tdot{display:block}}
 
 .acard input::placeholder{color:rgba(255,255,255,.65)!important}
 .acard input{color:#fff!important}
@@ -1816,11 +1808,6 @@ function applyFilters(){
   renderTxPg();
   updateFiltersBar();
   // Init swipe for tx rows
-  setTimeout(()=>{
-    document.querySelectorAll('#txList .swipe-wrap').forEach(el=>{
-      initSwipe(el,['edit','dup'],['del']);
-    });
-  },50);
 }
 function clearFilters(){
   activeFilters={cat:'',type:'',month:'',year:''};
@@ -2649,22 +2636,14 @@ function renderTxPg(){
     const isSel=_sel.has(tx.id);
     const cls='txrow'+(isSel?' sel':'');
     const click=_selCtx?'selToggle(\''+tx.id+'\')':'showDet(\''+tx.id+'\')';
-    return'<div class="swipe-wrap" data-selid="'+tx.id+'" style="border-bottom:0.5px solid var(--bd)">'
-      +'<div class="swipe-actions">'
-      +'<button class="swipe-act del" onclick="event.stopPropagation();closeSwipes();delTx(\''+tx.id+'\')">Excluir</button>'
-      +'</div>'
-      +'<div class="swipe-actions-left">'
-      +'<button class="swipe-act edit" onclick="event.stopPropagation();closeSwipes();editTx(\''+tx.id+'\')">Editar</button>'
-      +'<button class="swipe-act dup" onclick="event.stopPropagation();closeSwipes();dupTx(\''+tx.id+'\')">Duplic.</button>'
-      +'</div>'
-      +'<div class="'+cls+' swipe-row" onclick="'+click+'"'
+    return'<div class="'+cls+'" data-selid="'+tx.id+'" style="border-bottom:0.5px solid var(--bd);display:flex;align-items:center" onclick="'+click+'"'
       +' onpointerdown="selLongPress(\''+tx.id+'\',\'tx\',this)" onpointerup="selLongCancel()" onpointercancel="selLongCancel()">'
       +'<div class="txic" style="background:'+cat.color+'22">'+cat.icon+'</div>'
       +'<div class="txinf"><div class="txnm">'+tx.desc+'</div>'
       +'<div class="txsb">'+fmtD(tx.date)+' · <span style="color:'+cat.color+'">'+cat.name+'</span>'+(tx.recurrence==='fixed'?' 📌':tx.recurrence&&tx.recurrence!=='none'?' 🔄':'')+'</div></div>'
       +'<div class="txamt '+(tx.type==='entrada'?'cin':'cout')+'">'+(tx.type==='entrada'?'+':'-')+fmt(tx.amount)+'</div>'
       +'<div class="tdot"><button class="tdot-btn" onclick="tdotToggle(this,event)" data-actions="<button onclick=\'editTx(&quot;'+tx.id+'&quot;)\'>✎ Editar</button><button onclick=\'dupTx(&quot;'+tx.id+'&quot;)\'>⧉ Duplicar</button><button class=\'red\' onclick=\'delTx(&quot;'+tx.id+'&quot;)\'>× Excluir</button>">⋯</button></div>'
-      +'</div></div>';
+      +'</div>';
   }).join('');
   const ti=txs.filter(t=>t.type==='entrada').reduce((a,t)=>a+t.amount,0);
   const to=txs.filter(t=>t.type==='saida').reduce((a,t)=>a+t.amount,0);
@@ -4940,71 +4919,7 @@ async function exportRepPDF(){
 }
 
 
-/* ── SWIPE ACTIONS ENGINE ── */
-function initSwipe(el,leftActions,rightActions){
-  let startX=0,startY=0,curX=0,dragging=false,dir=null;
-  const row=el.querySelector('.swipe-row')||el;
-  const THRESHOLD=60;
 
-  el.addEventListener('pointerdown',e=>{
-    startX=e.clientX;startY=e.clientY;
-    curX=0;dragging=true;dir=null;
-    row.style.transition='none';
-  },{passive:true});
-
-  el.addEventListener('pointermove',e=>{
-    if(!dragging)return;
-    const dx=e.clientX-startX;
-    const dy=e.clientY-startY;
-    // Determine direction on first move
-    if(!dir){
-      if(Math.abs(dx)<4&&Math.abs(dy)<4)return;
-      dir=Math.abs(dx)>Math.abs(dy)?'h':'v';
-    }
-    if(dir==='v')return;
-    e.preventDefault();
-    curX=dx;
-    // Limit swipe range
-    const max=rightActions?120:0;
-    const min=leftActions?-120:0;
-    curX=Math.max(min,Math.min(max,curX));
-    row.style.transform=`translateX(${curX}px)`;
-  },{passive:false});
-
-  const reset=()=>{
-    dragging=false;
-    row.style.transition='transform .2s cubic-bezier(.25,.46,.45,.94)';
-    if(Math.abs(curX)>THRESHOLD){
-      // Snap to open
-      const snap=curX>0?80:-80;
-      if((snap>0&&rightActions)||(snap<0&&leftActions))
-        row.style.transform=`translateX(${snap}px)`;
-      else
-        row.style.transform='translateX(0)';
-    } else {
-      row.style.transform='translateX(0)';
-    }
-    curX=0;
-  };
-
-  el.addEventListener('pointerup',reset,{passive:true});
-  el.addEventListener('pointercancel',reset,{passive:true});
-  // Close on outside click
-  document.addEventListener('click',e=>{
-    if(!el.contains(e.target)){
-      row.style.transition='transform .2s cubic-bezier(.25,.46,.45,.94)';
-      row.style.transform='translateX(0)';
-    }
-  },{passive:true});
-}
-
-// Close all open swipe rows
-function closeSwipes(){
-  document.querySelectorAll('.swipe-row').forEach(r=>{
-    r.style.transition='transform .15s';
-    r.style.transform='translateX(0)';
-  });
-}
 
 
 function tdotToggle(btn,e){
