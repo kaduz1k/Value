@@ -407,7 +407,7 @@ div.sel{background:var(--acl)!important;outline:2px solid var(--ac);outline-offs
 .swipe-act.dup{background:#534ab7}
 
 /* ── 3-DOT MENU (desktop) ── */
-.tdot{display:none;position:relative}
+.tdot{display:block;position:relative}
 .tdot-btn{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:18px;padding:4px 8px;border-radius:6px;line-height:1}
 .tdot-btn:hover{background:var(--sf2);color:var(--tx)}
 .tdot-menu{position:fixed;background:var(--sf);border:0.5px solid var(--bd2);border-radius:10px;padding:4px;min-width:140px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15)}
@@ -747,7 +747,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="c13" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Salário bruto (R$)</label>
-                <input type="text" id="c13sal" inputmode="numeric" placeholder="Ex: 3.000,00" oninput="calcMoneyInput(this,calcTrezeno())">
+                <input type="text" id="c13sal" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcTrezeno())">
               </div>
               <div class="fg"><label class="flbl">Meses trabalhados no ano</label>
                 <select id="c13mes" onchange="calcTrezeno()">
@@ -779,7 +779,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cfer" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Salário bruto (R$)</label>
-                <input type="text" id="cfersal" inputmode="numeric" placeholder="Ex: 3.000,00" oninput="calcMoneyInput(this,calcFerias())">
+                <input type="text" id="cfersal" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcFerias())">
               </div>
               <div class="fg"><label class="flbl">Dias de férias</label>
                 <select id="cferdays" onchange="calcFerias()">
@@ -826,7 +826,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
                 </select>
               </div>
               <div class="fg"><label class="flbl">Último salário bruto (R$)</label>
-                <input type="text" id="crescsal" inputmode="numeric" placeholder="Ex: 3.000,00" oninput="calcMoneyInput(this,calcRescisao())">
+                <input type="text" id="crescsal" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcRescisao())">
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                 <div class="fg"><label class="flbl">Anos na empresa</label>
@@ -859,10 +859,10 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cjur" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Capital inicial (R$)</label>
-                <input type="text" id="cjurcap" inputmode="numeric" placeholder="Ex: 1.000,00" oninput="calcMoneyInput(this,calcJuros())">
+                <input type="text" id="cjurcap" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcJuros())">
               </div>
               <div class="fg"><label class="flbl">Aporte mensal (R$)</label>
-                <input type="text" id="cjuraporte" inputmode="numeric" placeholder="0,00 (opcional)" oninput="calcMoneyInput(this,calcJuros())">
+                <input type="text" id="cjuraporte" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcJuros())">
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                 <div class="fg"><label class="flbl">Taxa mensal (%)</label>
@@ -885,7 +885,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cfin" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Valor financiado (R$)</label>
-                <input type="text" id="cfinval" inputmode="numeric" placeholder="Ex: 30.000,00" oninput="calcMoneyInput(this,calcFin())">
+                <input type="text" id="cfinval" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcFin())">
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                 <div class="fg"><label class="flbl">Taxa mensal (%)</label>
@@ -908,7 +908,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cdesc" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Valor original (R$)</label>
-                <input type="text" id="cdescval" inputmode="numeric" placeholder="Ex: 500,00" oninput="calcMoneyInput(this,calcDesc())">
+                <input type="text" id="cdescval" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcDesc())">
               </div>
               <div class="fg" style="margin-bottom:0"><label class="flbl">Desconto (%)</label>
                 <input type="text" id="cdescpct" inputmode="decimal" placeholder="Ex: 15" oninput="calcDesc()">
@@ -926,7 +926,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
             </div>
             <div id="cdiv" style="display:none;margin-top:12px">
               <div class="fg"><label class="flbl">Valor total (R$)</label>
-                <input type="text" id="cdivval" inputmode="numeric" placeholder="Ex: 240,00" oninput="calcMoneyInput(this,calcDiv())">
+                <input type="text" id="cdivval" inputmode="numeric" placeholder="R$ 0,00" data-calc-money="1" oninput="calcMoneyInput(this,calcDiv())">
               </div>
               <div class="fg" style="margin-bottom:0"><label class="flbl">Número de pessoas</label>
                 <input type="number" id="cdivpes" min="2" max="100" placeholder="2" oninput="calcDiv()">
@@ -1209,7 +1209,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
         <div class="fg"><label class="flbl">Tipo</label>
           <select id="acTp"><option value="corrente">Corrente</option><option value="poupanca">Poupança</option><option value="credito">Crédito</option><option value="investimento">Investimento</option><option value="dinheiro">Dinheiro</option></select>
         </div>
-        <div class="fg"><label class="flbl">Saldo inicial</label><input id="acBl" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'acBlCents')" autocomplete="off"></div>
+        <div class="fg"><label class="flbl">Saldo inicial</label><input id="acBl" type="text" inputmode="numeric" data-money="1" placeholder="R$ 0,00" oninput="onMoneyInput(this,'acBlCents')" autocomplete="off"></div>
       </div>
       <div class="fg"><label class="flbl">Cor</label>
         <div class="swatches" id="acCols" style="margin-bottom:10px"></div>
@@ -1236,7 +1236,7 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
       <div class="frow c2">
         <div class="fg"><label class="flbl">Já guardado</label><input id="gcur" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'gcurCents')" autocomplete="off"></div>
         <div class="fg"><label class="flbl">Objetivo</label>
-          <input id="gtgt" type="text" inputmode="numeric" placeholder="R$ 0,00" oninput="onMoneyInput(this,'gtgtCents');updateGoalEstimate()" autocomplete="off">
+          <input id="gtgt" type="text" inputmode="numeric" data-money="1" placeholder="R$ 0,00" oninput="onMoneyInput(this,'gtgtCents');updateGoalEstimate()" autocomplete="off">
           <div id="goalEstimate" style="font-size:11px;color:var(--tx2);margin-top:5px;min-height:16px"></div>
         </div>
       </div>
@@ -2859,33 +2859,19 @@ function renderCats(){
     el.innerHTML=cats.map(c=>{
       const isSel=_sel.has(c.id);
       const cClick=_selCtx==='cat'?`selToggle('${c.id}')`:''  ;
-      return`<div class="swipe-wrap${isSel?' sel':''}" data-selid="${c.id}" style="border-bottom:1px solid var(--bd)">
-        <div class="swipe-actions">
-          <button class="swipe-act del" onclick="event.stopPropagation();closeSwipes();delCat('${c.id}')">Excluir</button>
+      return`<div class="${isSel?'sel-cat ':''}" data-selid="${c.id}" onclick="${cClick}" style="display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:0.5px solid var(--bd);border-radius:${isSel?'10px':'0'};background:${isSel?'var(--acl)':'transparent'};margin:${isSel?'2px 0':'0'};transition:all .15s">
+        <div style="width:32px;height:32px;border-radius:10px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:${isSel?'2px solid var(--ac)':'2px solid transparent'}">${c.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:${isSel?'700':'500'};color:${isSel?'var(--ac)':'var(--tx)'}">${c.name}${c.fav?' ⭐':''}</div>
+          ${c.budget>0?`<div style="font-size:11px;color:var(--tx3)">${fmt(c.budget)}/mês</div>`:''}
         </div>
-        <div class="swipe-actions-left">
-          <button class="swipe-act fav" onclick="event.stopPropagation();closeSwipes();toggleFav('${c.id}')">${c.fav?'★ Desfav':'☆ Fav'}</button>
-          <button class="swipe-act edit" onclick="event.stopPropagation();closeSwipes();editCat('${c.id}')">Editar</button>
-        </div>
-        <div class="swipe-row" onclick="${cClick}" style="display:flex;align-items:center;gap:9px;padding:8px 0;background:var(--sf)">
-          <div style="width:30px;height:30px;border-radius:9px;background:${c.color}22;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${c.icon}</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:500">${c.name}${c.fav?' ⭐':''}</div>
-            ${c.budget>0?`<div style="font-size:11px;color:var(--tx3)">${fmt(c.budget)}/mês</div>`:''}
-          </div>
-          <div class="tdot">
-            <button class="tdot-btn" onclick="tdotToggle(this,event)" data-actions="<button onclick=\'editCat(&quot;${c.id}&quot;)\'>✎ Editar</button><button onclick=\'toggleFav(&quot;${c.id}&quot;)\'>${c.fav?'★ Desfavoritar':'☆ Favoritar'}</button><button class=\'red\' onclick=\'delCat(&quot;${c.id}&quot;)\'>× Excluir</button>">⋯</button>
-          </div>
+        <div style="position:relative">
+          <button onclick="event.stopPropagation();tdotToggle(this,event)" data-actions="<button onclick=\'editCat(&quot;${c.id}&quot;)\'>&#9998; Editar</button><button onclick=\'toggleFav(&quot;${c.id}&quot;)\'>${c.fav?'&#9733; Desfavoritar':'&#9734; Favoritar'}</button><button class=\'red\' onclick=\'delCat(&quot;${c.id}&quot;)\'>&#215; Excluir</button>" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:20px;padding:0 6px;line-height:1">⋯</button>
         </div>
       </div>`}).join('');
   };
   render('catOut','saida');render('catIn','entrada');
-  // Init swipe for each cat row
-  setTimeout(()=>{
-    document.querySelectorAll('#catOut .swipe-wrap, #catIn .swipe-wrap').forEach(el=>{
-      initSwipe(el,['fav','edit'],['del']);
-    });
-  },50);
+
 }
 
 
@@ -3268,7 +3254,7 @@ function safeArrays(){
 }
 function renderAll(){
   safeArrays();
-  const fns=[renderDash,renderTxPg,renderAcc,renderGoals,renderCats,renderRep,renderSettings,renderSubsPage,updML];
+  const fns=[renderDash,renderTxPg,renderAcc,renderGoals,renderCats,renderRep,renderSettings,renderSubsPage,updML,updMoneyPlaceholders];
   fns.forEach(fn=>{try{fn();}catch(e){console.warn('renderAll:',fn.name,e.message);}});
 }
 // reports re-rendered on navigate (handled inside go)
@@ -5119,10 +5105,13 @@ const IRRF_DEDUCAO_DEP=189.59;
 
 function parseMoney(s){
   if(!s)return 0;
-  return parseFloat((s||'').replace(/\./g,'').replace(',','.'))||0;
+  // Strip currency symbols and spaces, handle both . and , as decimal
+  const cleaned=(s||'').replace(/[^0-9,\.]/g,'').replace(/\./g,'').replace(',','.');
+  return parseFloat(cleaned)||0;
 }
 function fmtCalc(v){
-  return 'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  // Uses app's current currency + FX conversion
+  return fmt(v);
 }
 function calcINSS(sal){
   // Progressive INSS
@@ -5187,7 +5176,8 @@ function calcTrezeno(){
   const irrf=calcIRRF(baseIR);
   const liquido=bruto-inss-irrf;
   res.style.display='block';
-  res.innerHTML=
+  const fxNote=(_fxEnabled&&_fxCurrency!=='R$')?`<div style="font-size:10px;color:var(--am);margin-bottom:8px">⚠️ INSS/IRRF calculados em R$ (tabela brasileira)</div>`:'';
+  res.innerHTML=fxNote+
     calcRow('13º bruto ('+mes+'/12)',bruto)+
     calcRow('Desconto INSS',-inss,'var(--re)')+
     calcRow('Desconto IRRF',-irrf,'var(--re)')+
@@ -5356,16 +5346,26 @@ function calcDiv(){
 function calcMoneyInput(el,callback){
   const raw=el.value.replace(/\D/g,'');
   const cents=parseInt(raw||'0',10);
-  const cv=typeof cr==='function'?cr():'R$';
-  const formatted=cv+' '+(cents/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const cv=cr();
+  const rawVal=cents/100;
+  // If FX enabled, show in current currency
+  const displayVal=(_fxEnabled&&_fxRate!==1&&_fxCurrency!=='R$')?rawVal*_fxRate:rawVal;
+  const formatted=cv+' '+displayVal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   el.value=formatted;
   // Store raw cents for parsing
   el.dataset.cents=cents;
   if(callback)callback();
 }
 function getCalcMoney(el){
-  if(el.dataset.cents)return parseInt(el.dataset.cents)/100;
-  // Strip currency prefix before parsing
+  // If FX is enabled, user typed in foreign currency — convert back to BRL for calc
+  if(el.dataset.cents){
+    const cents=parseInt(el.dataset.cents)/100;
+    // Reverse FX: if _fxEnabled, value was stored in foreign currency
+    if(_fxEnabled&&_fxRate!==1&&_fxCurrency!=='R$'){
+      return cents/_fxRate; // convert back to BRL for CLT calculations
+    }
+    return cents;
+  }
   const val=(el.value||'').replace(/[^0-9,]/g,'').replace(',','.');
   return parseFloat(val)||0;
 }
@@ -5405,9 +5405,9 @@ function initFX(){
     if(code){
       try{
         const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
-        if(cached[code]?.rate){
-          _fxRate=1/cached[code].rate;
-          updFXRateRow(cached[code].rate,cached[code].ts,false);
+        if(cached[code]?.fxRate){
+          _fxRate=cached[code].fxRate;
+          updFXRateRow(cached[code].brlPerUnit,cached[code].ts,false);
         } else {
           updFXRateRow(null,null,true);
         }
@@ -5439,47 +5439,66 @@ async function fetchFXRate(){
   const code=FX_CODES[cur];
   if(!code){_fxRate=1;updFXRateRow();renderAll();return;}
 
-  // Check cache first
+  // Check cache first (4h TTL)
   try{
     const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
     if(cached[code]&&Date.now()-cached[code].ts<FX_CACHE_TTL){
-      _fxRate=1/cached[code].rate; // rate = R$ por 1 moeda → inverte para moeda por R$
-      updFXRateRow(cached[code].rate,cached[code].ts,false);
+      _fxRate=cached[code].fxRate;
+      updFXRateRow(cached[code].brlPerUnit,cached[code].ts,false);
       renderAll();
       return;
     }
   }catch(e){}
 
-  // Fetch fresh
+  // Fetch from open.er-api.com — free, no key, proper CORS
+  // Returns rates FROM BRL: {rates:{USD:0.1704, EUR:0.1563...}}
   updFXRateRow(null,null,true);
   try{
-    const res=await fetch(`https://economia.awesomeapi.com.br/last/${code}-BRL`,{cache:'no-store',mode:'cors'});
+    const res=await fetch(`https://open.er-api.com/v6/latest/BRL`);
     if(!res.ok)throw new Error('HTTP '+res.status);
     const data=await res.json();
-    const key=`${code}BRL`;
-    const rate=parseFloat(data[key]?.bid||0);
-    if(!rate)throw new Error('rate zero');
+    if(data.result!=='success')throw new Error('API error');
+    const rateFromBRL=data.rates[code]; // how much 1 BRL = X foreign
+    if(!rateFromBRL)throw new Error('no rate for '+code);
+    const brlPerUnit=1/rateFromBRL; // how much 1 foreign = X BRL (for display)
     // Save cache
     const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
-    cached[code]={rate,ts:Date.now()};
+    cached[code]={fxRate:rateFromBRL,brlPerUnit,ts:Date.now()};
     localStorage.setItem(FX_CACHE_KEY,JSON.stringify(cached));
-    _fxRate=1/rate; // converte: 1 R$ = (1/rate) moeda
-    updFXRateRow(rate,Date.now(),false);
+    _fxRate=rateFromBRL; // 1 BRL = rateFromBRL units of foreign currency
+    updFXRateRow(brlPerUnit,Date.now(),false);
     renderAll();
   }catch(e){
-    // Fallback to stale cache
+    // Fallback: try AwesomeAPI as backup
     try{
+      const res2=await fetch(`https://economia.awesomeapi.com.br/last/${code}-BRL`);
+      if(!res2.ok)throw new Error('HTTP '+res2.status);
+      const data2=await res2.json();
+      const key=`${code}BRL`;
+      const brlPerUnit=parseFloat(data2[key]?.bid||0);
+      if(!brlPerUnit)throw new Error('no rate');
+      const rateFromBRL=1/brlPerUnit;
       const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
-      if(cached[code]?.rate){
-        _fxRate=1/cached[code].rate;
-        updFXRateRow(cached[code].rate,cached[code].ts,false,true);
-        renderAll();
-        return;
-      }
-    }catch(e2){}
-    _fxRate=1;
-    updFXRateRow(null,null,false,true);
-    renderAll();
+      cached[code]={fxRate:rateFromBRL,brlPerUnit,ts:Date.now()};
+      localStorage.setItem(FX_CACHE_KEY,JSON.stringify(cached));
+      _fxRate=rateFromBRL;
+      updFXRateRow(brlPerUnit,Date.now(),false);
+      renderAll();
+    }catch(e2){
+      // Fallback to stale cache
+      try{
+        const cached=JSON.parse(localStorage.getItem(FX_CACHE_KEY)||'{}');
+        if(cached[code]?.fxRate){
+          _fxRate=cached[code].fxRate;
+          updFXRateRow(cached[code].brlPerUnit,cached[code].ts,false,true);
+          renderAll();
+          return;
+        }
+      }catch(e3){}
+      _fxRate=1;
+      updFXRateRow(null,null,false,true);
+      renderAll();
+    }
   }
 }
 
@@ -5520,6 +5539,32 @@ function haptic(type='light'){
     osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.01);
     ctx.close();
   }catch(e){}
+}
+
+
+/* ── UPDATE MONEY PLACEHOLDERS WITH CURRENT CURRENCY ── */
+function updMoneyPlaceholders(){
+  const sym=cr();
+  // Format example: R$ 0,00 / $ 0,00 / € 0,00 etc
+  const fmt0=sym+' 0,00';
+  // Main app money inputs
+  document.querySelectorAll('input[data-money]').forEach(el=>{
+    el.placeholder=fmt0;
+  });
+  // Calc page money inputs
+  document.querySelectorAll('input[data-calc-money]').forEach(el=>{
+    el.placeholder=fmt0;
+    // Clear value so user re-enters in new currency
+    if(el.value&&el.dataset.cents){
+      // Re-format existing value in new currency symbol
+      const cents=parseInt(el.dataset.cents||'0');
+      if(cents>0){
+        const displayVal=(_fxEnabled&&_fxRate!==1&&_fxCurrency!=='R$')?
+          (cents/100)*_fxRate:(cents/100);
+        el.value=sym+' '+displayVal.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+      }
+    }
+  });
 }
 
 /* ── BOOT ── */
