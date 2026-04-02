@@ -4247,7 +4247,7 @@ function showCSVPreview(rows,type){
       const catBorder=r.category?'':'1px solid var(--am)';
       const amtSign=r.type==='entrada'?'+':'-';
       const amtClass=r.type==='entrada'?'cin':'cout';
-      return`<div class="csv-cat-row" style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--bd)">
+      return`<div class="csv-cat-row" data-idx="${i}" style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid var(--bd)">
         <input type="checkbox" id="csvChk_${i}" class="csv-chk exp-chk" checked>
         <div class="exp-chk-box" onclick="document.getElementById('csvChk_${i}').click();csvUpdCount()"></div>
         <div style="width:28px;height:28px;border-radius:8px;background:${r.type==='entrada'?'var(--acl)':'var(--rel)'};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${r.type==='entrada'?'↑':'↓'}</div>
@@ -4641,8 +4641,16 @@ function setCsvRowCat(idx,catId){
 // csvSelAll overridden below
 function csvUpdCount(){
   const rows=window._csvPending||[];
-  const total=document.querySelectorAll('.csv-chk').length||rows.length;
-  const checked=document.querySelectorAll('.csv-chk:checked').length;
+  // Count only VISIBLE rows
+  let total=0,checked=0;
+  document.querySelectorAll('.csv-cat-row').forEach(row=>{
+    if(row.style.display==='none')return;
+    total++;
+    const idx=parseInt(row.dataset.idx);
+    const chk=document.getElementById('csvChk_'+idx);
+    if(chk&&chk.checked)checked++;
+  });
+  if(total===0){total=rows.length;checked=document.querySelectorAll('.csv-chk:checked').length;}
   const el=document.getElementById('csvPreviewCount');
   if(el)el.innerHTML=`<strong>${checked}</strong> de ${total} selecionadas`;
   const btn=document.getElementById('csvConfirmBtn');
@@ -5719,11 +5727,21 @@ function updMoneyPlaceholders(){
 
 /* ── CSV BULK OPERATIONS ── */
 function csvSelAll(){
-  document.querySelectorAll('.csv-chk').forEach(chk=>chk.checked=true);
+  document.querySelectorAll('.csv-cat-row').forEach(row=>{
+    if(row.style.display==='none')return;
+    const idx=parseInt(row.dataset.idx);
+    const chk=document.getElementById('csvChk_'+idx);
+    if(chk)chk.checked=true;
+  });
   csvUpdCount();
 }
 function csvSelNone(){
-  document.querySelectorAll('.csv-chk').forEach(chk=>chk.checked=false);
+  document.querySelectorAll('.csv-cat-row').forEach(row=>{
+    if(row.style.display==='none')return;
+    const idx=parseInt(row.dataset.idx);
+    const chk=document.getElementById('csvChk_'+idx);
+    if(chk)chk.checked=false;
+  });
   csvUpdCount();
 }
 function csvApplyBulkAcc(accId){
@@ -5736,25 +5754,37 @@ function csvApplyBulkAcc(accId){
 function csvApplyBulkCat(){
   const catId=document.getElementById('csvBulkCat')?.value;
   if(!catId||!window._csvPending)return;
-  // Apply to all checked rows
-  const rows=window._csvPending;
-  rows.forEach((r,i)=>{
-    const chk=document.getElementById('csvChk_'+i);
-    if(chk&&chk.checked){
-      r.category=catId;
-      const sel=document.querySelectorAll('.csv-cat-sel')[i];
-      if(sel){sel.value=catId;sel.style.background='var(--sf2)';sel.style.border='none';}
+  let count=0;
+  // Only apply to VISIBLE rows that are checked
+  document.querySelectorAll('.csv-cat-row').forEach(row=>{
+    // Skip hidden rows (filtered out)
+    if(row.style.display==='none')return;
+    const idx=parseInt(row.dataset.idx);
+    if(isNaN(idx))return;
+    const chk=document.getElementById('csvChk_'+idx);
+    if(!chk||!chk.checked)return;
+    // Update data
+    window._csvPending[idx].category=catId;
+    // Update visual select
+    const sel=row.querySelector('.csv-cat-sel');
+    if(sel){
+      sel.value=catId;
+      sel.style.background='var(--sf2)';
+      sel.style.border='0.5px solid var(--bd)';
     }
+    count++;
   });
-  const checked=rows.filter((_,i)=>{const c=document.getElementById('csvChk_'+i);return c&&c.checked;}).length;
-  toast(checked+' transações categorizadas ✓');
+  if(count===0){toast('Nenhuma transação visível selecionada');return;}
+  toast(count+' transações categorizadas ✓');
 }
 function csvFilterByType(type){
-  document.querySelectorAll('.csv-cat-row').forEach((row,i)=>{
-    const r=window._csvPending?.[i];
-    if(!r)return;
+  document.querySelectorAll('.csv-cat-row').forEach(row=>{
+    const idx=parseInt(row.dataset.idx);
+    const r=window._csvPending?.[idx];
+    if(!r){row.style.display='none';return;}
     row.style.display=(!type||r.type===type)?'flex':'none';
   });
+  csvUpdCount();
 }
 
 /* ── BOOT ── */
