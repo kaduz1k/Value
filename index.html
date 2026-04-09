@@ -1452,10 +1452,27 @@ if(window.matchMedia('(display-mode:standalone)').matches||window.navigator.stan
 
       <!-- Step 2: preview -->
       <div id="csvStep2" style="display:none">
-        <div id="csvTypeLabel" style="font-size:11px;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:6px">
-          <button onclick="backToCSVStep1()" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:12px;padding:0;font-family:var(--sans)">← Voltar</button>
+
+        <!-- Header info bar -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <button onclick="backToCSVStep1()" style="background:none;border:none;color:var(--ac);cursor:pointer;font-size:12px;padding:0;font-family:var(--sans);font-weight:500">← Voltar</button>
+          <div id="csvTypeLabel" style="display:flex;align-items:center;gap:6px;flex:1"></div>
+          <div id="csvPreviewCount" style="font-size:12px;color:var(--tx3)"></div>
         </div>
-        <div id="csvPreviewCount" style="font-size:13px;color:var(--tx2);margin-bottom:10px"></div>
+
+        <!-- Filtros e conta destino -->
+        <div id="csvFiltersBar"></div>
+
+        <!-- Header da lista -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 8px;border-bottom:1px solid var(--bd)">
+          <span id="csvListCount" style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em">Selecione as transações</span>
+          <div style="display:flex;gap:12px">
+            <button onclick="csvSelAll()" style="font-size:12px;font-weight:600;color:var(--ac);background:none;border:none;cursor:pointer;font-family:var(--sans)">Todas</button>
+            <button onclick="csvSelNone()" style="font-size:12px;color:var(--tx3);background:none;border:none;cursor:pointer;font-family:var(--sans)">Nenhuma</button>
+          </div>
+        </div>
+
+        <!-- Lista de transações -->
         <div id="csvPreviewList"></div>
       </div>
     </div>
